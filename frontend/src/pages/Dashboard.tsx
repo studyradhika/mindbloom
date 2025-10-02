@@ -2,10 +2,9 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Calendar, Target, TrendingUp, Smile, Meh, Frown, Zap, Coffee, BookOpen, CheckSquare, Heart, MessageCircle } from "lucide-react";
+import { Brain, Target, Smile, Meh, Frown, Zap, Coffee, BookOpen, CheckSquare, Heart, MessageCircle, BarChart3, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import MoodSelector from "@/components/MoodSelector";
-import ProgressOverview from "@/components/ProgressOverview";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -50,6 +49,10 @@ const Dashboard = () => {
 
   const openMemoryTools = () => {
     navigate('/memory-tools');
+  };
+
+  const openProgress = () => {
+    navigate('/progress');
   };
 
   const getMoodIcon = (mood: string) => {
@@ -141,6 +144,11 @@ const Dashboard = () => {
     return types;
   };
 
+  const showConversationPractice = () => {
+    const exerciseTypes = getAvailableExerciseTypes();
+    return exerciseTypes.includes('Conversation Practice');
+  };
+
   if (!userData) {
     return <div>Loading...</div>;
   }
@@ -160,11 +168,19 @@ const Dashboard = () => {
             <Brain className="h-8 w-8 text-indigo-600" />
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">MindBloom</h1>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
+            <Button 
+              variant="outline" 
+              onClick={openProgress}
+              className="text-base px-3 py-2"
+            >
+              <BarChart3 className="w-4 h-4 mr-2" />
+              Progress
+            </Button>
             <Button 
               variant="outline" 
               onClick={openMemoryTools}
-              className="text-lg px-4 py-2"
+              className="text-base px-3 py-2"
             >
               <BookOpen className="w-4 h-4 mr-2" />
               Memory Tools
@@ -172,7 +188,7 @@ const Dashboard = () => {
             <Button 
               variant="outline" 
               onClick={() => setShowMoodSelector(true)}
-              className="text-lg px-4 py-2"
+              className="text-base px-3 py-2"
             >
               Change Mood
             </Button>
@@ -195,192 +211,170 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Main Training Card */}
-          <div className="lg:col-span-2">
-            <Card className="border-2 border-indigo-200 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 mb-6">
-              <CardHeader>
-                <CardTitle className="text-2xl flex items-center">
-                  <Target className="w-6 h-6 mr-2 text-indigo-600" />
-                  Today's Brain Training
-                </CardTitle>
-                <CardDescription className="text-lg">
-                  Your personalized session is ready based on your {todaysMood} mood and goals
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-                      <div className="text-2xl font-bold text-indigo-600">{getExerciseCount()}</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">Exercises</div>
-                    </div>
-                    <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-                      <div className="text-2xl font-bold text-indigo-600">~{getExerciseCount() * 3}</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">Minutes</div>
-                    </div>
-                    <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-                      <div className="text-2xl font-bold text-indigo-600">{exerciseTypes.length}</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">Exercise Types</div>
-                    </div>
-                  </div>
-
-                  {/* Exercise Types Preview */}
-                  <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
-                    <h3 className="font-semibold mb-3">Today's Exercise Types:</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {exerciseTypes.map((type, index) => (
-                        <Badge 
-                          key={index}
-                          variant="outline" 
-                          className="text-sm px-3 py-1 flex items-center space-x-1"
-                        >
-                          {type === 'Mindful Memory' && <Heart className="w-3 h-3" />}
-                          {type === 'Conversation Practice' && <MessageCircle className="w-3 h-3" />}
-                          {type === 'Task Sequencing' && <CheckSquare className="w-3 h-3" />}
-                          {!['Mindful Memory', 'Conversation Practice', 'Task Sequencing'].includes(type) && <Brain className="w-3 h-3" />}
-                          <span>{type}</span>
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    onClick={startTraining}
-                    size="lg"
-                    className="w-full text-xl py-4 bg-indigo-600 hover:bg-indigo-700"
-                  >
-                    Start Training Session
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Specialized Exercise Info */}
-            <div className="grid md:grid-cols-2 gap-4 mb-6">
-              {exerciseTypes.includes('Mindful Memory') && (
-                <Card className="border-2 border-pink-200 bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center">
-                      <Heart className="w-5 h-5 mr-2 text-pink-600" />
-                      Mindful Memory
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-pink-700 dark:text-pink-300">
-                      Combines guided breathing with memory training for stress relief and cognitive wellness
-                    </p>
-                  </CardContent>
-                </Card>
-              )}
-
-              {exerciseTypes.includes('Conversation Practice') && (
-                <Card className="border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center">
-                      <MessageCircle className="w-5 h-5 mr-2 text-purple-600" />
-                      Conversation Practice
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-purple-700 dark:text-purple-300">
-                      Real-world social scenarios to build confidence in everyday interactions
-                    </p>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-
-            {/* Memory Support Tools */}
-            <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 mb-6">
-              <CardHeader>
-                <CardTitle className="text-xl flex items-center">
-                  <BookOpen className="w-5 h-5 mr-2 text-green-600" />
-                  Memory Support Tools
-                </CardTitle>
-                <CardDescription>
-                  Personal notes, checklists, and reminders to support your daily life
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <Button 
-                    onClick={openMemoryTools}
-                    variant="outline"
-                    className="h-auto p-4 flex flex-col items-center space-y-2"
-                  >
-                    <CheckSquare className="w-6 h-6 text-green-600" />
-                    <span>Open Memory Notebook</span>
-                  </Button>
+        <div className="max-w-4xl mx-auto space-y-8">
+          {/* Today's Brain Training */}
+          <Card className="border-2 border-indigo-200 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20">
+            <CardHeader>
+              <CardTitle className="text-2xl flex items-center">
+                <Target className="w-6 h-6 mr-2 text-indigo-600" />
+                Today's Brain Training
+              </CardTitle>
+              <CardDescription className="text-lg">
+                Your personalized session is ready based on your {todaysMood} mood and goals
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid md:grid-cols-3 gap-4">
                   <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-                    <div className="text-lg font-bold text-green-600">
-                      {(JSON.parse(localStorage.getItem('mindbloom-notes') || '[]')).length +
-                       (JSON.parse(localStorage.getItem('mindbloom-checklists') || '[]')).length +
-                       (JSON.parse(localStorage.getItem('mindbloom-reminders') || '[]')).length}
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Total Items</div>
+                    <div className="text-2xl font-bold text-indigo-600">{getExerciseCount()}</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Exercises</div>
                   </div>
+                  <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+                    <div className="text-2xl font-bold text-indigo-600">~{getExerciseCount() * 3}</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Minutes</div>
+                  </div>
+                  <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+                    <div className="text-2xl font-bold text-indigo-600">{exerciseTypes.length}</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Exercise Types</div>
+                  </div>
+                </div>
+
+                {/* Exercise Types Preview */}
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+                  <h3 className="font-semibold mb-3">Today's Exercise Types:</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {exerciseTypes.map((type, index) => (
+                      <Badge 
+                        key={index}
+                        variant="outline" 
+                        className="text-sm px-3 py-1 flex items-center space-x-1"
+                      >
+                        {type === 'Mindful Memory' && <Heart className="w-3 h-3" />}
+                        {type === 'Conversation Practice' && <MessageCircle className="w-3 h-3" />}
+                        {type === 'Task Sequencing' && <CheckSquare className="w-3 h-3" />}
+                        {!['Mindful Memory', 'Conversation Practice', 'Task Sequencing'].includes(type) && <Brain className="w-3 h-3" />}
+                        <span>{type}</span>
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                
+                <Button 
+                  onClick={startTraining}
+                  size="lg"
+                  className="w-full text-xl py-4 bg-indigo-600 hover:bg-indigo-700"
+                >
+                  Start Training Session
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Conversation Practice Info (only if available) */}
+          {showConversationPractice() && (
+            <Card className="border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-xl flex items-center">
+                  <MessageCircle className="w-5 h-5 mr-2 text-purple-600" />
+                  Conversation Practice Available Today
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-purple-700 dark:text-purple-300 mb-4">
+                  Real-world social scenarios to build confidence in everyday interactions like doctor appointments, 
+                  grocery shopping, and friendly conversations with neighbors.
+                </p>
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-3">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    💡 This exercise helps you practice social communication in a safe, supportive environment
+                  </p>
                 </div>
               </CardContent>
             </Card>
+          )}
 
-            {/* Quick Stats */}
-            <div className="grid md:grid-cols-2 gap-4">
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center">
-                    <Calendar className="w-5 h-5 mr-2" />
-                    Current Streak
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-indigo-600">{userData.streak || 0}</div>
-                  <p className="text-gray-600 dark:text-gray-400">consecutive days</p>
-                </CardContent>
-              </Card>
+          {/* Memory Support Tools */}
+          <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+            <CardHeader>
+              <CardTitle className="text-xl flex items-center">
+                <BookOpen className="w-5 h-5 mr-2 text-green-600" />
+                Memory Support Tools
+              </CardTitle>
+              <CardDescription>
+                Personal notes, checklists, and reminders to support your daily life
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-4">
+                <Button 
+                  onClick={openMemoryTools}
+                  variant="outline"
+                  className="h-auto p-4 flex flex-col items-center space-y-2"
+                >
+                  <CheckSquare className="w-6 h-6 text-green-600" />
+                  <span>Open Memory Notebook</span>
+                </Button>
+                <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="text-lg font-bold text-green-600">
+                    {(JSON.parse(localStorage.getItem('mindbloom-notes') || '[]')).length +
+                     (JSON.parse(localStorage.getItem('mindbloom-checklists') || '[]')).length +
+                     (JSON.parse(localStorage.getItem('mindbloom-reminders') || '[]')).length}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Total Items</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center">
-                    <TrendingUp className="w-5 h-5 mr-2" />
-                    Total Sessions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-indigo-600">{userData.totalSessions || 0}</div>
-                  <p className="text-gray-600 dark:text-gray-400">completed</p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+          {/* This Week's Goal */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl flex items-center">
+                <Calendar className="w-5 h-5 mr-2 text-green-600" />
+                This Week's Goal
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600 mb-2">
+                  {Math.min(userData.streak || 0, 7)}/7
+                </div>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                  Days completed this week
+                </p>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                  <div 
+                    className="bg-green-600 h-3 rounded-full transition-all duration-300"
+                    style={{ width: `${(Math.min(userData.streak || 0, 7) / 7) * 100}%` }}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-          {/* Progress Overview */}
-          <div>
-            <ProgressOverview userData={userData} />
-          </div>
+          {/* Motivational Message */}
+          <Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200">
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
+                  {userData.streak === 0 
+                    ? "Ready to start your journey?" 
+                    : userData.streak < 7 
+                      ? "You're building a great habit!" 
+                      : "Amazing consistency! Keep it up!"}
+                </h3>
+                <p className="text-green-700 dark:text-green-300">
+                  {userData.streak === 0 
+                    ? "Every expert was once a beginner. Your brain is ready to grow!" 
+                    : userData.streak < 7 
+                      ? "Each session strengthens your cognitive abilities. You're doing great!" 
+                      : "Your dedication to brain health is inspiring. You're making real progress!"}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-
-        {/* Motivational Message */}
-        <Card className="mt-8 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
-                {userData.streak === 0 
-                  ? "Ready to start your journey?" 
-                  : userData.streak < 7 
-                    ? "You're building a great habit!" 
-                    : "Amazing consistency! Keep it up!"}
-              </h3>
-              <p className="text-green-700 dark:text-green-300">
-                {userData.streak === 0 
-                  ? "Every expert was once a beginner. Your brain is ready to grow!" 
-                  : userData.streak < 7 
-                    ? "Each session strengthens your cognitive abilities. You're doing great!" 
-                    : "Your dedication to brain health is inspiring. You're making real progress!"}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
       </main>
     </div>
   );

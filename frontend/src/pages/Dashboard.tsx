@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Calendar, Target, TrendingUp, Smile, Meh, Frown, Zap, Coffee } from "lucide-react";
+import { Brain, Calendar, Target, TrendingUp, Smile, Meh, Frown, Zap, Coffee, BookOpen, CheckSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import MoodSelector from "@/components/MoodSelector";
 import ProgressOverview from "@/components/ProgressOverview";
@@ -48,6 +48,10 @@ const Dashboard = () => {
     navigate('/training');
   };
 
+  const openMemoryTools = () => {
+    navigate('/memory-tools');
+  };
+
   const getMoodIcon = (mood: string) => {
     switch (mood) {
       case 'motivated': return <Zap className="w-5 h-5 text-green-600" />;
@@ -70,6 +74,31 @@ const Dashboard = () => {
     }
   };
 
+  const getExerciseCount = () => {
+    let count = 3; // Base exercises
+    
+    if (userData?.goals?.includes('recovery') || userData?.goals?.includes('professional')) {
+      count += 1; // Sequencing
+    }
+    
+    if (userData?.goals?.includes('stress') || todaysMood === 'stressed' || todaysMood === 'foggy') {
+      count += 1; // Mindful Memory
+    }
+    
+    if (userData?.goals?.includes('recovery') || userData?.experience === 'experienced') {
+      count += 1; // Conversation
+    }
+    
+    // Adjust for mood
+    if (todaysMood === 'tired' || todaysMood === 'stressed') {
+      count = Math.min(count, 3);
+    } else if (todaysMood === 'motivated') {
+      count = Math.min(count, 5);
+    }
+    
+    return count;
+  };
+
   if (!userData) {
     return <div>Loading...</div>;
   }
@@ -87,13 +116,23 @@ const Dashboard = () => {
             <Brain className="h-8 w-8 text-indigo-600" />
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">MindBloom</h1>
           </div>
-          <Button 
-            variant="outline" 
-            onClick={() => setShowMoodSelector(true)}
-            className="text-lg px-4 py-2"
-          >
-            Change Mood
-          </Button>
+          <div className="flex items-center space-x-4">
+            <Button 
+              variant="outline" 
+              onClick={openMemoryTools}
+              className="text-lg px-4 py-2"
+            >
+              <BookOpen className="w-4 h-4 mr-2" />
+              Memory Tools
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowMoodSelector(true)}
+              className="text-lg px-4 py-2"
+            >
+              Change Mood
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -115,25 +154,25 @@ const Dashboard = () => {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Training Card */}
           <div className="lg:col-span-2">
-            <Card className="border-2 border-indigo-200 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20">
+            <Card className="border-2 border-indigo-200 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 mb-6">
               <CardHeader>
                 <CardTitle className="text-2xl flex items-center">
                   <Target className="w-6 h-6 mr-2 text-indigo-600" />
                   Today's Brain Training
                 </CardTitle>
                 <CardDescription className="text-lg">
-                  Your personalized 10-minute session is ready based on your {todaysMood} mood
+                  Your personalized session is ready based on your {todaysMood} mood and goals
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="grid md:grid-cols-3 gap-4">
                     <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-                      <div className="text-2xl font-bold text-indigo-600">3</div>
+                      <div className="text-2xl font-bold text-indigo-600">{getExerciseCount()}</div>
                       <div className="text-sm text-gray-600 dark:text-gray-400">Exercises</div>
                     </div>
                     <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-                      <div className="text-2xl font-bold text-indigo-600">~10</div>
+                      <div className="text-2xl font-bold text-indigo-600">~{getExerciseCount() * 3}</div>
                       <div className="text-sm text-gray-600 dark:text-gray-400">Minutes</div>
                     </div>
                     <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
@@ -153,8 +192,41 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
+            {/* Memory Support Tools */}
+            <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 mb-6">
+              <CardHeader>
+                <CardTitle className="text-xl flex items-center">
+                  <BookOpen className="w-5 h-5 mr-2 text-green-600" />
+                  Memory Support Tools
+                </CardTitle>
+                <CardDescription>
+                  Personal notes, checklists, and reminders to support your daily life
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <Button 
+                    onClick={openMemoryTools}
+                    variant="outline"
+                    className="h-auto p-4 flex flex-col items-center space-y-2"
+                  >
+                    <CheckSquare className="w-6 h-6 text-green-600" />
+                    <span>Open Memory Notebook</span>
+                  </Button>
+                  <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+                    <div className="text-lg font-bold text-green-600">
+                      {(JSON.parse(localStorage.getItem('mindbloom-notes') || '[]')).length +
+                       (JSON.parse(localStorage.getItem('mindbloom-checklists') || '[]')).length +
+                       (JSON.parse(localStorage.getItem('mindbloom-reminders') || '[]')).length}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Total Items</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Quick Stats */}
-            <div className="grid md:grid-cols-2 gap-4 mt-6">
+            <div className="grid md:grid-cols-2 gap-4">
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg flex items-center">

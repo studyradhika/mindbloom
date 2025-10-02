@@ -8,6 +8,9 @@ import { showSuccess } from "@/utils/toast";
 import MemoryExercise from "@/components/exercises/MemoryExercise";
 import AttentionExercise from "@/components/exercises/AttentionExercise";
 import LanguageExercise from "@/components/exercises/LanguageExercise";
+import SequencingExercise from "@/components/exercises/SequencingExercise";
+import MindfulMemoryExercise from "@/components/exercises/MindfulMemoryExercise";
+import ConversationExercise from "@/components/exercises/ConversationExercise";
 
 const Training = () => {
   const navigate = useNavigate();
@@ -17,29 +20,83 @@ const Training = () => {
   const [userData, setUserData] = useState<any>(null);
   const [todaysMood, setTodaysMood] = useState<string>('okay');
 
-  const exercises = [
-    {
-      id: 'memory',
-      title: 'Memory Challenge',
-      description: 'Remember and recall sequences',
-      component: MemoryExercise,
-      area: 'Memory'
-    },
-    {
-      id: 'attention',
-      title: 'Focus Training',
-      description: 'Selective attention and concentration',
-      component: AttentionExercise,
-      area: 'Attention'
-    },
-    {
-      id: 'language',
-      title: 'Word Skills',
-      description: 'Language and verbal reasoning',
-      component: LanguageExercise,
-      area: 'Language'
+  // Enhanced exercise selection based on user goals and mood
+  const getExerciseSet = () => {
+    const baseExercises = [
+      {
+        id: 'memory',
+        title: 'Memory Challenge',
+        description: 'Remember and recall sequences',
+        component: MemoryExercise,
+        area: 'Memory'
+      },
+      {
+        id: 'attention',
+        title: 'Focus Training',
+        description: 'Selective attention and concentration',
+        component: AttentionExercise,
+        area: 'Attention'
+      },
+      {
+        id: 'language',
+        title: 'Word Skills',
+        description: 'Language and verbal reasoning',
+        component: LanguageExercise,
+        area: 'Language'
+      }
+    ];
+
+    const advancedExercises = [
+      {
+        id: 'sequencing',
+        title: 'Task Sequencing',
+        description: 'Organize everyday activities in order',
+        component: SequencingExercise,
+        area: 'Executive Function'
+      },
+      {
+        id: 'mindful-memory',
+        title: 'Mindful Memory',
+        description: 'Memory training with guided breathing',
+        component: MindfulMemoryExercise,
+        area: 'Mindful Cognitive'
+      },
+      {
+        id: 'conversation',
+        title: 'Conversation Practice',
+        description: 'Real-world social interactions',
+        component: ConversationExercise,
+        area: 'Social Communication'
+      }
+    ];
+
+    let selectedExercises = [...baseExercises];
+
+    // Add advanced exercises based on user goals and mood
+    if (userData?.goals?.includes('recovery') || userData?.goals?.includes('professional')) {
+      selectedExercises.push(advancedExercises[0]); // Sequencing
     }
-  ];
+
+    if (userData?.goals?.includes('stress') || todaysMood === 'stressed' || todaysMood === 'foggy') {
+      selectedExercises.push(advancedExercises[1]); // Mindful Memory
+    }
+
+    if (userData?.goals?.includes('recovery') || userData?.experience === 'experienced') {
+      selectedExercises.push(advancedExercises[2]); // Conversation
+    }
+
+    // Limit exercises based on mood
+    if (todaysMood === 'tired' || todaysMood === 'stressed') {
+      selectedExercises = selectedExercises.slice(0, 3);
+    } else if (todaysMood === 'motivated') {
+      // Include more exercises for motivated users
+      selectedExercises = [...baseExercises, ...advancedExercises].slice(0, 5);
+    }
+
+    return selectedExercises;
+  };
+
+  const [exercises] = useState(getExerciseSet());
 
   useEffect(() => {
     const storedData = localStorage.getItem('mindbloom-user');
@@ -66,7 +123,7 @@ const Training = () => {
     const sessionDuration = Math.round((Date.now() - sessionStartTime) / 1000 / 60);
     const averageScore = results.reduce((sum, r) => sum + (r.score || 0), 0) / results.length;
     
-    // Update user data
+    // Update user data with enhanced tracking
     if (userData) {
       const updatedData = {
         ...userData,
@@ -74,7 +131,18 @@ const Training = () => {
         streak: (userData.streak || 0) + 1,
         lastSessionDate: new Date().toISOString(),
         lastSessionScore: averageScore,
-        lastSessionDuration: sessionDuration
+        lastSessionDuration: sessionDuration,
+        lastSessionMood: todaysMood,
+        exerciseHistory: [
+          ...(userData.exerciseHistory || []),
+          {
+            date: new Date().toISOString(),
+            exercises: results,
+            mood: todaysMood,
+            duration: sessionDuration,
+            averageScore
+          }
+        ].slice(-30) // Keep last 30 sessions
       };
       
       localStorage.setItem('mindbloom-user', JSON.stringify(updatedData));

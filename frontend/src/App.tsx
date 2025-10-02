@@ -8,6 +8,7 @@ import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import Training from "./pages/Training";
 import SessionComplete from "./pages/SessionComplete";
+import MemoryTools from "./pages/MemoryTools";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/training" element={<Training />} />
           <Route path="/session-complete" element={<SessionComplete />} />
+          <Route path="/memory-tools" element={<MemoryTools />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

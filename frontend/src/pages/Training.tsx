@@ -20,7 +20,7 @@ const Training = () => {
   const [userData, setUserData] = useState<any>(null);
   const [todaysMood, setTodaysMood] = useState<string>('okay');
 
-  // Enhanced exercise selection based on user goals and mood
+  // Enhanced exercise selection with better availability
   const getExerciseSet = () => {
     const baseExercises = [
       {
@@ -46,7 +46,7 @@ const Training = () => {
       }
     ];
 
-    const advancedExercises = [
+    const specializedExercises = [
       {
         id: 'sequencing',
         title: 'Task Sequencing',
@@ -72,31 +72,60 @@ const Training = () => {
 
     let selectedExercises = [...baseExercises];
 
-    // Add advanced exercises based on user goals and mood
-    if (userData?.goals?.includes('recovery') || userData?.goals?.includes('professional')) {
-      selectedExercises.push(advancedExercises[0]); // Sequencing
+    // Always include mindful memory for stress management and holistic wellness
+    if (userData?.goals?.includes('stress') || 
+        todaysMood === 'stressed' || 
+        todaysMood === 'foggy' || 
+        todaysMood === 'tired' ||
+        userData?.goals?.includes('recovery')) {
+      selectedExercises.push(specializedExercises[1]); // Mindful Memory
     }
 
-    if (userData?.goals?.includes('stress') || todaysMood === 'stressed' || todaysMood === 'foggy') {
-      selectedExercises.push(advancedExercises[1]); // Mindful Memory
+    // Include sequencing for executive function and daily living skills
+    if (userData?.goals?.includes('recovery') || 
+        userData?.goals?.includes('professional') ||
+        userData?.cognitiveAreas?.includes('executive') ||
+        userData?.experience === 'experienced') {
+      selectedExercises.push(specializedExercises[0]); // Sequencing
     }
 
-    if (userData?.goals?.includes('recovery') || userData?.experience === 'experienced') {
-      selectedExercises.push(advancedExercises[2]); // Conversation
+    // Include conversation practice for social skills and recovery
+    if (userData?.goals?.includes('recovery') || 
+        userData?.goals?.includes('professional') ||
+        userData?.experience === 'experienced' ||
+        todaysMood === 'motivated') {
+      selectedExercises.push(specializedExercises[2]); // Conversation
     }
 
-    // Limit exercises based on mood
+    // For motivated users, include more exercises
+    if (todaysMood === 'motivated') {
+      // Add any missing specialized exercises
+      specializedExercises.forEach(exercise => {
+        if (!selectedExercises.find(e => e.id === exercise.id)) {
+          selectedExercises.push(exercise);
+        }
+      });
+      selectedExercises = selectedExercises.slice(0, 6); // Max 6 exercises
+    }
+
+    // For tired/stressed users, limit but still include mindful exercises
     if (todaysMood === 'tired' || todaysMood === 'stressed') {
-      selectedExercises = selectedExercises.slice(0, 3);
-    } else if (todaysMood === 'motivated') {
-      // Include more exercises for motivated users
-      selectedExercises = [...baseExercises, ...advancedExercises].slice(0, 5);
+      // Ensure mindful memory is included for these moods
+      if (!selectedExercises.find(e => e.id === 'mindful-memory')) {
+        selectedExercises.push(specializedExercises[1]);
+      }
+      selectedExercises = selectedExercises.slice(0, 4); // Limit to 4 exercises
+    }
+
+    // Ensure we always have at least the base exercises
+    if (selectedExercises.length < 3) {
+      selectedExercises = [...baseExercises];
     }
 
     return selectedExercises;
   };
 
-  const [exercises] = useState(getExerciseSet());
+  const [exercises, setExercises] = useState<any[]>([]);
 
   useEffect(() => {
     const storedData = localStorage.getItem('mindbloom-user');
@@ -107,6 +136,12 @@ const Training = () => {
     const mood = localStorage.getItem('mindbloom-today-mood') || 'okay';
     setTodaysMood(mood);
   }, []);
+
+  useEffect(() => {
+    if (userData) {
+      setExercises(getExerciseSet());
+    }
+  }, [userData, todaysMood]);
 
   const handleExerciseComplete = (result: any) => {
     const newResults = [...exerciseResults, result];
@@ -173,7 +208,7 @@ const Training = () => {
     setCurrentExercise(currentExercise);
   };
 
-  if (!userData) {
+  if (!userData || exercises.length === 0) {
     return <div>Loading...</div>;
   }
 
@@ -217,6 +252,11 @@ const Training = () => {
             <div className="text-center">
               <h2 className="text-lg font-semibold">{exercises[currentExercise].title}</h2>
               <p className="text-gray-600 dark:text-gray-400">{exercises[currentExercise].description}</p>
+              <div className="mt-2">
+                <Badge variant="outline" className="text-sm">
+                  {exercises[currentExercise].area}
+                </Badge>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -259,6 +299,44 @@ const Training = () => {
             Need a rest? Come back tomorrow—your progress is saved!
           </p>
         </div>
+      </div>
+
+      {/* Exercise Preview */}
+      <div className="container mx-auto px-4 pb-8">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Today's Exercise Plan</CardTitle>
+            <CardDescription>
+              Your personalized session based on mood: {todaysMood}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {exercises.map((exercise, index) => (
+                <div 
+                  key={exercise.id}
+                  className={`p-3 rounded-lg border-2 ${
+                    index === currentExercise 
+                      ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' 
+                      : index < currentExercise 
+                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                        : 'border-gray-200 bg-gray-50 dark:bg-gray-800'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold text-sm">{exercise.title}</h3>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">{exercise.area}</p>
+                    </div>
+                    <div className="text-xs">
+                      {index < currentExercise ? '✓' : index === currentExercise ? '→' : '○'}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

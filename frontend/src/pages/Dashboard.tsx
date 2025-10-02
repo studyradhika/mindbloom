@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Calendar, Target, TrendingUp, Smile, Meh, Frown, Zap, Coffee, BookOpen, CheckSquare } from "lucide-react";
+import { Brain, Calendar, Target, TrendingUp, Smile, Meh, Frown, Zap, Coffee, BookOpen, CheckSquare, Heart, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import MoodSelector from "@/components/MoodSelector";
 import ProgressOverview from "@/components/ProgressOverview";
@@ -75,28 +75,70 @@ const Dashboard = () => {
   };
 
   const getExerciseCount = () => {
-    let count = 3; // Base exercises
+    let count = 3; // Base exercises (Memory, Attention, Language)
     
-    if (userData?.goals?.includes('recovery') || userData?.goals?.includes('professional')) {
-      count += 1; // Sequencing
-    }
-    
-    if (userData?.goals?.includes('stress') || todaysMood === 'stressed' || todaysMood === 'foggy') {
+    // Add specialized exercises based on user profile and mood
+    if (userData?.goals?.includes('stress') || 
+        todaysMood === 'stressed' || 
+        todaysMood === 'foggy' || 
+        todaysMood === 'tired' ||
+        userData?.goals?.includes('recovery')) {
       count += 1; // Mindful Memory
     }
     
-    if (userData?.goals?.includes('recovery') || userData?.experience === 'experienced') {
+    if (userData?.goals?.includes('recovery') || 
+        userData?.goals?.includes('professional') ||
+        userData?.cognitiveAreas?.includes('executive') ||
+        userData?.experience === 'experienced') {
+      count += 1; // Sequencing
+    }
+    
+    if (userData?.goals?.includes('recovery') || 
+        userData?.goals?.includes('professional') ||
+        userData?.experience === 'experienced' ||
+        todaysMood === 'motivated') {
       count += 1; // Conversation
     }
     
-    // Adjust for mood
-    if (todaysMood === 'tired' || todaysMood === 'stressed') {
-      count = Math.min(count, 3);
-    } else if (todaysMood === 'motivated') {
-      count = Math.min(count, 5);
+    // For motivated users, include more exercises
+    if (todaysMood === 'motivated') {
+      count = Math.min(count + 1, 6); // Up to 6 exercises
     }
     
-    return count;
+    // For tired/stressed users, limit but ensure mindful exercises
+    if (todaysMood === 'tired' || todaysMood === 'stressed') {
+      count = Math.min(count, 4); // Max 4 exercises
+    }
+    
+    return Math.max(3, count); // Always at least 3 exercises
+  };
+
+  const getAvailableExerciseTypes = () => {
+    const types = ['Memory', 'Attention', 'Language'];
+    
+    if (userData?.goals?.includes('stress') || 
+        todaysMood === 'stressed' || 
+        todaysMood === 'foggy' || 
+        todaysMood === 'tired' ||
+        userData?.goals?.includes('recovery')) {
+      types.push('Mindful Memory');
+    }
+    
+    if (userData?.goals?.includes('recovery') || 
+        userData?.goals?.includes('professional') ||
+        userData?.cognitiveAreas?.includes('executive') ||
+        userData?.experience === 'experienced') {
+      types.push('Task Sequencing');
+    }
+    
+    if (userData?.goals?.includes('recovery') || 
+        userData?.goals?.includes('professional') ||
+        userData?.experience === 'experienced' ||
+        todaysMood === 'motivated') {
+      types.push('Conversation Practice');
+    }
+    
+    return types;
   };
 
   if (!userData) {
@@ -106,6 +148,8 @@ const Dashboard = () => {
   if (showMoodSelector) {
     return <MoodSelector onMoodSelected={handleMoodSelected} userName={userData.name} />;
   }
+
+  const exerciseTypes = getAvailableExerciseTypes();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
@@ -176,8 +220,28 @@ const Dashboard = () => {
                       <div className="text-sm text-gray-600 dark:text-gray-400">Minutes</div>
                     </div>
                     <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-                      <div className="text-2xl font-bold text-indigo-600">{userData.cognitiveAreas?.length || 3}</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">Focus Areas</div>
+                      <div className="text-2xl font-bold text-indigo-600">{exerciseTypes.length}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Exercise Types</div>
+                    </div>
+                  </div>
+
+                  {/* Exercise Types Preview */}
+                  <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+                    <h3 className="font-semibold mb-3">Today's Exercise Types:</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {exerciseTypes.map((type, index) => (
+                        <Badge 
+                          key={index}
+                          variant="outline" 
+                          className="text-sm px-3 py-1 flex items-center space-x-1"
+                        >
+                          {type === 'Mindful Memory' && <Heart className="w-3 h-3" />}
+                          {type === 'Conversation Practice' && <MessageCircle className="w-3 h-3" />}
+                          {type === 'Task Sequencing' && <CheckSquare className="w-3 h-3" />}
+                          {!['Mindful Memory', 'Conversation Practice', 'Task Sequencing'].includes(type) && <Brain className="w-3 h-3" />}
+                          <span>{type}</span>
+                        </Badge>
+                      ))}
                     </div>
                   </div>
                   
@@ -191,6 +255,41 @@ const Dashboard = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Specialized Exercise Info */}
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
+              {exerciseTypes.includes('Mindful Memory') && (
+                <Card className="border-2 border-pink-200 bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center">
+                      <Heart className="w-5 h-5 mr-2 text-pink-600" />
+                      Mindful Memory
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-pink-700 dark:text-pink-300">
+                      Combines guided breathing with memory training for stress relief and cognitive wellness
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {exerciseTypes.includes('Conversation Practice') && (
+                <Card className="border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center">
+                      <MessageCircle className="w-5 h-5 mr-2 text-purple-600" />
+                      Conversation Practice
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-purple-700 dark:text-purple-300">
+                      Real-world social scenarios to build confidence in everyday interactions
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
 
             {/* Memory Support Tools */}
             <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 mb-6">

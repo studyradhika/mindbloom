@@ -212,6 +212,28 @@ const Dashboard = () => {
         </div>
 
         <div className="max-w-4xl mx-auto space-y-8">
+          {/* Motivational Message */}
+          <Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200">
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
+                  {userData.streak === 0 
+                    ? "Ready to start your journey?" 
+                    : userData.streak < 7 
+                      ? "You're building a great habit!" 
+                      : "Amazing consistency! Keep it up!"}
+                </h3>
+                <p className="text-green-700 dark:text-green-300">
+                  {userData.streak === 0 
+                    ? "Every expert was once a beginner. Your brain is ready to grow!" 
+                    : userData.streak < 7 
+                      ? "Each session strengthens your cognitive abilities. You're doing great!" 
+                      : "Your dedication to brain health is inspiring. You're making real progress!"}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Today's Brain Training */}
           <Card className="border-2 border-indigo-200 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20">
             <CardHeader>
@@ -294,39 +316,6 @@ const Dashboard = () => {
             </Card>
           )}
 
-          {/* Memory Support Tools */}
-          <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
-            <CardHeader>
-              <CardTitle className="text-xl flex items-center">
-                <BookOpen className="w-5 h-5 mr-2 text-green-600" />
-                Memory Support Tools
-              </CardTitle>
-              <CardDescription>
-                Personal notes, checklists, and reminders to support your daily life
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 gap-4">
-                <Button 
-                  onClick={openMemoryTools}
-                  variant="outline"
-                  className="h-auto p-4 flex flex-col items-center space-y-2"
-                >
-                  <CheckSquare className="w-6 h-6 text-green-600" />
-                  <span>Open Memory Notebook</span>
-                </Button>
-                <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-                  <div className="text-lg font-bold text-green-600">
-                    {(JSON.parse(localStorage.getItem('mindbloom-notes') || '[]')).length +
-                     (JSON.parse(localStorage.getItem('mindbloom-checklists') || '[]')).length +
-                     (JSON.parse(localStorage.getItem('mindbloom-reminders') || '[]')).length}
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Total Items</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* This Week's Goal */}
           <Card>
             <CardHeader>
@@ -349,28 +338,6 @@ const Dashboard = () => {
                     style={{ width: `${(Math.min(userData.streak || 0, 7) / 7) * 100}%` }}
                   />
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Motivational Message */}
-          <Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200">
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
-                  {userData.streak === 0 
-                    ? "Ready to start your journey?" 
-                    : userData.streak < 7 
-                      ? "You're building a great habit!" 
-                      : "Amazing consistency! Keep it up!"}
-                </h3>
-                <p className="text-green-700 dark:text-green-300">
-                  {userData.streak === 0 
-                    ? "Every expert was once a beginner. Your brain is ready to grow!" 
-                    : userData.streak < 7 
-                      ? "Each session strengthens your cognitive abilities. You're doing great!" 
-                      : "Your dedication to brain health is inspiring. You're making real progress!"}
-                </p>
               </div>
             </CardContent>
           </Card>

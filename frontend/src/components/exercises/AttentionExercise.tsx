@@ -212,7 +212,7 @@ const AttentionExercise = ({ onComplete, mood, userPreferences }: AttentionExerc
       <CardHeader className="text-center">
         <CardTitle className="text-2xl flex items-center justify-center">
           <Target className="w-6 h-6 mr-2 text-indigo-600" />
-          Focus Training
+          Attention Training
         </CardTitle>
         <CardDescription className="text-lg">
           Test your selective attention and concentration
@@ -260,7 +260,7 @@ const AttentionExercise = ({ onComplete, mood, userPreferences }: AttentionExerc
         </div>
         
         <Button onClick={startGame} size="lg" className="w-full text-xl py-4">
-          Start Focus Training
+          Start Attention Training
         </Button>
       </CardContent>
     </Card>

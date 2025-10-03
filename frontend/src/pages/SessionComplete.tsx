@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Trophy, Clock, Target, TrendingUp, Share2, Calendar, Lightbulb, ArrowUp, CheckCircle } from "lucide-react";
+import { Brain, Trophy, Clock, Target, TrendingUp, Share2, Calendar, Lightbulb, ArrowUp, CheckCircle, ArrowLeft, LogOut } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
 
 const SessionComplete = () => {
@@ -32,6 +32,20 @@ const SessionComplete = () => {
       navigator.clipboard.writeText(shareText);
       showSuccess('Results copied to clipboard!');
     }
+  };
+
+  const handleSignOut = () => {
+    // Clear all user data
+    localStorage.removeItem('mindbloom-user');
+    localStorage.removeItem('mindbloom-today-mood');
+    localStorage.removeItem('mindbloom-last-mood-date');
+    localStorage.removeItem('mindbloom-today-focus-areas');
+    localStorage.removeItem('mindbloom-last-focus-date');
+    localStorage.removeItem('mindbloom-notes');
+    localStorage.removeItem('mindbloom-checklists');
+    localStorage.removeItem('mindbloom-reminders');
+    
+    navigate('/goodbye');
   };
 
   const getEncouragementMessage = () => {
@@ -84,7 +98,7 @@ const SessionComplete = () => {
     const suggestions = [];
     const exerciseNames: { [key: string]: string } = {
       memory: 'Memory Challenge',
-      attention: 'Focus Training',
+      attention: 'Attention Training',
       language: 'Word Skills',
       sequencing: 'Task Sequencing',
       'mindful-memory': 'Mindful Memory',
@@ -161,9 +175,29 @@ const SessionComplete = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-8">
       {/* Header */}
       <header className="container mx-auto px-4 mb-8">
-        <div className="flex items-center justify-center space-x-2">
-          <Brain className="h-8 w-8 text-indigo-600" />
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Session Complete!</h1>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/dashboard')}
+              className="px-3 py-2"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+            <div className="flex items-center space-x-2">
+              <Brain className="h-8 w-8 text-indigo-600" />
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Session Complete!</h1>
+            </div>
+          </div>
+          <Button 
+            variant="ghost" 
+            onClick={handleSignOut}
+            className="px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+          >
+            <LogOut className="w-4 h-4 mr-1" />
+            Sign Out
+          </Button>
         </div>
       </header>
 
@@ -252,7 +286,7 @@ const SessionComplete = () => {
               {results.map((result: any, index: number) => {
                 const exerciseNames: { [key: string]: string } = {
                   memory: 'Memory Challenge',
-                  attention: 'Focus Training',
+                  attention: 'Attention Training',
                   language: 'Word Skills',
                   sequencing: 'Task Sequencing',
                   'mindful-memory': 'Mindful Memory',

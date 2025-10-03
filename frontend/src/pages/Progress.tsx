@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Brain, Home, Calendar, TrendingUp, Trophy, Target } from "lucide-react";
+import { Brain, Home, Calendar, TrendingUp, Trophy, Target, LogOut, ArrowLeft } from "lucide-react";
 import PerformanceChart from "@/components/PerformanceChart";
 
 const Progress = () => {
@@ -17,6 +17,20 @@ const Progress = () => {
       navigate('/onboarding');
     }
   }, [navigate]);
+
+  const handleSignOut = () => {
+    // Clear all user data
+    localStorage.removeItem('mindbloom-user');
+    localStorage.removeItem('mindbloom-today-mood');
+    localStorage.removeItem('mindbloom-last-mood-date');
+    localStorage.removeItem('mindbloom-today-focus-areas');
+    localStorage.removeItem('mindbloom-last-focus-date');
+    localStorage.removeItem('mindbloom-notes');
+    localStorage.removeItem('mindbloom-checklists');
+    localStorage.removeItem('mindbloom-reminders');
+    
+    navigate('/goodbye');
+  };
 
   if (!userData) {
     return <div>Loading...</div>;
@@ -62,18 +76,38 @@ const Progress = () => {
       {/* Header */}
       <header className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Brain className="h-10 w-10 text-indigo-600" />
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Your Progress</h1>
+          <div className="flex items-center space-x-4">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/dashboard')}
+              className="px-3 py-2"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+            <div className="flex items-center space-x-3">
+              <Brain className="h-10 w-10 text-indigo-600" />
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Your Progress</h1>
+            </div>
           </div>
-          <Button 
-            variant="outline" 
-            onClick={() => navigate('/dashboard')}
-            className="text-xl px-6 py-4"
-          >
-            <Home className="w-5 h-5 mr-2" />
-            Back to Dashboard
-          </Button>
+          <div className="flex items-center space-x-2">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/dashboard')}
+              className="text-xl px-6 py-4"
+            >
+              <Home className="w-5 h-5 mr-2" />
+              Dashboard
+            </Button>
+            <Button 
+              variant="ghost" 
+              onClick={handleSignOut}
+              className="px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+            >
+              <LogOut className="w-4 h-4 mr-1" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 

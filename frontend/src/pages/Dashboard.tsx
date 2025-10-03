@@ -149,6 +149,13 @@ const Dashboard = () => {
     return exerciseTypes.includes('Conversation Practice');
   };
 
+  const getTimeOfDay = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'morning';
+    if (hour < 17) return 'afternoon';
+    return 'evening';
+  };
+
   if (!userData) {
     return <div>Loading...</div>;
   }
@@ -200,40 +207,11 @@ const Dashboard = () => {
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}, {userData.name}!
+            Good {getTimeOfDay()}, {userData.name}, here are your activities for today.
           </h2>
-          <div className="flex items-center space-x-3">
-            <span className="text-lg text-gray-600 dark:text-gray-300">Today you're feeling:</span>
-            <Badge className={`text-base px-3 py-1 ${getMoodColor(todaysMood)}`}>
-              {getMoodIcon(todaysMood)}
-              <span className="ml-2 capitalize">{todaysMood}</span>
-            </Badge>
-          </div>
         </div>
 
         <div className="max-w-4xl mx-auto space-y-8">
-          {/* Motivational Message */}
-          <Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200">
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
-                  {userData.streak === 0 
-                    ? "Ready to start your journey?" 
-                    : userData.streak < 7 
-                      ? "You're building a great habit!" 
-                      : "Amazing consistency! Keep it up!"}
-                </h3>
-                <p className="text-green-700 dark:text-green-300">
-                  {userData.streak === 0 
-                    ? "Every expert was once a beginner. Your brain is ready to grow!" 
-                    : userData.streak < 7 
-                      ? "Each session strengthens your cognitive abilities. You're doing great!" 
-                      : "Your dedication to brain health is inspiring. You're making real progress!"}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Today's Brain Training */}
           <Card className="border-2 border-indigo-200 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20">
             <CardHeader>

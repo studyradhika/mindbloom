@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Home, Calendar, TrendingUp, TrendingDown, Trophy, Target, LogOut, ArrowLeft, BarChart3, AlertCircle, CheckCircle, Activity, Users } from "lucide-react";
+import { Brain, Home, Calendar, TrendingUp, TrendingDown, Trophy, Target, LogOut, ArrowLeft, BarChart3, AlertCircle, CheckCircle, Activity, Users, Minus } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarChart, Bar, Tooltip, Legend } from "recharts";
 
 const Progress = () => {
@@ -46,6 +46,20 @@ const Progress = () => {
     { id: 'processing', name: 'Processing Speed', color: '#06b6d4', icon: '⚡' },
     { id: 'spatial', name: 'Spatial Reasoning', color: '#84cc16', icon: '📐' }
   ];
+
+  // Helper function to determine improvement status
+  const getImprovementStatus = (current: number, previous: number) => {
+    const threshold = 5; // 5% threshold for "stayed the same"
+    const difference = current - previous;
+    
+    if (Math.abs(difference) <= threshold) {
+      return 'same';
+    } else if (difference > 0) {
+      return 'improved';
+    } else {
+      return 'regressed';
+    }
+  };
 
   // 1. TODAY'S PERFORMANCE
   const getTodaysPerformance = () => {
@@ -172,36 +186,29 @@ const Progress = () => {
     return dataPoints;
   };
 
-  // 3. FOCUS AREA PERFORMANCE ANALYTICS
+  // 3. FOCUS AREA PERFORMANCE ANALYTICS - Updated for qualitative status
   const getFocusAreaAnalytics = () => {
     return focusAreas.map(area => {
-      // Simulate historical data for each focus area
-      const currentWeekActivities = Math.floor(Math.random() * 8) + 2;
-      const lastWeekActivities = Math.floor(Math.random() * 8) + 2;
-      const currentMonthActivities = Math.floor(Math.random() * 25) + 10;
-      const lastMonthActivities = Math.floor(Math.random() * 25) + 10;
-      
-      const weekTrend = currentWeekActivities > lastWeekActivities ? 'up' : 'down';
-      const monthTrend = currentMonthActivities > lastMonthActivities ? 'up' : 'down';
-      
-      const avgScore = Math.round(65 + Math.random() * 25);
-      const lastAvgScore = Math.round(65 + Math.random() * 25);
-      const scoreTrend = avgScore > lastAvgScore ? 'up' : 'down';
+      // Simulate performance scores for different time periods
+      const currentScore = Math.round(65 + Math.random() * 25);
+      const lastWeekScore = Math.round(60 + Math.random() * 25);
+      const lastMonthScore = Math.round(55 + Math.random() * 25);
+      const yearStartScore = Math.round(50 + Math.random() * 20);
+      const startingScore = Math.round(45 + Math.random() * 15);
+
+      // Calculate improvement status for each time period
+      const sinceStarted = getImprovementStatus(currentScore, startingScore);
+      const sinceLastWeek = getImprovementStatus(currentScore, lastWeekScore);
+      const sinceLastMonth = getImprovementStatus(currentScore, lastMonthScore);
+      const yearToDate = getImprovementStatus(currentScore, yearStartScore);
 
       return {
         ...area,
-        currentWeekActivities,
-        lastWeekActivities,
-        currentMonthActivities,
-        lastMonthActivities,
-        weekTrend,
-        monthTrend,
-        avgScore,
-        lastAvgScore,
-        scoreTrend,
-        weekChange: currentWeekActivities - lastWeekActivities,
-        monthChange: currentMonthActivities - lastMonthActivities,
-        scoreChange: avgScore - lastAvgScore
+        sinceStarted,
+        sinceLastWeek,
+        sinceLastMonth,
+        yearToDate,
+        currentScore // Keep for internal calculations but don't display
       };
     });
   };
@@ -212,14 +219,16 @@ const Progress = () => {
     const todaysPerf = getTodaysPerformance();
     const recommendations = [];
 
-    // Check for declining areas
-    const decliningAreas = focusAnalytics.filter(area => area.weekTrend === 'down');
-    if (decliningAreas.length > 0) {
+    // Check for regressing areas
+    const regressingAreas = focusAnalytics.filter(area => 
+      area.sinceLastWeek === 'regressed' || area.sinceLastMonth === 'regressed'
+    );
+    if (regressingAreas.length > 0) {
       recommendations.push({
         type: 'concern',
-        title: 'Areas Needing Attention',
-        description: `${decliningAreas.map(a => a.name).join(', ')} showing decreased activity this week`,
-        action: 'Consider focusing more time on these areas in upcoming sessions',
+        title: 'Areas Showing Regression',
+        description: `${regressingAreas.map(a => a.name).join(', ')} have shown some decline recently`,
+        action: 'Consider increasing practice frequency in these areas or adjusting exercise difficulty',
         priority: 'high'
       });
     }
@@ -246,19 +255,64 @@ const Progress = () => {
       });
     }
 
-    // Positive reinforcement
-    const improvingAreas = focusAnalytics.filter(area => area.weekTrend === 'up');
+    // Positive reinforcement for improving areas
+    const improvingAreas = focusAnalytics.filter(area => 
+      area.sinceStarted === 'improved' || area.sinceLastMonth === 'improved'
+    );
     if (improvingAreas.length > 0) {
       recommendations.push({
         type: 'success',
-        title: 'Great Progress!',
-        description: `Excellent improvement in ${improvingAreas.map(a => a.name).join(', ')}`,
-        action: 'Keep up the great work in these areas',
+        title: 'Excellent Progress!',
+        description: `Outstanding improvement in ${improvingAreas.map(a => a.name).join(', ')}`,
+        action: 'Keep up the excellent work in these areas',
+        priority: 'positive'
+      });
+    }
+
+    // Long-term progress recognition
+    const longTermImprovers = focusAnalytics.filter(area => area.sinceStarted === 'improved');
+    if (longTermImprovers.length >= 3) {
+      recommendations.push({
+        type: 'success',
+        title: 'Remarkable Long-term Growth',
+        description: `You've shown consistent improvement across multiple cognitive areas since starting`,
+        action: 'Your dedication is paying off - continue with your current routine',
         priority: 'positive'
       });
     }
 
     return recommendations;
+  };
+
+  // Helper function to get status display properties
+  const getStatusDisplay = (status: string) => {
+    switch (status) {
+      case 'improved':
+        return {
+          label: 'Improved',
+          icon: <TrendingUp className="w-4 h-4" />,
+          color: 'text-green-600',
+          bgColor: 'bg-green-50',
+          borderColor: 'border-green-200'
+        };
+      case 'regressed':
+        return {
+          label: 'Regressed',
+          icon: <TrendingDown className="w-4 h-4" />,
+          color: 'text-red-600',
+          bgColor: 'bg-red-50',
+          borderColor: 'border-red-200'
+        };
+      case 'same':
+      default:
+        return {
+          label: 'Stayed the Same',
+          icon: <Minus className="w-4 h-4" />,
+          color: 'text-gray-600',
+          bgColor: 'bg-gray-50',
+          borderColor: 'border-gray-200'
+        };
+    }
   };
 
   const todaysPerformance = getTodaysPerformance();
@@ -446,50 +500,68 @@ const Progress = () => {
             </CardContent>
           </Card>
 
-          {/* 3. FOCUS AREA ANALYTICS */}
+          {/* 3. FOCUS AREA ANALYTICS - Updated with qualitative status */}
           <Card className="border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50">
             <CardHeader>
               <CardTitle className="text-2xl flex items-center">
                 <Target className="w-6 h-6 mr-2 text-purple-600" />
-                Focus Area Performance
+                Focus Area Performance Progress
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="space-y-6">
                 {focusAreaAnalytics.map((area) => (
-                  <div key={area.id} className="p-4 bg-white rounded-lg border-l-4" style={{ borderColor: area.color }}>
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-semibold">{area.name}</h3>
-                      <div className="text-2xl">{area.icon}</div>
+                  <div key={area.id} className="p-6 bg-white rounded-lg border-l-4" style={{ borderColor: area.color }}>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="text-3xl">{area.icon}</div>
+                        <h3 className="text-xl font-semibold">{area.name}</h3>
+                      </div>
                     </div>
                     
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">This Week:</span>
-                        <div className="flex items-center">
-                          <span className="font-semibold">{area.currentWeekActivities} activities</span>
-                          {area.weekTrend === 'up' ? (
-                            <TrendingUp className="w-4 h-4 ml-1 text-green-500" />
-                          ) : (
-                            <TrendingDown className="w-4 h-4 ml-1 text-red-500" />
-                          )}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {/* Since Started */}
+                      <div className={`p-3 rounded-lg border ${getStatusDisplay(area.sinceStarted).bgColor} ${getStatusDisplay(area.sinceStarted).borderColor}`}>
+                        <div className="text-center">
+                          <div className="text-sm font-medium text-gray-600 mb-1">Since Started</div>
+                          <div className={`flex items-center justify-center space-x-1 ${getStatusDisplay(area.sinceStarted).color}`}>
+                            {getStatusDisplay(area.sinceStarted).icon}
+                            <span className="font-semibold">{getStatusDisplay(area.sinceStarted).label}</span>
+                          </div>
                         </div>
                       </div>
-                      
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Avg Score:</span>
-                        <div className="flex items-center">
-                          <span className="font-semibold" style={{ color: area.color }}>{area.avgScore}%</span>
-                          {area.scoreTrend === 'up' ? (
-                            <TrendingUp className="w-4 h-4 ml-1 text-green-500" />
-                          ) : (
-                            <TrendingDown className="w-4 h-4 ml-1 text-red-500" />
-                          )}
+
+                      {/* Since Last Month */}
+                      <div className={`p-3 rounded-lg border ${getStatusDisplay(area.sinceLastMonth).bgColor} ${getStatusDisplay(area.sinceLastMonth).borderColor}`}>
+                        <div className="text-center">
+                          <div className="text-sm font-medium text-gray-600 mb-1">Since Last Month</div>
+                          <div className={`flex items-center justify-center space-x-1 ${getStatusDisplay(area.sinceLastMonth).color}`}>
+                            {getStatusDisplay(area.sinceLastMonth).icon}
+                            <span className="font-semibold">{getStatusDisplay(area.sinceLastMonth).label}</span>
+                          </div>
                         </div>
                       </div>
-                      
-                      <div className="text-xs text-gray-500">
-                        {area.weekChange > 0 ? '+' : ''}{area.weekChange} activities vs last week
+
+                      {/* Since Last Week */}
+                      <div className={`p-3 rounded-lg border ${getStatusDisplay(area.sinceLastWeek).bgColor} ${getStatusDisplay(area.sinceLastWeek).borderColor}`}>
+                        <div className="text-center">
+                          <div className="text-sm font-medium text-gray-600 mb-1">Since Last Week</div>
+                          <div className={`flex items-center justify-center space-x-1 ${getStatusDisplay(area.sinceLastWeek).color}`}>
+                            {getStatusDisplay(area.sinceLastWeek).icon}
+                            <span className="font-semibold">{getStatusDisplay(area.sinceLastWeek).label}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Year to Date */}
+                      <div className={`p-3 rounded-lg border ${getStatusDisplay(area.yearToDate).bgColor} ${getStatusDisplay(area.yearToDate).borderColor}`}>
+                        <div className="text-center">
+                          <div className="text-sm font-medium text-gray-600 mb-1">Year to Date</div>
+                          <div className={`flex items-center justify-center space-x-1 ${getStatusDisplay(area.yearToDate).color}`}>
+                            {getStatusDisplay(area.yearToDate).icon}
+                            <span className="font-semibold">{getStatusDisplay(area.yearToDate).label}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>

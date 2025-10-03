@@ -224,10 +224,7 @@ const Training = () => {
                 {Math.round((Date.now() - sessionStartTime) / 1000 / 60)} min
               </span>
             </div>
-            <Progress value={progress} className="h-2 mb-2" />
-            <div className="text-center">
-              <h2 className="text-lg font-semibold">{exercises[currentExercise].title}</h2>
-            </div>
+            <Progress value={progress} className="h-2" />
           </CardContent>
         </Card>
       </div>

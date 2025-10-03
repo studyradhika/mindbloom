@@ -193,7 +193,7 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 pb-8">
+      <main className="container mx-auto px-4 pb-8 pt-16">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Today's Brain Training */}
           <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">

@@ -124,12 +124,6 @@ const MemoryExercise = ({ onComplete, mood, userPreferences }: MemoryExercisePro
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="text-center">
-          <Badge variant="secondary" className="text-lg px-4 py-2">
-            Difficulty: {getDifficulty()} colors
-          </Badge>
-        </div>
-        
         <div className="space-y-4">
           <div className="flex items-start space-x-3">
             <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center text-indigo-600 font-bold">1</div>

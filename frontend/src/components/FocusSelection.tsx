@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Target, Eye, MessageSquare, Zap, Puzzle, Gauge, Lightbulb, Grid3X3 } from "lucide-react";
+import { Brain, Target, Eye, MessageSquare, Zap, Puzzle, Gauge, Lightbulb, Grid3X3, ArrowLeft, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { showSuccess, showError } from "@/utils/toast";
 
@@ -15,6 +15,18 @@ interface FocusSelectionProps {
 const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
   const navigate = useNavigate();
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
+
+  const handleSignOut = () => {
+    localStorage.removeItem('mindbloom-user');
+    localStorage.removeItem('mindbloom-today-mood');
+    localStorage.removeItem('mindbloom-last-mood-date');
+    localStorage.removeItem('mindbloom-today-focus-areas');
+    localStorage.removeItem('mindbloom-last-focus-date');
+    localStorage.removeItem('mindbloom-notes');
+    localStorage.removeItem('mindbloom-checklists');
+    localStorage.removeItem('mindbloom-reminders');
+    navigate('/goodbye');
+  };
 
   const focusAreas = [
     {
@@ -131,9 +143,27 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-8">
       {/* Header */}
       <header className="container mx-auto px-4 mb-8">
-        <div className="flex items-center justify-center space-x-2">
-          <Brain className="h-8 w-8 text-blue-600" />
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">MindBloom</h1>
+        <div className="flex items-center justify-between">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/dashboard')}
+            className="px-3 py-2"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+          <div className="flex items-center space-x-2">
+            <Brain className="h-8 w-8 text-blue-600" />
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">MindBloom</h1>
+          </div>
+          <Button 
+            variant="ghost" 
+            onClick={handleSignOut}
+            className="px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+          >
+            <LogOut className="w-4 h-4 mr-1" />
+            Sign Out
+          </Button>
         </div>
       </header>
 

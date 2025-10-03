@@ -69,8 +69,8 @@ const PerformanceChart = ({ userData }: PerformanceChartProps) => {
       return sessionDate >= startDate && sessionDate <= endDate;
     });
 
-    // Group exercises by cognitive area and calculate averages
-    const areaData: { [key: string]: { scores: number[], sessions: number } } = {};
+    // Group exercises by cognitive area and count completed activities
+    const areaData: { [key: string]: { completed: number, total: number } } = {};
 
     filteredSessions.forEach((session: any) => {
       if (session.exercises && Array.isArray(session.exercises)) {
@@ -78,12 +78,12 @@ const PerformanceChart = ({ userData }: PerformanceChartProps) => {
           const areaName = exerciseToAreaMap[exercise.exerciseId] || 'Other';
           
           if (!areaData[areaName]) {
-            areaData[areaName] = { scores: [], sessions: 0 };
+            areaData[areaName] = { completed: 0, total: 0 };
           }
           
+          areaData[areaName].total++;
           if (!exercise.skipped && exercise.score !== undefined) {
-            areaData[areaName].scores.push(exercise.score);
-            areaData[areaName].sessions++;
+            areaData[areaName].completed++;
           }
         });
       }
@@ -91,17 +91,14 @@ const PerformanceChart = ({ userData }: PerformanceChartProps) => {
 
     // Convert to chart data format
     const chartData = Object.entries(areaData).map(([area, data]) => {
-      const avgScore = data.scores.length > 0 
-        ? data.scores.reduce((sum, score) => sum + score, 0) / data.scores.length
-        : 0;
-      
       return {
         area,
-        score: Math.round(avgScore),
-        sessions: data.sessions,
+        completed: data.completed,
+        total: data.total,
+        completionRate: data.total > 0 ? Math.round((data.completed / data.total) * 100) : 0,
         fill: areaColors[area] || '#6b7280'
       };
-    }).filter(item => item.sessions > 0); // Only show areas with actual data
+    }).filter(item => item.total > 0); // Only show areas with actual data
 
     return chartData;
   };
@@ -110,19 +107,19 @@ const PerformanceChart = ({ userData }: PerformanceChartProps) => {
 
   const getChartTitle = () => {
     switch (timeView) {
-      case 'weekly': return 'Performance by Area - Past Week';
-      case 'monthly': return 'Performance by Area - Past Month';
-      case 'yearly': return 'Performance by Area - Past Year';
-      default: return 'Performance by Cognitive Area';
+      case 'weekly': return 'Activities Completed by Area - Past Week';
+      case 'monthly': return 'Activities Completed by Area - Past Month';
+      case 'yearly': return 'Activities Completed by Area - Past Year';
+      default: return 'Activities Completed by Cognitive Area';
     }
   };
 
   const getChartDescription = () => {
     switch (timeView) {
-      case 'weekly': return 'Your average scores in each cognitive area over the past week';
-      case 'monthly': return 'Your average scores in each cognitive area over the past month';
-      case 'yearly': return 'Your average scores in each cognitive area over the past year';
-      default: return 'Your performance in different cognitive areas';
+      case 'weekly': return 'Number of activities you completed in each cognitive area over the past week';
+      case 'monthly': return 'Number of activities you completed in each cognitive area over the past month';
+      case 'yearly': return 'Number of activities you completed in each cognitive area over the past year';
+      default: return 'Your completed activities in different cognitive areas';
     }
   };
 
@@ -134,10 +131,13 @@ const PerformanceChart = ({ userData }: PerformanceChartProps) => {
         <div className="bg-white dark:bg-gray-800 p-4 border-2 border-indigo-200 rounded-lg shadow-lg">
           <p className="text-lg font-semibold text-gray-900 dark:text-white">{label}</p>
           <p className="text-lg" style={{ color: data.fill }}>
-            Average Score: <span className="font-bold">{data.score}%</span>
+            Completed: <span className="font-bold">{data.completed}</span> activities
           </p>
           <p className="text-lg text-gray-600 dark:text-gray-400">
-            Sessions: <span className="font-bold">{data.sessions}</span>
+            Total: <span className="font-bold">{data.total}</span> activities
+          </p>
+          <p className="text-sm text-gray-500">
+            Completion Rate: {data.completionRate}%
           </p>
         </div>
       );
@@ -202,17 +202,16 @@ const PerformanceChart = ({ userData }: PerformanceChartProps) => {
                   height={80}
                 />
                 <YAxis 
-                  domain={[0, 100]}
                   tick={{ fontSize: 14, fill: '#4f46e5' }}
                   label={{ 
-                    value: 'Average Score (%)', 
+                    value: 'Activities Completed', 
                     angle: -90, 
                     position: 'insideLeft',
                     style: { textAnchor: 'middle', fontSize: '16px', fill: '#4f46e5' }
                   }}
                 />
                 <Bar 
-                  dataKey="score" 
+                  dataKey="completed" 
                   radius={[4, 4, 0, 0]}
                   stroke="#374151"
                   strokeWidth={2}
@@ -228,7 +227,7 @@ const PerformanceChart = ({ userData }: PerformanceChartProps) => {
               No Data Yet
             </h3>
             <p className="text-xl text-gray-500 dark:text-gray-500">
-              Complete a few training sessions to see your progress by cognitive area!
+              Complete a few training sessions to see your activity count by cognitive area!
             </p>
           </div>
         )}
@@ -237,11 +236,11 @@ const PerformanceChart = ({ userData }: PerformanceChartProps) => {
         {chartData.length > 0 && (
           <div className="mt-6 space-y-4">
             <h3 className="text-xl font-semibold text-center text-gray-900 dark:text-white mb-4">
-              Your Strongest Areas
+              Your Most Active Areas
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {chartData
-                .sort((a, b) => b.score - a.score)
+                .sort((a, b) => b.completed - a.completed)
                 .slice(0, 3)
                 .map((area, index) => (
                   <div 
@@ -250,18 +249,18 @@ const PerformanceChart = ({ userData }: PerformanceChartProps) => {
                     style={{ borderColor: area.fill }}
                   >
                     <div className="text-2xl font-bold mb-1" style={{ color: area.fill }}>
-                      {area.score}%
+                      {area.completed}
                     </div>
                     <div className="text-lg font-medium text-gray-900 dark:text-white mb-1">
                       {area.area}
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {area.sessions} session{area.sessions !== 1 ? 's' : ''}
+                      {area.total} total activities
                     </div>
                     {index === 0 && (
                       <div className="mt-2">
                         <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
-                          🏆 Top Area
+                          🏆 Most Active
                         </span>
                       </div>
                     )}

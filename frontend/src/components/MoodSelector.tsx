@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Zap, Smile, Coffee, Meh, Frown } from "lucide-react";
+import { Zap, Smile, Coffee, Meh, Frown, ArrowLeft, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface MoodSelectorProps {
@@ -10,6 +10,18 @@ interface MoodSelectorProps {
 
 const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
   const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    localStorage.removeItem('mindbloom-user');
+    localStorage.removeItem('mindbloom-today-mood');
+    localStorage.removeItem('mindbloom-last-mood-date');
+    localStorage.removeItem('mindbloom-today-focus-areas');
+    localStorage.removeItem('mindbloom-last-focus-date');
+    localStorage.removeItem('mindbloom-notes');
+    localStorage.removeItem('mindbloom-checklists');
+    localStorage.removeItem('mindbloom-reminders');
+    navigate('/goodbye');
+  };
 
   const moods = [
     {
@@ -66,6 +78,28 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-8">
+      {/* Header */}
+      <header className="container mx-auto px-4 mb-8">
+        <div className="flex items-center justify-between">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/dashboard')}
+            className="px-3 py-2"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+          <Button 
+            variant="ghost" 
+            onClick={handleSignOut}
+            className="px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+          >
+            <LogOut className="w-4 h-4 mr-1" />
+            Sign Out
+          </Button>
+        </div>
+      </header>
+
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">

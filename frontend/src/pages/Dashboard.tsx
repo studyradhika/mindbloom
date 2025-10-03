@@ -242,41 +242,39 @@ const Dashboard = () => {
             </Card>
           )}
 
-          {/* Progress Metrics - Reduced Size */}
-          <div className="grid md:grid-cols-3 gap-4">
-            <Card className="text-center">
-              <CardContent className="pt-4 pb-4">
-                <div className="text-2xl font-bold text-green-600 mb-1">
-                  {userData.totalSessions || 0}
+          {/* Progress Metrics - Single Card with Horizontal Layout */}
+          <Card>
+            <CardContent className="pt-6 pb-6">
+              <div className="flex divide-x divide-gray-200 dark:divide-gray-700">
+                <div className="flex-1 text-center px-4">
+                  <div className="text-3xl font-bold text-green-600 mb-1">
+                    {userData.totalSessions || 0}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    Exercises Done
+                  </div>
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  Exercises Done
+                
+                <div className="flex-1 text-center px-4">
+                  <div className="text-3xl font-bold text-blue-600 mb-1">
+                    {userData.streak || 0}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    Day Streak
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center">
-              <CardContent className="pt-4 pb-4">
-                <div className="text-2xl font-bold text-blue-600 mb-1">
-                  {userData.streak || 0}
+                
+                <div className="flex-1 text-center px-4">
+                  <div className="text-3xl font-bold text-orange-600 mb-1">
+                    {getExerciseCount()}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    Today's Goal
+                  </div>
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  Day Streak
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center">
-              <CardContent className="pt-4 pb-4">
-                <div className="text-2xl font-bold text-orange-600 mb-1">
-                  {getExerciseCount()}
-                </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  Today's Goal
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </main>
     </div>

@@ -27,18 +27,21 @@ const Dashboard = () => {
       const storedMood = localStorage.getItem('mindbloom-today-mood');
       const storedFocusAreas = localStorage.getItem('mindbloom-today-focus-areas');
       
-      if (lastMoodDate === today && storedMood) {
-        setTodaysMood(storedMood);
-        
-        if (lastFocusDate === today && storedFocusAreas) {
-          setTodaysFocusAreas(JSON.parse(storedFocusAreas));
-        } else {
-          navigate('/focus-selection');
-          return;
-        }
-      } else {
+      // Check if we need to show mood selector
+      if (lastMoodDate !== today || !storedMood) {
         setShowMoodSelector(true);
+        return;
       }
+      
+      // Check if we need to redirect to focus selection
+      if (lastFocusDate !== today || !storedFocusAreas) {
+        navigate('/focus-selection');
+        return;
+      }
+      
+      // Both mood and focus areas are set for today
+      setTodaysMood(storedMood);
+      setTodaysFocusAreas(JSON.parse(storedFocusAreas));
     } else {
       navigate('/onboarding');
     }
@@ -52,6 +55,7 @@ const Dashboard = () => {
     localStorage.setItem('mindbloom-today-mood', mood);
     localStorage.setItem('mindbloom-last-mood-date', today);
     
+    // After mood is selected, go to focus selection
     navigate('/focus-selection');
   };
 
@@ -87,6 +91,13 @@ const Dashboard = () => {
 
   const changeFocusAreas = () => {
     navigate('/focus-selection');
+  };
+
+  const changeMood = () => {
+    // Clear mood data and show mood selector
+    localStorage.removeItem('mindbloom-today-mood');
+    localStorage.removeItem('mindbloom-last-mood-date');
+    setShowMoodSelector(true);
   };
 
   const getMoodIcon = (mood: string) => {
@@ -146,10 +157,12 @@ const Dashboard = () => {
     );
   }
 
+  // Show mood selector if needed
   if (showMoodSelector) {
     return <MoodSelector onMoodSelected={handleMoodSelected} userName={userData.name} />;
   }
 
+  // If we don't have mood or focus areas, we're in the wrong state
   if (!todaysMood || todaysFocusAreas.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
@@ -163,6 +176,7 @@ const Dashboard = () => {
     );
   }
 
+  // This is now the Activity Dashboard - showing training session ready to start
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Header */}
@@ -171,16 +185,16 @@ const Dashboard = () => {
           <div className="flex items-center space-x-4">
             <Button 
               variant="outline" 
-              onClick={handleBack}
+              onClick={changeFocusAreas}
               className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
+              Change Focus Areas
             </Button>
             <div className="flex items-center space-x-3">
               <Brain className="h-10 w-10 text-indigo-600" />
               <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                MindBloom
+                Activity Dashboard
               </h1>
             </div>
           </div>
@@ -219,37 +233,37 @@ const Dashboard = () => {
           {/* Welcome Message */}
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Welcome back, {userData.name}! 👋
+              Ready for training, {userData.name}! 🧠
             </h2>
             <p className="text-lg text-gray-600">
-              Ready for today's personalized brain training session?
+              Your personalized session is prepared based on your mood and focus areas
             </p>
           </div>
 
-          {/* Today's Training Session */}
+          {/* Today's Training Session - Main Focus */}
           <Card className="border-2 border-emerald-200 bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 shadow-lg">
             <CardHeader className="text-center pb-4">
-              <CardTitle className="text-2xl flex items-center justify-center text-emerald-800">
-                <Target className="w-7 h-7 mr-3" />
-                Today's Brain Training
+              <CardTitle className="text-3xl flex items-center justify-center text-emerald-800">
+                <Target className="w-8 h-8 mr-3" />
+                Start Training Session
               </CardTitle>
-              <CardDescription className="text-lg text-emerald-700">
-                3 adaptive exercises personalized for your goals
+              <CardDescription className="text-xl text-emerald-700">
+                3 adaptive exercises • Personalized for your goals • ~10 minutes
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Start Button */}
+              {/* Big Start Button */}
               <div className="flex justify-center">
                 <Button 
                   onClick={startTraining}
                   size="lg"
-                  className="text-xl px-12 py-6 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg hover:shadow-xl transition-all"
+                  className="text-2xl px-16 py-8 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-xl hover:shadow-2xl transition-all transform hover:scale-105"
                 >
-                  Start Training Session
+                  Begin Training →
                 </Button>
               </div>
 
-              {/* Session Details */}
+              {/* Session Configuration */}
               <div className="grid md:grid-cols-2 gap-6">
                 {/* Today's Focus Areas */}
                 <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-emerald-200">
@@ -294,7 +308,7 @@ const Dashboard = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setShowMoodSelector(true)}
+                      onClick={changeMood}
                       className="text-emerald-600 hover:text-emerald-700"
                     >
                       Change Mood

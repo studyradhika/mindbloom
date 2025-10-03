@@ -77,7 +77,7 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
     localStorage.setItem('mindbloom-today-mood', mood);
     localStorage.setItem('mindbloom-last-mood-date', today);
     
-    // Navigate to focus selection instead of calling onMoodSelected
+    // Navigate to focus selection (next step in workflow)
     navigate('/focus-selection');
   };
 

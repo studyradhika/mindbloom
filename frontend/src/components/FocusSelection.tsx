@@ -127,6 +127,8 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
     localStorage.setItem('mindbloom-last-focus-date', today);
     
     showSuccess(`Great! Your ${selectedAreas.length} focus areas are set for today.`);
+    
+    // Navigate to Activity Dashboard (main dashboard)
     navigate('/dashboard');
   };
 
@@ -274,7 +276,7 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
               size="lg"
               className="text-xl px-8 py-4 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700"
             >
-              Next - Go to Dashboard
+              Next - Go to Activity Dashboard
             </Button>
             
             <div className="mt-4 text-gray-600 dark:text-gray-400">

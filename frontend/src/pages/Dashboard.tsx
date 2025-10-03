@@ -227,14 +227,6 @@ const Dashboard = () => {
                       </Badge>
                     ))}
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={changeFocusAreas}
-                    className="mt-2 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-                  >
-                    Change focus areas
-                  </Button>
                 </div>
               </div>
             </CardContent>

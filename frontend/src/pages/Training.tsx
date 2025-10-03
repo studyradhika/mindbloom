@@ -6,6 +6,9 @@ import { Progress } from "@/components/ui/progress";
 import { Brain, Clock, ArrowRight, Home, RotateCcw, ArrowLeft, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { showSuccess } from "@/utils/toast";
+import { theme, getAreaColor } from "@/lib/theme";
+import { selectExercises, calculateDifficulty, updateExerciseStats, adjustForMood } from "@/lib/adaptiveTraining";
+import { getPreviousPage } from "@/lib/navigation";
 import MemoryExercise from "@/components/exercises/MemoryExercise";
 import AttentionExercise from "@/components/exercises/AttentionExercise";
 import LanguageExercise from "@/components/exercises/LanguageExercise";
@@ -21,107 +24,68 @@ const Training = () => {
   const [userData, setUserData] = useState<any>(null);
   const [todaysMood, setTodaysMood] = useState<string>('okay');
   const [todaysFocusAreas, setTodaysFocusAreas] = useState<string[]>([]);
+  const [exercises, setExercises] = useState<any[]>([]);
 
-  // Exercise mapping based on focus areas
+  // Exercise mapping with adaptive difficulty
   const getExerciseSet = () => {
-    const exerciseMap: { [key: string]: any } = {
+    if (!userData || todaysFocusAreas.length === 0) return [];
+    
+    // Use adaptive exercise selection
+    const selectedExerciseIds = selectExercises(todaysFocusAreas, userData, todaysMood);
+    
+    const exerciseComponents: { [key: string]: any } = {
       memory: {
         id: 'memory',
         title: 'Memory Challenge',
         description: 'Remember and recall sequences',
         component: MemoryExercise,
-        area: 'Memory'
+        area: 'Memory',
+        areaId: 'memory'
       },
       attention: {
         id: 'attention',
         title: 'Attention Training',
         description: 'Selective attention and concentration',
         component: AttentionExercise,
-        area: 'Attention'
+        area: 'Attention',
+        areaId: 'attention'
       },
       language: {
         id: 'language',
         title: 'Word Skills',
         description: 'Language and verbal reasoning',
         component: LanguageExercise,
-        area: 'Language'
+        area: 'Language',
+        areaId: 'language'
       },
-      executive: {
+      sequencing: {
         id: 'sequencing',
         title: 'Task Sequencing',
         description: 'Organize everyday activities in order',
         component: SequencingExercise,
-        area: 'Executive Function'
+        area: 'Executive Function',
+        areaId: 'executive'
       },
-      creativity: {
+      'mindful-memory': {
         id: 'mindful-memory',
         title: 'Mindful Memory',
         description: 'Memory training with guided breathing',
         component: MindfulMemoryExercise,
-        area: 'Creativity & Mindfulness'
+        area: 'Creativity & Mindfulness',
+        areaId: 'creativity'
       },
-      processing: {
-        id: 'attention',
-        title: 'Processing Speed',
-        description: 'Quick thinking and reaction time',
-        component: AttentionExercise,
-        area: 'Processing Speed'
-      },
-      spatial: {
-        id: 'memory',
-        title: 'Spatial Memory',
-        description: 'Visual-spatial memory patterns',
-        component: MemoryExercise,
-        area: 'Spatial Reasoning'
-      },
-      perception: {
-        id: 'attention',
-        title: 'Visual Perception',
-        description: 'Pattern recognition and visual processing',
-        component: AttentionExercise,
-        area: 'Perception'
-      },
-      general: {
+      conversation: {
         id: 'conversation',
         title: 'Social Skills',
         description: 'Real-world conversation practice',
         component: ConversationExercise,
-        area: 'General Wellness'
+        area: 'Language & Communication',
+        areaId: 'language'
       }
     };
 
-    let selectedExercises: any[] = [];
-
-    // Map focus areas to exercises
-    todaysFocusAreas.forEach(areaId => {
-      if (exerciseMap[areaId] && selectedExercises.length < 3) {
-        selectedExercises.push(exerciseMap[areaId]);
-      }
-    });
-
-    // Fill remaining slots with default exercises if needed
-    const defaultExercises = [
-      exerciseMap.memory,
-      exerciseMap.attention,
-      exerciseMap.language
-    ];
-
-    while (selectedExercises.length < 3) {
-      const defaultEx = defaultExercises[selectedExercises.length];
-      if (!selectedExercises.find(ex => ex.id === defaultEx.id)) {
-        selectedExercises.push(defaultEx);
-      }
-    }
-
-    // Ensure we have exactly 3 unique exercises
-    const uniqueExercises = selectedExercises.filter((exercise, index, self) => 
-      index === self.findIndex(ex => ex.id === exercise.id)
-    ).slice(0, 3);
-
-    return uniqueExercises;
+    return selectedExerciseIds.map(id => exerciseComponents[id]).filter(Boolean);
   };
-
-  const [exercises, setExercises] = useState<any[]>([]);
 
   useEffect(() => {
     const storedData = localStorage.getItem('mindbloom-user');
@@ -145,7 +109,17 @@ const Training = () => {
   }, [userData, todaysFocusAreas, todaysMood]);
 
   const handleExerciseComplete = (result: any) => {
-    const newResults = [...exerciseResults, result];
+    // Calculate adaptive difficulty for this exercise
+    const baseDifficulty = calculateDifficulty(result.exerciseId, userData);
+    const adjustedDifficulty = adjustForMood(baseDifficulty, todaysMood);
+    
+    const enhancedResult = {
+      ...result,
+      difficulty: adjustedDifficulty,
+      date: new Date().toISOString()
+    };
+    
+    const newResults = [...exerciseResults, enhancedResult];
     setExerciseResults(newResults);
 
     if (currentExercise < exercises.length - 1) {
@@ -159,19 +133,25 @@ const Training = () => {
     const sessionDuration = Math.round((Date.now() - sessionStartTime) / 1000 / 60);
     const averageScore = results.reduce((sum, r) => sum + (r.score || 0), 0) / results.length;
     
-    // Update user data with enhanced tracking
     if (userData) {
-      const updatedData = {
-        ...userData,
-        totalSessions: (userData.totalSessions || 0) + 1,
-        streak: (userData.streak || 0) + 1,
+      // Update exercise statistics with adaptive learning
+      let updatedUserData = { ...userData };
+      results.forEach(result => {
+        updatedUserData = updateExerciseStats(updatedUserData, result);
+      });
+      
+      // Update session data
+      updatedUserData = {
+        ...updatedUserData,
+        totalSessions: (updatedUserData.totalSessions || 0) + 1,
+        streak: (updatedUserData.streak || 0) + 1,
         lastSessionDate: new Date().toISOString(),
         lastSessionScore: averageScore,
         lastSessionDuration: sessionDuration,
         lastSessionMood: todaysMood,
         lastSessionFocusAreas: todaysFocusAreas,
         exerciseHistory: [
-          ...(userData.exerciseHistory || []),
+          ...(updatedUserData.exerciseHistory || []),
           {
             date: new Date().toISOString(),
             exercises: results,
@@ -183,7 +163,7 @@ const Training = () => {
         ].slice(-30) // Keep last 30 sessions
       };
       
-      localStorage.setItem('mindbloom-user', JSON.stringify(updatedData));
+      localStorage.setItem('mindbloom-user', JSON.stringify(updatedUserData));
     }
 
     showSuccess(`Great job! Session completed in ${sessionDuration} minutes.`);
@@ -201,18 +181,18 @@ const Training = () => {
       exerciseId: exercises[currentExercise].id,
       skipped: true,
       score: 0,
-      timeSpent: 0
+      timeSpent: 0,
+      difficulty: 1,
+      date: new Date().toISOString()
     };
     handleExerciseComplete(skippedResult);
   };
 
   const restartExercise = () => {
-    // Force re-render of current exercise
     setCurrentExercise(currentExercise);
   };
 
   const handleSignOut = () => {
-    // Clear all user data
     localStorage.removeItem('mindbloom-user');
     localStorage.removeItem('mindbloom-today-mood');
     localStorage.removeItem('mindbloom-last-mood-date');
@@ -225,37 +205,54 @@ const Training = () => {
     navigate('/goodbye');
   };
 
+  const handleBack = () => {
+    const previousPage = getPreviousPage('/training');
+    navigate(previousPage);
+  };
+
   if (!userData || exercises.length === 0) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardContent className="pt-6 text-center">
+            <Brain className="w-16 h-16 text-indigo-600 mx-auto mb-4 animate-pulse" />
+            <p className="text-xl text-gray-700">Preparing your personalized session...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   const CurrentExerciseComponent = exercises[currentExercise].component;
   const progress = ((currentExercise) / exercises.length) * 100;
+  const currentExerciseData = exercises[currentExercise];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Header */}
-      <header className="container mx-auto px-4 py-4">
+      <header className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Button 
               variant="outline" 
-              onClick={() => navigate('/dashboard')}
-              className="px-3 py-2"
+              onClick={handleBack}
+              className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
-            <div className="flex items-center space-x-2">
-              <Brain className="h-6 w-6 text-indigo-600" />
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Training Session</h1>
+            <div className="flex items-center space-x-3">
+              <Brain className="h-8 w-8 text-indigo-600" />
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                Training Session
+              </h1>
             </div>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             <Button 
               variant="outline" 
               onClick={() => navigate('/dashboard')}
-              className="px-4 py-2"
+              className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
             >
               <Home className="w-4 h-4 mr-2" />
               Dashboard
@@ -263,7 +260,7 @@ const Training = () => {
             <Button 
               variant="ghost" 
               onClick={handleSignOut}
-              className="px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              className="px-3 py-2 text-gray-600 hover:text-gray-800"
             >
               <LogOut className="w-4 h-4 mr-1" />
               Sign Out
@@ -272,20 +269,36 @@ const Training = () => {
         </div>
       </header>
 
-      {/* Progress Bar */}
-      <div className="container mx-auto px-4 mb-6">
-        <Card>
-          <CardContent className="pt-4">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium">
-                Exercise {currentExercise + 1} of {exercises.length}
-              </span>
-              <span className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
-                <Clock className="w-4 h-4 mr-1" />
-                {Math.round((Date.now() - sessionStartTime) / 1000 / 60)} min
-              </span>
+      {/* Progress Section */}
+      <div className="container mx-auto px-4 mb-8">
+        <Card className="border-indigo-200 bg-white/80 backdrop-blur-sm">
+          <CardContent className="pt-6">
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center space-x-4">
+                <span className="text-lg font-semibold text-indigo-900">
+                  Exercise {currentExercise + 1} of {exercises.length}
+                </span>
+                <Badge 
+                  variant="secondary" 
+                  className="bg-indigo-100 text-indigo-800 border-indigo-200"
+                >
+                  {currentExerciseData.area}
+                </Badge>
+              </div>
+              <div className="flex items-center space-x-2 text-gray-600">
+                <Clock className="w-4 h-4" />
+                <span className="text-sm">
+                  {Math.round((Date.now() - sessionStartTime) / 1000 / 60)} min
+                </span>
+              </div>
             </div>
-            <Progress value={progress} className="h-2" />
+            <Progress 
+              value={progress} 
+              className="h-3 bg-indigo-100"
+            />
+            <div className="mt-2 text-sm text-gray-600 text-center">
+              {Math.round(progress)}% complete
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -293,20 +306,23 @@ const Training = () => {
       {/* Exercise Content */}
       <div className="container mx-auto px-4">
         <CurrentExerciseComponent
-          key={`${currentExercise}-${Date.now()}`} // Force re-render on restart
+          key={`${currentExercise}-${Date.now()}`}
           onComplete={handleExerciseComplete}
           mood={todaysMood}
-          userPreferences={userData}
+          userPreferences={{
+            ...userData,
+            difficulty: calculateDifficulty(currentExerciseData.id, userData)
+          }}
         />
       </div>
 
       {/* Exercise Controls */}
-      <div className="container mx-auto px-4 mt-6 pb-8">
+      <div className="container mx-auto px-4 mt-8 pb-8">
         <div className="flex justify-center space-x-4">
           <Button
             variant="outline"
             onClick={restartExercise}
-            className="px-6 py-3"
+            className="px-6 py-3 border-amber-200 text-amber-700 hover:bg-amber-50"
           >
             <RotateCcw className="w-4 h-4 mr-2" />
             Restart Exercise
@@ -315,7 +331,7 @@ const Training = () => {
           <Button
             variant="outline"
             onClick={skipExercise}
-            className="px-6 py-3"
+            className="px-6 py-3 border-gray-200 text-gray-700 hover:bg-gray-50"
           >
             Skip Exercise
             <ArrowRight className="w-4 h-4 ml-2" />
@@ -323,19 +339,19 @@ const Training = () => {
         </div>
         
         <div className="text-center mt-4">
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600">
             Need a rest? Come back tomorrow—your progress is saved!
           </p>
         </div>
       </div>
 
-      {/* Exercise Preview */}
+      {/* Session Preview */}
       <div className="container mx-auto px-4 pb-8">
-        <Card>
+        <Card className="border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50">
           <CardHeader>
-            <CardTitle className="text-lg">Today's Personalized Session</CardTitle>
-            <CardDescription>
-              Based on your focus areas: {todaysFocusAreas.map(area => area.charAt(0).toUpperCase() + area.slice(1)).join(', ')}
+            <CardTitle className="text-lg text-purple-900">Today's Adaptive Session</CardTitle>
+            <CardDescription className="text-purple-700">
+              Personalized based on your focus areas and performance history
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -343,21 +359,25 @@ const Training = () => {
               {exercises.map((exercise, index) => (
                 <div 
                   key={exercise.id}
-                  className={`p-3 rounded-lg border-2 ${
+                  className={`p-4 rounded-lg border-2 transition-all ${
                     index === currentExercise 
-                      ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' 
+                      ? 'border-indigo-400 bg-indigo-50 shadow-md' 
                       : index < currentExercise 
-                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
-                        : 'border-gray-200 bg-gray-50 dark:bg-gray-800'
+                        ? 'border-green-400 bg-green-50'
+                        : 'border-gray-200 bg-white'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="font-semibold text-sm">{exercise.title}</h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">{exercise.area}</p>
+                      <p className="text-xs text-gray-600 mt-1">{exercise.area}</p>
+                      <div 
+                        className="w-3 h-3 rounded-full mt-2"
+                        style={{ backgroundColor: getAreaColor(exercise.areaId) }}
+                      />
                     </div>
-                    <div className="text-xs">
-                      {index < currentExercise ? '✓' : index === currentExercise ? '→' : '○'}
+                    <div className="text-lg">
+                      {index < currentExercise ? '✅' : index === currentExercise ? '▶️' : '⭕'}
                     </div>
                   </div>
                 </div>

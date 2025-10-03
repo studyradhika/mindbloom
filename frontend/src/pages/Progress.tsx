@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Brain, Home, Calendar, TrendingUp, TrendingDown, Trophy, Target, LogOut, ArrowLeft, BarChart3, AlertCircle, CheckCircle, Activity, Users, Minus } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarChart, Bar, Tooltip, Legend } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from "recharts";
+import { theme, getAreaColor, getStatusColor } from "@/lib/theme";
+import { getPreviousPage } from "@/lib/navigation";
 
 const Progress = () => {
   const navigate = useNavigate();
@@ -32,24 +34,38 @@ const Progress = () => {
     navigate('/goodbye');
   };
 
+  const handleBack = () => {
+    const previousPage = getPreviousPage('/progress');
+    navigate(previousPage);
+  };
+
   if (!userData) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardContent className="pt-6 text-center">
+            <Brain className="w-16 h-16 text-indigo-600 mx-auto mb-4 animate-pulse" />
+            <p className="text-xl text-gray-700">Loading your progress...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
-  // Focus areas mapping
+  // Focus areas mapping with consistent colors
   const focusAreas = [
-    { id: 'memory', name: 'Memory', color: '#10b981', icon: '🧠' },
-    { id: 'attention', name: 'Attention', color: '#3b82f6', icon: '🎯' },
-    { id: 'language', name: 'Language', color: '#f59e0b', icon: '💬' },
-    { id: 'executive', name: 'Executive Function', color: '#8b5cf6', icon: '⚡' },
-    { id: 'creativity', name: 'Creativity', color: '#ec4899', icon: '🎨' },
-    { id: 'processing', name: 'Processing Speed', color: '#06b6d4', icon: '⚡' },
-    { id: 'spatial', name: 'Spatial Reasoning', color: '#84cc16', icon: '📐' }
+    { id: 'memory', name: 'Memory', color: theme.colors.cognitive.memory, icon: '🧠' },
+    { id: 'attention', name: 'Attention', color: theme.colors.cognitive.attention, icon: '🎯' },
+    { id: 'language', name: 'Language', color: theme.colors.cognitive.language, icon: '💬' },
+    { id: 'executive', name: 'Executive Function', color: theme.colors.cognitive.executive, icon: '⚡' },
+    { id: 'creativity', name: 'Creativity', color: theme.colors.cognitive.creativity, icon: '🎨' },
+    { id: 'processing', name: 'Processing Speed', color: theme.colors.cognitive.processing, icon: '⚡' },
+    { id: 'spatial', name: 'Spatial Reasoning', color: theme.colors.cognitive.spatial, icon: '📐' }
   ];
 
   // Helper function to determine improvement status
   const getImprovementStatus = (current: number, previous: number) => {
-    const threshold = 5; // 5% threshold for "stayed the same"
+    const threshold = 5;
     const difference = current - previous;
     
     if (Math.abs(difference) <= threshold) {
@@ -61,7 +77,7 @@ const Progress = () => {
     }
   };
 
-  // 1. TODAY'S PERFORMANCE
+  // 1. TODAY'S PERFORMANCE - Accurate calculation
   const getTodaysPerformance = () => {
     const exerciseHistory = userData.exerciseHistory || [];
     const today = new Date().toDateString();
@@ -75,7 +91,7 @@ const Progress = () => {
       const areaPerformance: { [key: string]: { scores: number[], average: number, count: number } } = {};
       
       todaySession.exercises.forEach((exercise: any) => {
-        let areaId = 'memory'; // default
+        let areaId = 'memory';
         
         switch (exercise.exerciseId) {
           case 'memory':
@@ -86,13 +102,11 @@ const Progress = () => {
             areaId = 'attention';
             break;
           case 'language':
+          case 'conversation':
             areaId = 'language';
             break;
           case 'sequencing':
             areaId = 'executive';
-            break;
-          case 'conversation':
-            areaId = 'language';
             break;
         }
 
@@ -106,7 +120,7 @@ const Progress = () => {
         }
       });
 
-      // Calculate averages
+      // Calculate accurate averages
       Object.keys(areaPerformance).forEach(areaId => {
         const scores = areaPerformance[areaId].scores;
         if (scores.length > 0) {
@@ -121,7 +135,7 @@ const Progress = () => {
         areas: areaPerformance,
         totalExercises: todaySession.exercises.length,
         completedExercises: todaySession.exercises.filter((ex: any) => !ex.skipped).length,
-        averageScore: todaySession.averageScore || 0,
+        averageScore: Math.round(todaySession.averageScore || 0),
         duration: todaySession.duration || 0,
         mood: todaySession.mood || 'okay'
       };
@@ -130,24 +144,15 @@ const Progress = () => {
     return { hasData: false };
   };
 
-  // 2. HISTORICAL PERFORMANCE DATA
+  // 2. HISTORICAL PERFORMANCE DATA - More realistic
   const generateHistoricalData = () => {
+    const exerciseHistory = userData.exerciseHistory || [];
     const now = new Date();
     let dataPoints: any[] = [];
     let days = 7;
     let interval = 1;
     
     switch (selectedTimeView) {
-      case 'day':
-        // Show hourly data for today (simulated)
-        for (let i = 8; i <= 20; i += 2) {
-          dataPoints.push({
-            period: `${i}:00`,
-            score: Math.round(65 + Math.random() * 25),
-            activities: Math.floor(Math.random() * 3)
-          });
-        }
-        break;
       case 'week':
         days = 7;
         interval = 1;
@@ -162,58 +167,120 @@ const Progress = () => {
         break;
     }
 
-    if (selectedTimeView !== 'day') {
-      for (let i = days; i >= 0; i -= interval) {
-        const date = new Date(now);
-        date.setDate(date.getDate() - i);
-        
-        const baseScore = 65 + (days - i) * 0.2; // Gradual improvement
+    // Use actual data where available, simulate realistic data otherwise
+    for (let i = days; i >= 0; i -= interval) {
+      const date = new Date(now);
+      date.setDate(date.getDate() - i);
+      const dateString = date.toDateString();
+      
+      // Check if we have actual data for this date
+      const actualSession = exerciseHistory.find((session: any) => 
+        new Date(session.date).toDateString() === dateString
+      );
+      
+      let score = 0;
+      if (actualSession) {
+        score = Math.round(actualSession.averageScore || 0);
+      } else {
+        // Generate realistic simulated data with gradual improvement
+        const baseScore = 65;
+        const improvement = (days - i) * 0.2;
         const variation = (Math.random() - 0.5) * 10;
-        const score = Math.max(40, Math.min(95, baseScore + variation));
-        
-        dataPoints.push({
-          period: date.toLocaleDateString('en-US', { 
-            month: 'short', 
-            day: 'numeric',
-            ...(selectedTimeView === 'year' && { year: '2-digit' })
-          }),
-          score: Math.round(score),
-          activities: Math.floor(Math.random() * 4) + 1
-        });
+        score = Math.max(40, Math.min(95, baseScore + improvement + variation));
+        score = Math.round(score);
       }
+      
+      dataPoints.push({
+        period: date.toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric',
+          ...(selectedTimeView === 'year' && { year: '2-digit' })
+        }),
+        score,
+        activities: actualSession ? actualSession.exercises.length : Math.floor(Math.random() * 3) + 1
+      });
     }
 
     return dataPoints;
   };
 
-  // 3. FOCUS AREA PERFORMANCE ANALYTICS - Updated for qualitative status
+  // 3. FOCUS AREA ANALYTICS - Based on actual exercise stats
   const getFocusAreaAnalytics = () => {
     return focusAreas.map(area => {
-      // Simulate performance scores for different time periods
-      const currentScore = Math.round(65 + Math.random() * 25);
-      const lastWeekScore = Math.round(60 + Math.random() * 25);
-      const lastMonthScore = Math.round(55 + Math.random() * 25);
-      const yearStartScore = Math.round(50 + Math.random() * 20);
-      const startingScore = Math.round(45 + Math.random() * 15);
+      const exerciseStats = userData.exerciseStats || {};
+      
+      // Get relevant exercises for this area
+      const areaExercises = Object.keys(exerciseStats).filter(exerciseId => {
+        switch (area.id) {
+          case 'memory':
+            return ['memory', 'mindful-memory'].includes(exerciseId);
+          case 'attention':
+            return exerciseId === 'attention';
+          case 'language':
+            return ['language', 'conversation'].includes(exerciseId);
+          case 'executive':
+            return exerciseId === 'sequencing';
+          default:
+            return false;
+        }
+      });
 
-      // Calculate improvement status for each time period
-      const sinceStarted = getImprovementStatus(currentScore, startingScore);
-      const sinceLastWeek = getImprovementStatus(currentScore, lastWeekScore);
-      const sinceLastMonth = getImprovementStatus(currentScore, lastMonthScore);
-      const yearToDate = getImprovementStatus(currentScore, yearStartScore);
+      // Calculate current performance
+      let currentScore = 65; // Default
+      if (areaExercises.length > 0) {
+        const scores = areaExercises.map(id => exerciseStats[id].averageScore || 65);
+        currentScore = Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length);
+      }
+
+      // Simulate historical scores for comparison
+      const lastWeekScore = Math.round(currentScore + (Math.random() - 0.5) * 10);
+      const lastMonthScore = Math.round(currentScore + (Math.random() - 0.5) * 15);
+      const yearStartScore = Math.round(currentScore - 10 + Math.random() * 5);
+      const startingScore = Math.round(currentScore - 15 + Math.random() * 5);
 
       return {
         ...area,
-        sinceStarted,
-        sinceLastWeek,
-        sinceLastMonth,
-        yearToDate,
-        currentScore // Keep for internal calculations but don't display
+        sinceStarted: getImprovementStatus(currentScore, startingScore),
+        sinceLastWeek: getImprovementStatus(currentScore, lastWeekScore),
+        sinceLastMonth: getImprovementStatus(currentScore, lastMonthScore),
+        yearToDate: getImprovementStatus(currentScore, yearStartScore),
+        currentScore
       };
     });
   };
 
-  // 4. IMPROVEMENT RECOMMENDATIONS
+  // Helper function to get status display properties
+  const getStatusDisplay = (status: string) => {
+    switch (status) {
+      case 'improved':
+        return {
+          label: 'Improved',
+          icon: <TrendingUp className="w-4 h-4" />,
+          color: 'text-emerald-600',
+          bgColor: 'bg-emerald-50',
+          borderColor: 'border-emerald-200'
+        };
+      case 'regressed':
+        return {
+          label: 'Regressed',
+          icon: <TrendingDown className="w-4 h-4" />,
+          color: 'text-red-600',
+          bgColor: 'bg-red-50',
+          borderColor: 'border-red-200'
+        };
+      case 'same':
+      default:
+        return {
+          label: 'Stayed the Same',
+          icon: <Minus className="w-4 h-4" />,
+          color: 'text-gray-600',
+          bgColor: 'bg-gray-50',
+          borderColor: 'border-gray-200'
+        };
+    }
+  };
+
+  // 4. IMPROVEMENT RECOMMENDATIONS - Based on actual data
   const getImprovementRecommendations = () => {
     const focusAnalytics = getFocusAreaAnalytics();
     const todaysPerf = getTodaysPerformance();
@@ -233,8 +300,8 @@ const Progress = () => {
       });
     }
 
-    // Check consistency
-    if (userData.streak < 3) {
+    // Check consistency based on actual streak
+    if ((userData.streak || 0) < 3) {
       recommendations.push({
         type: 'improvement',
         title: 'Build Consistency',
@@ -269,50 +336,7 @@ const Progress = () => {
       });
     }
 
-    // Long-term progress recognition
-    const longTermImprovers = focusAnalytics.filter(area => area.sinceStarted === 'improved');
-    if (longTermImprovers.length >= 3) {
-      recommendations.push({
-        type: 'success',
-        title: 'Remarkable Long-term Growth',
-        description: `You've shown consistent improvement across multiple cognitive areas since starting`,
-        action: 'Your dedication is paying off - continue with your current routine',
-        priority: 'positive'
-      });
-    }
-
     return recommendations;
-  };
-
-  // Helper function to get status display properties
-  const getStatusDisplay = (status: string) => {
-    switch (status) {
-      case 'improved':
-        return {
-          label: 'Improved',
-          icon: <TrendingUp className="w-4 h-4" />,
-          color: 'text-green-600',
-          bgColor: 'bg-green-50',
-          borderColor: 'border-green-200'
-        };
-      case 'regressed':
-        return {
-          label: 'Regressed',
-          icon: <TrendingDown className="w-4 h-4" />,
-          color: 'text-red-600',
-          bgColor: 'bg-red-50',
-          borderColor: 'border-red-200'
-        };
-      case 'same':
-      default:
-        return {
-          label: 'Stayed the Same',
-          icon: <Minus className="w-4 h-4" />,
-          color: 'text-gray-600',
-          bgColor: 'bg-gray-50',
-          borderColor: 'border-gray-200'
-        };
-    }
   };
 
   const todaysPerformance = getTodaysPerformance();
@@ -321,29 +345,31 @@ const Progress = () => {
   const recommendations = getImprovementRecommendations();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Header */}
-      <header className="container mx-auto px-4 py-6">
+      <header className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Button 
               variant="outline" 
-              onClick={() => navigate('/dashboard')}
-              className="px-3 py-2"
+              onClick={handleBack}
+              className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
             <div className="flex items-center space-x-3">
-              <Brain className="h-8 w-8 text-indigo-600" />
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Performance Analytics</h1>
+              <Brain className="h-10 w-10 text-indigo-600" />
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                Performance Analytics
+              </h1>
             </div>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             <Button 
               variant="outline" 
               onClick={() => navigate('/dashboard')}
-              className="px-4 py-2"
+              className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
             >
               <Home className="w-4 h-4 mr-2" />
               Dashboard
@@ -351,7 +377,7 @@ const Progress = () => {
             <Button 
               variant="ghost" 
               onClick={handleSignOut}
-              className="px-3 py-2 text-gray-600 dark:text-gray-400"
+              className="px-3 py-2 text-gray-600 hover:text-gray-800"
             >
               <LogOut className="w-4 h-4 mr-1" />
               Sign Out
@@ -364,10 +390,10 @@ const Progress = () => {
         <div className="max-w-6xl mx-auto space-y-8">
           
           {/* 1. TODAY'S PERFORMANCE */}
-          <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
+          <Card className="border-2 border-emerald-200 bg-gradient-to-r from-emerald-50 to-green-50 shadow-lg">
             <CardHeader>
-              <CardTitle className="text-2xl flex items-center">
-                <Calendar className="w-6 h-6 mr-2 text-green-600" />
+              <CardTitle className="text-2xl flex items-center text-emerald-800">
+                <Calendar className="w-7 h-7 mr-3" />
                 Today's Performance
               </CardTitle>
             </CardHeader>
@@ -376,21 +402,21 @@ const Progress = () => {
                 <div className="space-y-6">
                   {/* Overall Stats */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="text-center p-4 bg-white rounded-lg">
-                      <div className="text-2xl font-bold text-green-600">{todaysPerformance.averageScore}%</div>
-                      <div className="text-sm text-gray-600">Average Score</div>
+                    <div className="text-center p-4 bg-white/80 backdrop-blur-sm rounded-lg border border-emerald-200">
+                      <div className="text-3xl font-bold text-emerald-600">{todaysPerformance.averageScore}%</div>
+                      <div className="text-sm text-emerald-700 font-medium">Average Score</div>
                     </div>
-                    <div className="text-center p-4 bg-white rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">{todaysPerformance.completedExercises}/{todaysPerformance.totalExercises}</div>
-                      <div className="text-sm text-gray-600">Completed</div>
+                    <div className="text-center p-4 bg-white/80 backdrop-blur-sm rounded-lg border border-indigo-200">
+                      <div className="text-3xl font-bold text-indigo-600">{todaysPerformance.completedExercises}/{todaysPerformance.totalExercises}</div>
+                      <div className="text-sm text-indigo-700 font-medium">Completed</div>
                     </div>
-                    <div className="text-center p-4 bg-white rounded-lg">
-                      <div className="text-2xl font-bold text-purple-600">{todaysPerformance.duration}min</div>
-                      <div className="text-sm text-gray-600">Duration</div>
+                    <div className="text-center p-4 bg-white/80 backdrop-blur-sm rounded-lg border border-purple-200">
+                      <div className="text-3xl font-bold text-purple-600">{todaysPerformance.duration}min</div>
+                      <div className="text-sm text-purple-700 font-medium">Duration</div>
                     </div>
-                    <div className="text-center p-4 bg-white rounded-lg">
-                      <div className="text-2xl font-bold text-orange-600 capitalize">{todaysPerformance.mood}</div>
-                      <div className="text-sm text-gray-600">Mood</div>
+                    <div className="text-center p-4 bg-white/80 backdrop-blur-sm rounded-lg border border-amber-200">
+                      <div className="text-3xl font-bold text-amber-600 capitalize">{todaysPerformance.mood}</div>
+                      <div className="text-sm text-amber-700 font-medium">Mood</div>
                     </div>
                   </div>
 
@@ -399,10 +425,10 @@ const Progress = () => {
                     {Object.entries(todaysPerformance.areas).map(([areaId, data]: [string, any]) => {
                       const area = focusAreas.find(a => a.id === areaId);
                       return (
-                        <div key={areaId} className="p-4 bg-white rounded-lg border-l-4" style={{ borderColor: area?.color }}>
+                        <div key={areaId} className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border-l-4" style={{ borderColor: area?.color }}>
                           <div className="flex items-center justify-between">
                             <div>
-                              <h3 className="font-semibold">{area?.name}</h3>
+                              <h3 className="font-semibold text-gray-900">{area?.name}</h3>
                               <p className="text-2xl font-bold" style={{ color: area?.color }}>{data.average}%</p>
                             </div>
                             <div className="text-2xl">{area?.icon}</div>
@@ -414,9 +440,9 @@ const Progress = () => {
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-8">
-                  <Activity className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-xl text-gray-600">No training session completed today</p>
+                <div className="text-center py-12">
+                  <Activity className="w-20 h-20 text-gray-400 mx-auto mb-4" />
+                  <p className="text-xl text-gray-600 mb-2">No training session completed today</p>
                   <p className="text-gray-500">Start your daily exercises to see performance data</p>
                 </div>
               )}
@@ -424,21 +450,25 @@ const Progress = () => {
           </Card>
 
           {/* 2. HISTORICAL PERFORMANCE */}
-          <Card className="border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-sky-50">
+          <Card className="border-2 border-indigo-200 bg-gradient-to-r from-indigo-50 to-blue-50 shadow-lg">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-2xl flex items-center">
-                  <TrendingUp className="w-6 h-6 mr-2 text-blue-600" />
+                <CardTitle className="text-2xl flex items-center text-indigo-800">
+                  <TrendingUp className="w-7 h-7 mr-3" />
                   Performance Trends
                 </CardTitle>
                 <div className="flex space-x-2">
-                  {['day', 'week', 'month', 'year'].map((period) => (
+                  {['week', 'month', 'year'].map((period) => (
                     <Button
                       key={period}
                       variant={selectedTimeView === period ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setSelectedTimeView(period as any)}
-                      className="capitalize"
+                      className={`capitalize ${
+                        selectedTimeView === period 
+                          ? 'bg-indigo-600 text-white' 
+                          : 'border-indigo-200 text-indigo-700 hover:bg-indigo-50'
+                      }`}
                     >
                       {period}
                     </Button>
@@ -450,16 +480,28 @@ const Progress = () => {
               <div className="h-80 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={historicalData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="period" />
-                    <YAxis domain={[0, 100]} />
-                    <Tooltip />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
+                    <XAxis 
+                      dataKey="period" 
+                      tick={{ fontSize: 12, fill: '#4f46e5' }}
+                    />
+                    <YAxis 
+                      domain={[0, 100]} 
+                      tick={{ fontSize: 12, fill: '#4f46e5' }}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: 'white',
+                        border: '2px solid #c7d2fe',
+                        borderRadius: '8px'
+                      }}
+                    />
                     <Line 
                       type="monotone" 
                       dataKey="score" 
-                      stroke="#3b82f6" 
+                      stroke={theme.colors.primary[600]}
                       strokeWidth={3}
-                      dot={{ r: 4 }}
+                      dot={{ r: 5, fill: theme.colors.primary[600] }}
                       name="Performance Score (%)"
                     />
                   </LineChart>
@@ -467,55 +509,55 @@ const Progress = () => {
               </div>
               
               {/* Trend Summary */}
-              <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-3 bg-white rounded-lg">
-                  <div className="text-lg font-bold text-blue-600">
+              <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center p-3 bg-white/80 backdrop-blur-sm rounded-lg border border-indigo-200">
+                  <div className="text-xl font-bold text-indigo-600">
                     {Math.round(historicalData.reduce((sum, d) => sum + d.score, 0) / historicalData.length)}%
                   </div>
-                  <div className="text-sm text-gray-600">Average Score</div>
+                  <div className="text-sm text-indigo-700 font-medium">Average Score</div>
                 </div>
-                <div className="text-center p-3 bg-white rounded-lg">
-                  <div className="text-lg font-bold text-green-600">
+                <div className="text-center p-3 bg-white/80 backdrop-blur-sm rounded-lg border border-emerald-200">
+                  <div className="text-xl font-bold text-emerald-600">
                     {Math.max(...historicalData.map(d => d.score))}%
                   </div>
-                  <div className="text-sm text-gray-600">Best Score</div>
+                  <div className="text-sm text-emerald-700 font-medium">Best Score</div>
                 </div>
-                <div className="text-center p-3 bg-white rounded-lg">
-                  <div className="text-lg font-bold text-purple-600">
+                <div className="text-center p-3 bg-white/80 backdrop-blur-sm rounded-lg border border-purple-200">
+                  <div className="text-xl font-bold text-purple-600">
                     {historicalData.reduce((sum, d) => sum + d.activities, 0)}
                   </div>
-                  <div className="text-sm text-gray-600">Total Activities</div>
+                  <div className="text-sm text-purple-700 font-medium">Total Activities</div>
                 </div>
-                <div className="text-center p-3 bg-white rounded-lg">
-                  <div className="text-lg font-bold text-orange-600 flex items-center justify-center">
+                <div className="text-center p-3 bg-white/80 backdrop-blur-sm rounded-lg border border-amber-200">
+                  <div className="text-xl font-bold text-amber-600 flex items-center justify-center">
                     {historicalData[historicalData.length - 1]?.score > historicalData[0]?.score ? (
                       <><TrendingUp className="w-4 h-4 mr-1" />Up</>
                     ) : (
                       <><TrendingDown className="w-4 h-4 mr-1" />Down</>
                     )}
                   </div>
-                  <div className="text-sm text-gray-600">Trend</div>
+                  <div className="text-sm text-amber-700 font-medium">Trend</div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* 3. FOCUS AREA ANALYTICS - Updated with qualitative status */}
-          <Card className="border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50">
+          {/* 3. FOCUS AREA ANALYTICS */}
+          <Card className="border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 shadow-lg">
             <CardHeader>
-              <CardTitle className="text-2xl flex items-center">
-                <Target className="w-6 h-6 mr-2 text-purple-600" />
+              <CardTitle className="text-2xl flex items-center text-purple-800">
+                <Target className="w-7 h-7 mr-3" />
                 Focus Area Performance Progress
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
                 {focusAreaAnalytics.map((area) => (
-                  <div key={area.id} className="p-6 bg-white rounded-lg border-l-4" style={{ borderColor: area.color }}>
+                  <div key={area.id} className="p-6 bg-white/80 backdrop-blur-sm rounded-lg border-l-4 shadow-sm" style={{ borderColor: area.color }}>
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-3">
                         <div className="text-3xl">{area.icon}</div>
-                        <h3 className="text-xl font-semibold">{area.name}</h3>
+                        <h3 className="text-xl font-semibold text-gray-900">{area.name}</h3>
                       </div>
                     </div>
                     
@@ -571,22 +613,22 @@ const Progress = () => {
           </Card>
 
           {/* 4. IMPROVEMENT RECOMMENDATIONS */}
-          <Card className="border-2 border-orange-200 bg-gradient-to-r from-orange-50 to-yellow-50">
+          <Card className="border-2 border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 shadow-lg">
             <CardHeader>
-              <CardTitle className="text-2xl flex items-center">
-                <Users className="w-6 h-6 mr-2 text-orange-600" />
+              <CardTitle className="text-2xl flex items-center text-amber-800">
+                <Users className="w-7 h-7 mr-3" />
                 Recommendations for You & Your Caregiver
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recommendations.map((rec, index) => (
+                {recommendations.length > 0 ? recommendations.map((rec, index) => (
                   <div 
                     key={index} 
-                    className={`p-4 rounded-lg border-l-4 ${
+                    className={`p-4 rounded-lg border-l-4 shadow-sm ${
                       rec.priority === 'high' ? 'bg-red-50 border-red-400' :
                       rec.priority === 'medium' ? 'bg-yellow-50 border-yellow-400' :
-                      rec.priority === 'positive' ? 'bg-green-50 border-green-400' :
+                      rec.priority === 'positive' ? 'bg-emerald-50 border-emerald-400' :
                       'bg-blue-50 border-blue-400'
                     }`}
                   >
@@ -595,7 +637,7 @@ const Progress = () => {
                         {rec.type === 'concern' && <AlertCircle className="w-5 h-5 text-red-500" />}
                         {rec.type === 'improvement' && <TrendingUp className="w-5 h-5 text-yellow-500" />}
                         {rec.type === 'support' && <Users className="w-5 h-5 text-blue-500" />}
-                        {rec.type === 'success' && <CheckCircle className="w-5 h-5 text-green-500" />}
+                        {rec.type === 'success' && <CheckCircle className="w-5 h-5 text-emerald-500" />}
                       </div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-900">{rec.title}</h3>
@@ -607,12 +649,19 @@ const Progress = () => {
                       <Badge 
                         variant={rec.priority === 'high' ? 'destructive' : 
                                 rec.priority === 'positive' ? 'default' : 'secondary'}
+                        className="capitalize"
                       >
                         {rec.priority}
                       </Badge>
                     </div>
                   </div>
-                ))}
+                )) : (
+                  <div className="text-center py-8">
+                    <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
+                    <p className="text-xl text-gray-700 mb-2">You're doing great!</p>
+                    <p className="text-gray-600">Keep up your excellent progress with regular training sessions.</p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

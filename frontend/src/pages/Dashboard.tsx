@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Target, Smile, Meh, Frown, Zap, Coffee, BookOpen, CheckSquare, Heart, MessageCircle, BarChart3, Calendar, LogOut, ArrowLeft } from "lucide-react";
+import { Brain, Target, Smile, Meh, Frown, Zap, Coffee, BookOpen, BarChart3, LogOut, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { theme, getAreaColor } from "@/lib/theme";
+import { getPreviousPage } from "@/lib/navigation";
 import MoodSelector from "@/components/MoodSelector";
 
 const Dashboard = () => {
@@ -19,7 +21,6 @@ const Dashboard = () => {
       const data = JSON.parse(storedData);
       setUserData(data);
       
-      // Check if mood and focus areas are set for today
       const today = new Date().toDateString();
       const lastMoodDate = localStorage.getItem('mindbloom-last-mood-date');
       const lastFocusDate = localStorage.getItem('mindbloom-last-focus-date');
@@ -32,7 +33,6 @@ const Dashboard = () => {
         if (lastFocusDate === today && storedFocusAreas) {
           setTodaysFocusAreas(JSON.parse(storedFocusAreas));
         } else {
-          // Mood is set but focus areas aren't - redirect to focus selection
           navigate('/focus-selection');
           return;
         }
@@ -48,17 +48,14 @@ const Dashboard = () => {
     setTodaysMood(mood);
     setShowMoodSelector(false);
     
-    // Store mood for today
     const today = new Date().toDateString();
     localStorage.setItem('mindbloom-today-mood', mood);
     localStorage.setItem('mindbloom-last-mood-date', today);
     
-    // Navigate to focus selection
     navigate('/focus-selection');
   };
 
   const handleSignOut = () => {
-    // Clear all user data
     localStorage.removeItem('mindbloom-user');
     localStorage.removeItem('mindbloom-today-mood');
     localStorage.removeItem('mindbloom-last-mood-date');
@@ -68,13 +65,12 @@ const Dashboard = () => {
     localStorage.removeItem('mindbloom-checklists');
     localStorage.removeItem('mindbloom-reminders');
     
-    // Navigate to sign out page
     navigate('/goodbye');
   };
 
   const handleBack = () => {
-    // Navigate back to focus selection
-    navigate('/focus-selection');
+    const previousPage = getPreviousPage('/dashboard');
+    navigate(previousPage);
   };
 
   const startTraining = () => {
@@ -119,17 +115,10 @@ const Dashboard = () => {
     return labels[areaId] || areaId;
   };
 
-  const getExerciseCount = () => {
-    // Always return 3 exercises per day
-    return 3;
-  };
-
   const getTodaysProgress = () => {
-    // Get today's completed activities from the most recent session
     const exerciseHistory = userData.exerciseHistory || [];
     const today = new Date().toDateString();
     
-    // Find today's session
     const todaySession = exerciseHistory.find((session: any) => {
       const sessionDate = new Date(session.date).toDateString();
       return sessionDate === today;
@@ -141,166 +130,248 @@ const Dashboard = () => {
       return `${completedCount}/${totalCount}`;
     }
     
-    // If no session today, show 0/3
-    return `0/${getExerciseCount()}`;
+    return `0/3`;
   };
 
   if (!userData) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardContent className="pt-6 text-center">
+            <Brain className="w-16 h-16 text-indigo-600 mx-auto mb-4 animate-pulse" />
+            <p className="text-xl text-gray-700">Loading your dashboard...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   if (showMoodSelector) {
     return <MoodSelector onMoodSelected={handleMoodSelected} userName={userData.name} />;
   }
 
-  // If we don't have both mood and focus areas, redirect
   if (!todaysMood || todaysFocusAreas.length === 0) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardContent className="pt-6 text-center">
+            <Brain className="w-16 h-16 text-indigo-600 mx-auto mb-4 animate-pulse" />
+            <p className="text-xl text-gray-700">Setting up your session...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Header */}
-      <header className="container mx-auto px-4 py-6">
+      <header className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Button 
               variant="outline" 
               onClick={handleBack}
-              className="px-3 py-2"
+              className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
-            <div className="flex flex-col items-start">
-              <div className="flex items-center space-x-2 mb-2">
-                <Brain className="h-8 w-8 text-blue-600" />
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">MindBloom</h1>
-              </div>
-              <Button 
-                variant="ghost" 
-                onClick={handleSignOut}
-                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 p-0 h-auto font-normal"
-              >
-                <LogOut className="w-4 h-4 mr-1" />
-                Sign out
-              </Button>
+            <div className="flex items-center space-x-3">
+              <Brain className="h-10 w-10 text-indigo-600" />
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                MindBloom
+              </h1>
             </div>
           </div>
           <div className="flex items-center space-x-3">
             <Button 
               variant="outline" 
               onClick={openProgress}
-              className="text-base px-3 py-2 border-blue-200 text-blue-600 hover:bg-blue-50"
+              className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
             >
               <BarChart3 className="w-4 h-4 mr-2" />
-              View Progress
+              Progress
             </Button>
             <Button 
               variant="outline" 
               onClick={openBrainTips}
-              className="text-base px-3 py-2 border-teal-200 text-teal-600 hover:bg-teal-50"
+              className="px-4 py-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
             >
               <BookOpen className="w-4 h-4 mr-2" />
               Brain Tips
             </Button>
             <Button 
-              variant="outline" 
-              onClick={changeFocusAreas}
-              className="text-base px-3 py-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50"
+              variant="ghost" 
+              onClick={handleSignOut}
+              className="px-3 py-2 text-gray-600 hover:text-gray-800"
             >
-              <Target className="w-4 h-4 mr-2" />
-              Change Focus Areas
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => setShowMoodSelector(true)}
-              className="text-base px-3 py-2 border-emerald-200 text-emerald-600 hover:bg-emerald-50"
-            >
-              Change Mood
+              <LogOut className="w-4 h-4 mr-1" />
+              Sign Out
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 pb-8 pt-16">
+      <main className="container mx-auto px-4 pb-8">
         <div className="max-w-4xl mx-auto space-y-8">
-          {/* Today's Brain Training */}
-          <Card className="border-2 border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl flex items-center justify-center">
-                <Target className="w-6 h-6 mr-2 text-emerald-600" />
-                Let's begin today's brain training
+          
+          {/* Welcome Message */}
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Welcome back, {userData.name}! 👋
+            </h2>
+            <p className="text-lg text-gray-600">
+              Ready for today's personalized brain training session?
+            </p>
+          </div>
+
+          {/* Today's Training Session */}
+          <Card className="border-2 border-emerald-200 bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 shadow-lg">
+            <CardHeader className="text-center pb-4">
+              <CardTitle className="text-2xl flex items-center justify-center text-emerald-800">
+                <Target className="w-7 h-7 mr-3" />
+                Today's Brain Training
               </CardTitle>
-              <CardDescription className="text-lg">
-                {getExerciseCount()} activities focused on your selected areas
+              <CardDescription className="text-lg text-emerald-700">
+                3 adaptive exercises personalized for your goals
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4 text-center">
-                {/* Start Button */}
-                <div className="flex justify-center">
-                  <Button 
-                    onClick={startTraining}
-                    size="lg"
-                    className="text-xl px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
-                  >
-                    Start Now
-                  </Button>
-                </div>
+            <CardContent className="space-y-6">
+              {/* Start Button */}
+              <div className="flex justify-center">
+                <Button 
+                  onClick={startTraining}
+                  size="lg"
+                  className="text-xl px-12 py-6 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg hover:shadow-xl transition-all"
+                >
+                  Start Training Session
+                </Button>
+              </div>
 
+              {/* Session Details */}
+              <div className="grid md:grid-cols-2 gap-6">
                 {/* Today's Focus Areas */}
-                <div className="bg-gradient-to-r from-teal-100 to-emerald-100 dark:from-teal-800/30 dark:to-emerald-800/30 rounded-lg p-4">
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Today's Focus Areas:</p>
-                  <div className="flex flex-wrap gap-2 justify-center">
+                <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-emerald-200">
+                  <h3 className="font-semibold text-emerald-800 mb-3 flex items-center">
+                    <Target className="w-4 h-4 mr-2" />
+                    Focus Areas
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
                     {todaysFocusAreas.map((areaId, index) => (
                       <Badge 
                         key={index}
                         variant="outline" 
-                        className="text-sm px-3 py-1 border-teal-200 text-teal-700"
+                        className="border-emerald-300 text-emerald-700 bg-emerald-50"
                       >
                         {getFocusAreaLabel(areaId)}
                       </Badge>
                     ))}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={changeFocusAreas}
+                    className="mt-2 text-emerald-600 hover:text-emerald-700"
+                  >
+                    Change Areas
+                  </Button>
+                </div>
+
+                {/* Today's Mood */}
+                <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-emerald-200">
+                  <h3 className="font-semibold text-emerald-800 mb-3 flex items-center">
+                    {getMoodIcon(todaysMood)}
+                    <span className="ml-2">Today's Mood</span>
+                  </h3>
+                  <div className="flex items-center justify-between">
+                    <Badge 
+                      variant="outline" 
+                      className="border-emerald-300 text-emerald-700 bg-emerald-50 capitalize text-base px-3 py-1"
+                    >
+                      {todaysMood}
+                    </Badge>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowMoodSelector(true)}
+                      className="text-emerald-600 hover:text-emerald-700"
+                    >
+                      Change Mood
+                    </Button>
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Progress Metrics - Single Card with Horizontal Layout */}
-          <Card className="border-blue-200">
-            <CardContent className="pt-6 pb-6">
-              <div className="flex divide-x divide-gray-200 dark:divide-gray-700">
-                <div className="flex-1 text-center px-4">
-                  <div className="text-3xl font-bold text-emerald-600 mb-1">
+          {/* Progress Overview */}
+          <Card className="border-indigo-200 bg-gradient-to-r from-indigo-50 to-blue-50 shadow-lg">
+            <CardContent className="pt-8 pb-8">
+              <div className="grid grid-cols-3 divide-x divide-indigo-200">
+                <div className="text-center px-4">
+                  <div className="text-3xl font-bold text-indigo-600 mb-2">
                     {userData.totalSessions || 0}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    Exercises Done
+                  <div className="text-sm text-indigo-700 font-medium">
+                    Total Sessions
                   </div>
                 </div>
                 
-                <div className="flex-1 text-center px-4">
-                  <div className="text-3xl font-bold text-blue-600 mb-1">
+                <div className="text-center px-4">
+                  <div className="text-3xl font-bold text-emerald-600 mb-2">
                     {userData.streak || 0}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                  <div className="text-sm text-emerald-700 font-medium">
                     Day Streak
                   </div>
                 </div>
                 
-                <div className="flex-1 text-center px-4">
-                  <div className="text-3xl font-bold text-teal-600 mb-1">
+                <div className="text-center px-4">
+                  <div className="text-3xl font-bold text-purple-600 mb-2">
                     {getTodaysProgress()}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                  <div className="text-sm text-purple-700 font-medium">
                     Today's Progress
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
+
+          {/* Quick Actions */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card 
+              className="border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 cursor-pointer hover:shadow-lg transition-all group"
+              onClick={openProgress}
+            >
+              <CardContent className="pt-6 pb-6 text-center">
+                <BarChart3 className="w-12 h-12 text-purple-600 mx-auto mb-4 group-hover:scale-110 transition-transform" />
+                <h3 className="text-xl font-semibold text-purple-900 mb-2">
+                  View Progress
+                </h3>
+                <p className="text-purple-700">
+                  Track your cognitive wellness journey
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 cursor-pointer hover:shadow-lg transition-all group"
+              onClick={openBrainTips}
+            >
+              <CardContent className="pt-6 pb-6 text-center">
+                <BookOpen className="w-12 h-12 text-amber-600 mx-auto mb-4 group-hover:scale-110 transition-transform" />
+                <h3 className="text-xl font-semibold text-amber-900 mb-2">
+                  Brain Tips
+                </h3>
+                <p className="text-amber-700">
+                  Daily wellness insights & education
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
         </div>
       </main>
     </div>

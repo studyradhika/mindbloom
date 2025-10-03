@@ -32,6 +32,14 @@ const LandingPage = () => {
     };
     
     localStorage.setItem('mindbloom-user', JSON.stringify(sampleUserData));
+    
+    // Clear any existing mood and focus data to force mood check
+    localStorage.removeItem('mindbloom-today-mood');
+    localStorage.removeItem('mindbloom-last-mood-date');
+    localStorage.removeItem('mindbloom-today-focus-areas');
+    localStorage.removeItem('mindbloom-last-focus-date');
+    
+    // Navigate to dashboard, which will redirect to mood selector
     navigate('/dashboard');
   };
 

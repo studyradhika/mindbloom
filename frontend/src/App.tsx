@@ -15,6 +15,7 @@ import SessionComplete from "./pages/SessionComplete";
 import MemoryTools from "./pages/MemoryTools";
 import Progress from "./pages/Progress";
 import FocusSelection from "./pages/FocusSelection";
+import BrainTips from "./pages/BrainTips";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/session-complete" element={<SessionComplete />} />
           <Route path="/memory-tools" element={<MemoryTools />} />
           <Route path="/progress" element={<Progress />} />
+          <Route path="/brain-tips" element={<BrainTips />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

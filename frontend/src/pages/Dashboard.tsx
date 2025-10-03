@@ -81,8 +81,8 @@ const Dashboard = () => {
     navigate('/training');
   };
 
-  const openMemoryTools = () => {
-    navigate('/memory-tools');
+  const openBrainTips = () => {
+    navigate('/brain-tips');
   };
 
   const openProgress = () => {
@@ -122,6 +122,27 @@ const Dashboard = () => {
   const getExerciseCount = () => {
     // Always return 3 exercises per day
     return 3;
+  };
+
+  const getTodaysProgress = () => {
+    // Get today's completed activities from the most recent session
+    const exerciseHistory = userData.exerciseHistory || [];
+    const today = new Date().toDateString();
+    
+    // Find today's session
+    const todaySession = exerciseHistory.find((session: any) => {
+      const sessionDate = new Date(session.date).toDateString();
+      return sessionDate === today;
+    });
+    
+    if (todaySession && todaySession.exercises) {
+      const completedCount = todaySession.exercises.filter((ex: any) => !ex.skipped && ex.score !== undefined).length;
+      const totalCount = todaySession.exercises.length;
+      return `${completedCount}/${totalCount}`;
+    }
+    
+    // If no session today, show 0/3
+    return `0/${getExerciseCount()}`;
   };
 
   if (!userData) {
@@ -173,15 +194,15 @@ const Dashboard = () => {
               className="text-base px-3 py-2 border-blue-200 text-blue-600 hover:bg-blue-50"
             >
               <BarChart3 className="w-4 h-4 mr-2" />
-              Progress
+              View Progress
             </Button>
             <Button 
               variant="outline" 
-              onClick={openMemoryTools}
+              onClick={openBrainTips}
               className="text-base px-3 py-2 border-teal-200 text-teal-600 hover:bg-teal-50"
             >
               <BookOpen className="w-4 h-4 mr-2" />
-              Memory Tools
+              Brain Tips
             </Button>
             <Button 
               variant="outline" 
@@ -271,10 +292,10 @@ const Dashboard = () => {
                 
                 <div className="flex-1 text-center px-4">
                   <div className="text-3xl font-bold text-teal-600 mb-1">
-                    {getExerciseCount()}
+                    {getTodaysProgress()}
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">
-                    Today's Goal
+                    Today's Progress
                   </div>
                 </div>
               </div>

@@ -401,7 +401,7 @@ const SessionComplete = () => {
               </p>
             </div>
           </CardContent>
-        </div>
+        </Card>
       </main>
     </div>
   );

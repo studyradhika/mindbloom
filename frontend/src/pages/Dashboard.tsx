@@ -171,20 +171,13 @@ const Dashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 pb-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            {userData.name}, let's begin.
-          </h2>
-        </div>
-
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Today's Brain Training */}
           <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
             <CardHeader>
               <CardTitle className="text-2xl flex items-center">
                 <Target className="w-6 h-6 mr-2 text-green-600" />
-                Today's Brain Training
+                Let's begin today's brain training
               </CardTitle>
               <CardDescription className="text-lg">
                 Your personalized session is ready based on your {todaysMood} mood and goals

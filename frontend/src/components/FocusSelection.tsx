@@ -28,6 +28,16 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
     navigate('/goodbye');
   };
 
+  const handleBack = () => {
+    // Check if there's history to go back to
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      // Fallback to dashboard if no history
+      navigate('/dashboard');
+    }
+  };
+
   const focusAreas = [
     {
       id: 'general',
@@ -146,7 +156,7 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
         <div className="flex items-center justify-between">
           <Button 
             variant="outline" 
-            onClick={() => navigate('/dashboard')}
+            onClick={handleBack}
             className="px-3 py-2"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />

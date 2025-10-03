@@ -20,7 +20,7 @@ const Index = () => {
   const handleSignIn = () => {
     // For demo purposes, create sample user data for existing users
     const sampleUserData = {
-      name: 'Welcome Back',
+      name: 'Sarah',
       email: 'user@example.com',
       ageGroup: '50-59',
       goals: ['prevention', 'focus', 'memory'],

@@ -207,7 +207,7 @@ const Dashboard = () => {
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            {userData.name}, here are your activities for today.
+            {userData.name}, let's begin.
           </h2>
         </div>
 

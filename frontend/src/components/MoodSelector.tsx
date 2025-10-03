@@ -24,13 +24,8 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
   };
 
   const handleBack = () => {
-    // Check if there's history to go back to
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
-      // Fallback to dashboard if no history
-      navigate('/dashboard');
-    }
+    // Navigate back to homepage
+    navigate('/');
   };
 
   const moods = [
@@ -97,7 +92,7 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
             className="px-3 py-2"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
+            Back to Home
           </Button>
           <Button 
             variant="ghost" 

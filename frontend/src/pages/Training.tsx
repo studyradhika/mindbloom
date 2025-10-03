@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import { showSuccess } from "@/utils/toast";
 import { theme, getAreaColor } from "@/lib/theme";
 import { selectExercises, calculateDifficulty, updateExerciseStats, adjustForMood } from "@/lib/adaptiveTraining";
-import { getPreviousPage } from "@/lib/navigation";
 import MemoryExercise from "@/components/exercises/MemoryExercise";
 import AttentionExercise from "@/components/exercises/AttentionExercise";
 import LanguageExercise from "@/components/exercises/LanguageExercise";
@@ -206,8 +205,8 @@ const Training = () => {
   };
 
   const handleBack = () => {
-    const previousPage = getPreviousPage('/training');
-    navigate(previousPage);
+    // Explicitly navigate back to focus selection page
+    navigate('/focus-selection');
   };
 
   if (!userData || exercises.length === 0) {
@@ -239,7 +238,7 @@ const Training = () => {
               className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
+              Back to Focus Areas
             </Button>
             <div className="flex items-center space-x-3">
               <Brain className="h-8 w-8 text-indigo-600" />

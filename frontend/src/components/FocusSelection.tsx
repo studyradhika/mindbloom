@@ -29,13 +29,11 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
   };
 
   const handleBack = () => {
-    // Check if there's history to go back to
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
-      // Fallback to dashboard if no history
-      navigate('/dashboard');
-    }
+    // Clear the mood data so user can reselect
+    localStorage.removeItem('mindbloom-today-mood');
+    localStorage.removeItem('mindbloom-last-mood-date');
+    // Navigate back to dashboard which will show mood selector
+    navigate('/dashboard');
   };
 
   const focusAreas = [

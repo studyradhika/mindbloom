@@ -17,8 +17,8 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
       label: 'Motivated',
       icon: Zap,
       description: 'Feeling energized and ready for challenges',
-      color: 'hover:bg-green-50 hover:border-green-200 dark:hover:bg-green-900/20',
-      iconColor: 'text-green-600'
+      color: 'hover:bg-emerald-50 hover:border-emerald-200 dark:hover:bg-emerald-900/20',
+      iconColor: 'text-emerald-600'
     },
     {
       id: 'okay',
@@ -33,8 +33,8 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
       label: 'Foggy',
       description: 'Mind feels a bit cloudy, prefer gentler exercises',
       icon: Coffee,
-      color: 'hover:bg-orange-50 hover:border-orange-200 dark:hover:bg-orange-900/20',
-      iconColor: 'text-orange-600'
+      color: 'hover:bg-amber-50 hover:border-amber-200 dark:hover:bg-amber-900/20',
+      iconColor: 'text-amber-600'
     },
     {
       id: 'tired',
@@ -106,7 +106,7 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
             <Button 
               variant="outline" 
               onClick={() => handleMoodSelection('okay')}
-              className="text-lg px-6 py-3"
+              className="text-lg px-6 py-3 border-blue-200 text-blue-600 hover:bg-blue-50"
             >
               Skip - I'll choose later
             </Button>

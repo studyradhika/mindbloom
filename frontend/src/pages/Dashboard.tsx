@@ -90,9 +90,9 @@ const Dashboard = () => {
 
   const getMoodIcon = (mood: string) => {
     switch (mood) {
-      case 'motivated': return <Zap className="w-5 h-5 text-green-600" />;
+      case 'motivated': return <Zap className="w-5 h-5 text-emerald-600" />;
       case 'okay': return <Smile className="w-5 h-5 text-blue-600" />;
-      case 'foggy': return <Coffee className="w-5 h-5 text-orange-600" />;
+      case 'foggy': return <Coffee className="w-5 h-5 text-amber-600" />;
       case 'tired': return <Meh className="w-5 h-5 text-gray-600" />;
       case 'stressed': return <Frown className="w-5 h-5 text-red-600" />;
       default: return <Smile className="w-5 h-5 text-blue-600" />;
@@ -139,7 +139,7 @@ const Dashboard = () => {
         <div className="flex items-center justify-between">
           <div className="flex flex-col items-start">
             <div className="flex items-center space-x-2 mb-2">
-              <Brain className="h-8 w-8 text-indigo-600" />
+              <Brain className="h-8 w-8 text-blue-600" />
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">MindBloom</h1>
             </div>
             <Button 
@@ -155,7 +155,7 @@ const Dashboard = () => {
             <Button 
               variant="outline" 
               onClick={openProgress}
-              className="text-base px-3 py-2"
+              className="text-base px-3 py-2 border-blue-200 text-blue-600 hover:bg-blue-50"
             >
               <BarChart3 className="w-4 h-4 mr-2" />
               Progress
@@ -163,7 +163,7 @@ const Dashboard = () => {
             <Button 
               variant="outline" 
               onClick={openMemoryTools}
-              className="text-base px-3 py-2"
+              className="text-base px-3 py-2 border-teal-200 text-teal-600 hover:bg-teal-50"
             >
               <BookOpen className="w-4 h-4 mr-2" />
               Memory Tools
@@ -171,7 +171,7 @@ const Dashboard = () => {
             <Button 
               variant="outline" 
               onClick={changeFocusAreas}
-              className="text-base px-3 py-2"
+              className="text-base px-3 py-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50"
             >
               <Target className="w-4 h-4 mr-2" />
               Change Focus Areas
@@ -179,7 +179,7 @@ const Dashboard = () => {
             <Button 
               variant="outline" 
               onClick={() => setShowMoodSelector(true)}
-              className="text-base px-3 py-2"
+              className="text-base px-3 py-2 border-emerald-200 text-emerald-600 hover:bg-emerald-50"
             >
               Change Mood
             </Button>
@@ -190,10 +190,10 @@ const Dashboard = () => {
       <main className="container mx-auto px-4 pb-8 pt-16">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Today's Brain Training */}
-          <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+          <Card className="border-2 border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl flex items-center justify-center">
-                <Target className="w-6 h-6 mr-2 text-green-600" />
+                <Target className="w-6 h-6 mr-2 text-emerald-600" />
                 Let's begin today's brain training
               </CardTitle>
               <CardDescription className="text-lg">
@@ -207,21 +207,21 @@ const Dashboard = () => {
                   <Button 
                     onClick={startTraining}
                     size="lg"
-                    className="text-xl px-8 py-4 bg-green-600 hover:bg-green-700"
+                    className="text-xl px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
                   >
                     Start Now
                   </Button>
                 </div>
 
                 {/* Today's Focus Areas */}
-                <div className="bg-gradient-to-r from-emerald-100 to-green-100 dark:from-emerald-800/30 dark:to-green-800/30 rounded-lg p-4">
+                <div className="bg-gradient-to-r from-teal-100 to-emerald-100 dark:from-teal-800/30 dark:to-emerald-800/30 rounded-lg p-4">
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Today's Focus Areas:</p>
                   <div className="flex flex-wrap gap-2 justify-center">
                     {todaysFocusAreas.map((areaId, index) => (
                       <Badge 
                         key={index}
                         variant="outline" 
-                        className="text-sm px-3 py-1"
+                        className="text-sm px-3 py-1 border-teal-200 text-teal-700"
                       >
                         {getFocusAreaLabel(areaId)}
                       </Badge>
@@ -233,11 +233,11 @@ const Dashboard = () => {
           </Card>
 
           {/* Progress Metrics - Single Card with Horizontal Layout */}
-          <Card>
+          <Card className="border-blue-200">
             <CardContent className="pt-6 pb-6">
               <div className="flex divide-x divide-gray-200 dark:divide-gray-700">
                 <div className="flex-1 text-center px-4">
-                  <div className="text-3xl font-bold text-green-600 mb-1">
+                  <div className="text-3xl font-bold text-emerald-600 mb-1">
                     {userData.totalSessions || 0}
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">
@@ -255,7 +255,7 @@ const Dashboard = () => {
                 </div>
                 
                 <div className="flex-1 text-center px-4">
-                  <div className="text-3xl font-bold text-orange-600 mb-1">
+                  <div className="text-3xl font-bold text-teal-600 mb-1">
                     {getExerciseCount()}
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">

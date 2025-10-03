@@ -22,63 +22,63 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
       label: 'General Cognitive Wellness',
       description: 'Overall brain health and balanced training',
       icon: Brain,
-      color: 'text-indigo-600'
+      color: 'text-blue-600'
     },
     {
       id: 'attention',
       label: 'Attention',
       description: 'Focus, concentration, and selective attention',
       icon: Target,
-      color: 'text-blue-600'
+      color: 'text-teal-600'
     },
     {
       id: 'perception',
       label: 'Perception',
       description: 'Visual processing and pattern recognition',
       icon: Eye,
-      color: 'text-green-600'
+      color: 'text-emerald-600'
     },
     {
       id: 'memory',
       label: 'Memory',
       description: 'Working memory, recall, and retention',
       icon: Brain,
-      color: 'text-purple-600'
+      color: 'text-indigo-600'
     },
     {
       id: 'language',
       label: 'Language',
       description: 'Word finding, comprehension, and communication',
       icon: MessageSquare,
-      color: 'text-orange-600'
+      color: 'text-cyan-600'
     },
     {
       id: 'executive',
       label: 'Executive Function',
       description: 'Planning, problem-solving, and decision-making',
       icon: Puzzle,
-      color: 'text-red-600'
+      color: 'text-blue-700'
     },
     {
       id: 'spatial',
       label: 'Spatial Reasoning',
       description: 'Visual-spatial skills and navigation',
       icon: Grid3X3,
-      color: 'text-teal-600'
+      color: 'text-teal-700'
     },
     {
       id: 'processing',
       label: 'Processing Speed',
       description: 'Quick thinking and mental agility',
       icon: Gauge,
-      color: 'text-yellow-600'
+      color: 'text-emerald-700'
     },
     {
       id: 'creativity',
       label: 'Creativity',
       description: 'Creative thinking and mental flexibility',
       icon: Lightbulb,
-      color: 'text-pink-600'
+      color: 'text-indigo-700'
     }
   ];
 
@@ -132,7 +132,7 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
       {/* Header */}
       <header className="container mx-auto px-4 mb-8">
         <div className="flex items-center justify-center space-x-2">
-          <Brain className="h-8 w-8 text-indigo-600" />
+          <Brain className="h-8 w-8 text-blue-600" />
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">MindBloom</h1>
         </div>
       </header>
@@ -146,16 +146,16 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
             <p className="text-xl text-gray-600 dark:text-gray-400 mb-2">
               Select up to 3 areas you'd like to work on today
             </p>
-            <Badge variant="outline" className="text-lg px-4 py-2">
+            <Badge variant="outline" className="text-lg px-4 py-2 border-blue-200 text-blue-700">
               {selectedAreas.length}/3 selected
             </Badge>
           </div>
 
           {/* Mood-based recommendations */}
-          <Card className="mb-8 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-yellow-200">
+          <Card className="mb-8 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 border-amber-200">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center">
-                <Lightbulb className="w-5 h-5 mr-2 text-yellow-600" />
+                <Lightbulb className="w-5 h-5 mr-2 text-amber-600" />
                 Recommended for your mood: {todaysMood}
               </CardTitle>
             </CardHeader>
@@ -169,7 +169,7 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
                       variant="outline"
                       size="sm"
                       onClick={() => toggleArea(areaId)}
-                      className={selectedAreas.includes(areaId) ? 'bg-yellow-100 border-yellow-300' : ''}
+                      className={`border-amber-200 text-amber-700 hover:bg-amber-100 ${selectedAreas.includes(areaId) ? 'bg-amber-100 border-amber-300' : ''}`}
                     >
                       {area.label}
                     </Button>
@@ -191,10 +191,10 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
                   key={area.id}
                   className={`cursor-pointer transition-all duration-200 border-2 hover:shadow-lg ${
                     isSelected 
-                      ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' 
+                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
                       : isRecommended
-                        ? 'border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 hover:border-yellow-400'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-amber-300 bg-amber-50 dark:bg-amber-900/20 hover:border-amber-400'
+                        : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/10'
                   }`}
                   onClick={() => toggleArea(area.id)}
                 >
@@ -218,7 +218,7 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
                       {area.description}
                     </CardDescription>
                     {isRecommended && (
-                      <Badge variant="outline" className="mt-2 text-xs bg-yellow-100 text-yellow-800 border-yellow-300">
+                      <Badge variant="outline" className="mt-2 text-xs bg-amber-100 text-amber-800 border-amber-300">
                         Recommended
                       </Badge>
                     )}
@@ -234,7 +234,7 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
               onClick={handleNext}
               disabled={selectedAreas.length === 0}
               size="lg"
-              className="text-xl px-8 py-4 bg-indigo-600 hover:bg-indigo-700"
+              className="text-xl px-8 py-4 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700"
             >
               Next - Go to Dashboard
             </Button>

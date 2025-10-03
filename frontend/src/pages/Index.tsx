@@ -47,7 +47,7 @@ const Index = () => {
       <main className="container mx-auto px-4">
         {/* Hero Section */}
         <div className="text-center py-16 max-w-4xl mx-auto">
-          <h2 className="text-xl text-gray-900 mb-6 whitespace-nowrap overflow-hidden">
+          <h2 className="text-xl text-gray-900 mb-6 whitespace-nowrap">
             Scientifically-designed exercises by brain health experts to boost memory, improve focus, and keep your mind active.
           </h2>
           <p className="text-xl text-gray-600 mb-8 whitespace-nowrap">

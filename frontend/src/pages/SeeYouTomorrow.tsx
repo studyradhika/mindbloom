@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Brain, Star } from "lucide-react";
+import { Brain } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const SeeYouTomorrow = () => {
@@ -39,19 +39,6 @@ const SeeYouTomorrow = () => {
               
               <p className="text-xl text-gray-600 dark:text-gray-300">
                 See you tomorrow for your first brain training session!
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Inspirational Message */}
-          <Card className="mb-8 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200">
-            <CardContent className="pt-8 pb-8">
-              <Star className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
-              <h3 className="text-2xl font-bold text-green-800 dark:text-green-200 mb-4">
-                "The journey of a thousand miles begins with one step."
-              </h3>
-              <p className="text-green-700 dark:text-green-300 text-lg">
-                Tomorrow marks the beginning of a stronger, sharper, more resilient mind.
               </p>
             </CardContent>
           </Card>

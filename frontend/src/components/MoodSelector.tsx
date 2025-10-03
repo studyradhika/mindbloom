@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Zap, Smile, Coffee, Meh, Frown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface MoodSelectorProps {
   onMoodSelected: (mood: string) => void;
@@ -8,6 +9,8 @@ interface MoodSelectorProps {
 }
 
 const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
+  const navigate = useNavigate();
+
   const moods = [
     {
       id: 'motivated',
@@ -51,14 +54,27 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
     }
   ];
 
+  const handleMoodSelection = (mood: string) => {
+    // Store mood for today
+    const today = new Date().toDateString();
+    localStorage.setItem('mindbloom-today-mood', mood);
+    localStorage.setItem('mindbloom-last-mood-date', today);
+    
+    // Navigate to focus selection instead of calling onMoodSelected
+    navigate('/focus-selection');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-8">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Welcome to your session! How are you feeling today?
+              Welcome back, {userName}! How are you feeling today?
             </h1>
+            <p className="text-lg text-gray-600 dark:text-gray-400">
+              Your mood helps us personalize today's brain training session
+            </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -68,7 +84,7 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
                 <Card 
                   key={mood.id}
                   className={`cursor-pointer transition-all duration-200 border-2 ${mood.color} hover:shadow-lg`}
-                  onClick={() => onMoodSelected(mood.id)}
+                  onClick={() => handleMoodSelection(mood.id)}
                 >
                   <CardHeader className="text-center pb-4">
                     <div className="mx-auto mb-4">
@@ -89,7 +105,7 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
           <div className="text-center mt-8">
             <Button 
               variant="outline" 
-              onClick={() => onMoodSelected('okay')}
+              onClick={() => handleMoodSelection('okay')}
               className="text-lg px-6 py-3"
             >
               Skip - I'll choose later

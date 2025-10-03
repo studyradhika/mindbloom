@@ -10,6 +10,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState<any>(null);
   const [todaysMood, setTodaysMood] = useState<string>('');
+  const [todaysFocusAreas, setTodaysFocusAreas] = useState<string[]>([]);
   const [showMoodSelector, setShowMoodSelector] = useState(false);
 
   useEffect(() => {
@@ -18,13 +19,23 @@ const Dashboard = () => {
       const data = JSON.parse(storedData);
       setUserData(data);
       
-      // Check if mood was already set today
+      // Check if mood and focus areas are set for today
       const today = new Date().toDateString();
       const lastMoodDate = localStorage.getItem('mindbloom-last-mood-date');
+      const lastFocusDate = localStorage.getItem('mindbloom-last-focus-date');
       const storedMood = localStorage.getItem('mindbloom-today-mood');
+      const storedFocusAreas = localStorage.getItem('mindbloom-today-focus-areas');
       
       if (lastMoodDate === today && storedMood) {
         setTodaysMood(storedMood);
+        
+        if (lastFocusDate === today && storedFocusAreas) {
+          setTodaysFocusAreas(JSON.parse(storedFocusAreas));
+        } else {
+          // Mood is set but focus areas aren't - redirect to focus selection
+          navigate('/focus-selection');
+          return;
+        }
       } else {
         setShowMoodSelector(true);
       }
@@ -41,6 +52,9 @@ const Dashboard = () => {
     const today = new Date().toDateString();
     localStorage.setItem('mindbloom-today-mood', mood);
     localStorage.setItem('mindbloom-last-mood-date', today);
+    
+    // Navigate to focus selection
+    navigate('/focus-selection');
   };
 
   const handleSignOut = () => {
@@ -48,6 +62,8 @@ const Dashboard = () => {
     localStorage.removeItem('mindbloom-user');
     localStorage.removeItem('mindbloom-today-mood');
     localStorage.removeItem('mindbloom-last-mood-date');
+    localStorage.removeItem('mindbloom-today-focus-areas');
+    localStorage.removeItem('mindbloom-last-focus-date');
     localStorage.removeItem('mindbloom-notes');
     localStorage.removeItem('mindbloom-checklists');
     localStorage.removeItem('mindbloom-reminders');
@@ -68,6 +84,10 @@ const Dashboard = () => {
     navigate('/progress');
   };
 
+  const changeFocusAreas = () => {
+    navigate('/focus-selection');
+  };
+
   const getMoodIcon = (mood: string) => {
     switch (mood) {
       case 'motivated': return <Zap className="w-5 h-5 text-green-600" />;
@@ -79,61 +99,24 @@ const Dashboard = () => {
     }
   };
 
-  const getMoodColor = (mood: string) => {
-    switch (mood) {
-      case 'motivated': return 'bg-green-100 text-green-800 border-green-200';
-      case 'okay': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'foggy': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'tired': return 'bg-gray-100 text-gray-800 border-gray-200';
-      case 'stressed': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-blue-100 text-blue-800 border-blue-200';
-    }
+  const getFocusAreaLabel = (areaId: string) => {
+    const labels: { [key: string]: string } = {
+      general: 'General Wellness',
+      attention: 'Attention',
+      perception: 'Perception',
+      memory: 'Memory',
+      language: 'Language',
+      executive: 'Executive Function',
+      spatial: 'Spatial Reasoning',
+      processing: 'Processing Speed',
+      creativity: 'Creativity'
+    };
+    return labels[areaId] || areaId;
   };
 
   const getExerciseCount = () => {
     // Always return 3 exercises per day
     return 3;
-  };
-
-  const getAvailableExerciseTypes = () => {
-    // Start with core exercises (restored Memory)
-    const types = ['Memory', 'Attention', 'Language'];
-    
-    // Based on mood and user profile, we might swap one of the core exercises
-    // for a specialized one, but still keep total at 3
-    if (userData?.goals?.includes('stress') || 
-        todaysMood === 'stressed' || 
-        todaysMood === 'foggy' || 
-        todaysMood === 'tired' ||
-        userData?.goals?.includes('recovery')) {
-      // Replace Language with Mindful Memory for stressed/recovery users
-      types[2] = 'Mindful Memory';
-    } else if (userData?.goals?.includes('recovery') || 
-               userData?.goals?.includes('professional') ||
-               userData?.cognitiveAreas?.includes('executive') ||
-               userData?.experience === 'experienced') {
-      // Replace Language with Task Sequencing for executive function focus
-      types[2] = 'Task Sequencing';
-    } else if (userData?.goals?.includes('professional') ||
-               userData?.experience === 'experienced' ||
-               todaysMood === 'motivated') {
-      // Replace Language with Conversation Practice for social skills
-      types[2] = 'Conversation Practice';
-    }
-    
-    return types;
-  };
-
-  const showConversationPractice = () => {
-    const exerciseTypes = getAvailableExerciseTypes();
-    return exerciseTypes.includes('Conversation Practice');
-  };
-
-  const getTimeOfDay = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'morning';
-    if (hour < 17) return 'afternoon';
-    return 'evening';
   };
 
   if (!userData) {
@@ -144,7 +127,10 @@ const Dashboard = () => {
     return <MoodSelector onMoodSelected={handleMoodSelected} userName={userData.name} />;
   }
 
-  const exerciseTypes = getAvailableExerciseTypes();
+  // If we don't have both mood and focus areas, redirect
+  if (!todaysMood || todaysFocusAreas.length === 0) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
@@ -203,7 +189,7 @@ const Dashboard = () => {
                 Let's begin today's brain training
               </CardTitle>
               <CardDescription className="text-lg">
-                {getExerciseCount()} quick activities picked just for you.
+                {getExerciseCount()} activities focused on your selected areas
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -219,50 +205,32 @@ const Dashboard = () => {
                   </Button>
                 </div>
 
-                {/* Exercise Types Preview - Reduced text clutter */}
+                {/* Today's Focus Areas */}
                 <div className="bg-gradient-to-r from-emerald-100 to-green-100 dark:from-emerald-800/30 dark:to-green-800/30 rounded-lg p-4">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Today's Focus Areas:</p>
                   <div className="flex flex-wrap gap-2 justify-center">
-                    {exerciseTypes.map((type, index) => (
+                    {todaysFocusAreas.map((areaId, index) => (
                       <Badge 
                         key={index}
                         variant="outline" 
-                        className="text-sm px-3 py-1 flex items-center space-x-1"
+                        className="text-sm px-3 py-1"
                       >
-                        {type === 'Mindful Memory' && <Heart className="w-3 h-3" />}
-                        {type === 'Conversation Practice' && <MessageCircle className="w-3 h-3" />}
-                        {type === 'Task Sequencing' && <CheckSquare className="w-3 h-3" />}
-                        {!['Mindful Memory', 'Conversation Practice', 'Task Sequencing'].includes(type) && <Brain className="w-3 h-3" />}
-                        <span>{type}</span>
+                        {getFocusAreaLabel(areaId)}
                       </Badge>
                     ))}
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={changeFocusAreas}
+                    className="mt-2 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                  >
+                    Change focus areas
+                  </Button>
                 </div>
               </div>
             </CardContent>
           </Card>
-
-          {/* Conversation Practice Info (only if available) */}
-          {showConversationPractice() && (
-            <Card className="border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-xl flex items-center">
-                  <MessageCircle className="w-5 h-5 mr-2 text-purple-600" />
-                  Conversation Practice Available Today
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-purple-700 dark:text-purple-300 mb-4">
-                  Real-world social scenarios to build confidence in everyday interactions like doctor appointments, 
-                  grocery shopping, and friendly conversations with neighbors.
-                </p>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-3">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    💡 This exercise helps you practice social communication in a safe, supportive environment
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
 
           {/* Progress Metrics - Single Card with Horizontal Layout */}
           <Card>

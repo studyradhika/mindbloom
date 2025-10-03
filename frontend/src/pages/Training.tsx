@@ -20,85 +20,105 @@ const Training = () => {
   const [exerciseResults, setExerciseResults] = useState<any[]>([]);
   const [userData, setUserData] = useState<any>(null);
   const [todaysMood, setTodaysMood] = useState<string>('okay');
+  const [todaysFocusAreas, setTodaysFocusAreas] = useState<string[]>([]);
 
-  // Updated exercise selection to always return exactly 3 exercises
+  // Exercise mapping based on focus areas
   const getExerciseSet = () => {
-    const baseExercises = [
-      {
+    const exerciseMap: { [key: string]: any } = {
+      memory: {
         id: 'memory',
         title: 'Memory Challenge',
         description: 'Remember and recall sequences',
         component: MemoryExercise,
         area: 'Memory'
       },
-      {
+      attention: {
         id: 'attention',
         title: 'Focus Training',
         description: 'Selective attention and concentration',
         component: AttentionExercise,
         area: 'Attention'
       },
-      {
+      language: {
         id: 'language',
         title: 'Word Skills',
         description: 'Language and verbal reasoning',
         component: LanguageExercise,
         area: 'Language'
-      }
-    ];
-
-    const specializedExercises = [
-      {
+      },
+      executive: {
         id: 'sequencing',
         title: 'Task Sequencing',
         description: 'Organize everyday activities in order',
         component: SequencingExercise,
         area: 'Executive Function'
       },
-      {
+      creativity: {
         id: 'mindful-memory',
         title: 'Mindful Memory',
         description: 'Memory training with guided breathing',
         component: MindfulMemoryExercise,
-        area: 'Mindful Cognitive'
+        area: 'Creativity & Mindfulness'
       },
-      {
+      processing: {
+        id: 'attention',
+        title: 'Processing Speed',
+        description: 'Quick thinking and reaction time',
+        component: AttentionExercise,
+        area: 'Processing Speed'
+      },
+      spatial: {
+        id: 'memory',
+        title: 'Spatial Memory',
+        description: 'Visual-spatial memory patterns',
+        component: MemoryExercise,
+        area: 'Spatial Reasoning'
+      },
+      perception: {
+        id: 'attention',
+        title: 'Visual Perception',
+        description: 'Pattern recognition and visual processing',
+        component: AttentionExercise,
+        area: 'Perception'
+      },
+      general: {
         id: 'conversation',
-        title: 'Conversation Practice',
-        description: 'Real-world social interactions',
+        title: 'Social Skills',
+        description: 'Real-world conversation practice',
         component: ConversationExercise,
-        area: 'Social Communication'
+        area: 'General Wellness'
       }
+    };
+
+    let selectedExercises: any[] = [];
+
+    // Map focus areas to exercises
+    todaysFocusAreas.forEach(areaId => {
+      if (exerciseMap[areaId] && selectedExercises.length < 3) {
+        selectedExercises.push(exerciseMap[areaId]);
+      }
+    });
+
+    // Fill remaining slots with default exercises if needed
+    const defaultExercises = [
+      exerciseMap.memory,
+      exerciseMap.attention,
+      exerciseMap.language
     ];
 
-    // Start with base exercises (Memory, Attention)
-    let selectedExercises = [baseExercises[0], baseExercises[1]]; // Memory and Attention
-
-    // Choose the third exercise based on user profile and mood
-    if (userData?.goals?.includes('stress') || 
-        todaysMood === 'stressed' || 
-        todaysMood === 'foggy' || 
-        todaysMood === 'tired' ||
-        userData?.goals?.includes('recovery')) {
-      // Use Mindful Memory as third exercise
-      selectedExercises.push(specializedExercises[1]);
-    } else if (userData?.goals?.includes('recovery') || 
-               userData?.goals?.includes('professional') ||
-               userData?.cognitiveAreas?.includes('executive') ||
-               userData?.experience === 'experienced') {
-      // Use Task Sequencing as third exercise
-      selectedExercises.push(specializedExercises[0]);
-    } else if (userData?.goals?.includes('professional') ||
-               userData?.experience === 'experienced' ||
-               todaysMood === 'motivated') {
-      // Use Conversation Practice as third exercise
-      selectedExercises.push(specializedExercises[2]);
-    } else {
-      // Default to Language exercise
-      selectedExercises.push(baseExercises[2]);
+    while (selectedExercises.length < 3) {
+      const defaultEx = defaultExercises[selectedExercises.length];
+      if (!selectedExercises.find(ex => ex.id === defaultEx.id)) {
+        selectedExercises.push(defaultEx);
+      }
     }
 
-    return selectedExercises;
+    // Ensure we have exactly 3 unique exercises
+    const uniqueExercises = selectedExercises.filter((exercise, index, self) => 
+      index === self.findIndex(ex => ex.id === exercise.id)
+    ).slice(0, 3);
+
+    return uniqueExercises;
   };
 
   const [exercises, setExercises] = useState<any[]>([]);
@@ -110,14 +130,19 @@ const Training = () => {
     }
     
     const mood = localStorage.getItem('mindbloom-today-mood') || 'okay';
+    const focusAreas = localStorage.getItem('mindbloom-today-focus-areas');
+    
     setTodaysMood(mood);
+    if (focusAreas) {
+      setTodaysFocusAreas(JSON.parse(focusAreas));
+    }
   }, []);
 
   useEffect(() => {
-    if (userData) {
+    if (userData && todaysFocusAreas.length > 0) {
       setExercises(getExerciseSet());
     }
-  }, [userData, todaysMood]);
+  }, [userData, todaysFocusAreas, todaysMood]);
 
   const handleExerciseComplete = (result: any) => {
     const newResults = [...exerciseResults, result];
@@ -144,12 +169,14 @@ const Training = () => {
         lastSessionScore: averageScore,
         lastSessionDuration: sessionDuration,
         lastSessionMood: todaysMood,
+        lastSessionFocusAreas: todaysFocusAreas,
         exerciseHistory: [
           ...(userData.exerciseHistory || []),
           {
             date: new Date().toISOString(),
             exercises: results,
             mood: todaysMood,
+            focusAreas: todaysFocusAreas,
             duration: sessionDuration,
             averageScore
           }
@@ -272,9 +299,9 @@ const Training = () => {
       <div className="container mx-auto px-4 pb-8">
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Today's Exercise Plan</CardTitle>
+            <CardTitle className="text-lg">Today's Personalized Session</CardTitle>
             <CardDescription>
-              Your personalized session based on mood: {todaysMood}
+              Based on your focus areas: {todaysFocusAreas.map(area => area.charAt(0).toUpperCase() + area.slice(1)).join(', ')}
             </CardDescription>
           </CardHeader>
           <CardContent>

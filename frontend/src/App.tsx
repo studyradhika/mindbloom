@@ -13,6 +13,7 @@ import Training from "./pages/Training";
 import SessionComplete from "./pages/SessionComplete";
 import MemoryTools from "./pages/MemoryTools";
 import Progress from "./pages/Progress";
+import FocusSelection from "./pages/FocusSelection";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/see-you-tomorrow" element={<SeeYouTomorrow />} />
           <Route path="/goodbye" element={<Goodbye />} />
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/focus-selection" element={<FocusSelection />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/training" element={<Training />} />
           <Route path="/session-complete" element={<SessionComplete />} />

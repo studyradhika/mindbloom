@@ -174,7 +174,7 @@ const Dashboard = () => {
               className="text-base px-3 py-2"
             >
               <Target className="w-4 h-4 mr-2" />
-              Focus Areas
+              Change Focus Areas
             </Button>
             <Button 
               variant="outline" 

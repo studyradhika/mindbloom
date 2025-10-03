@@ -57,11 +57,8 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              How are you feeling today, {userName}?
+              Welcome back! How are you feeling today?
             </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300">
-              Your mood helps us personalize today's training session just for you
-            </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

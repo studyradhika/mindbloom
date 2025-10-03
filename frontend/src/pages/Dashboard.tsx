@@ -197,7 +197,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* Exercise Types Preview */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+                <div className="bg-gradient-to-r from-emerald-100 to-green-100 dark:from-emerald-800/30 dark:to-green-800/30 rounded-lg p-4">
                   <h3 className="font-semibold mb-3">Today's Exercise Types:</h3>
                   <div className="flex flex-wrap gap-2 justify-center">
                     {exerciseTypes.map((type, index) => (

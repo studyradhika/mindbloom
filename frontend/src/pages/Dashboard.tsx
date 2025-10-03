@@ -180,7 +180,7 @@ const Dashboard = () => {
                 Let's begin today's brain training
               </CardTitle>
               <CardDescription className="text-lg">
-                Your personalized session is ready based on your {todaysMood} mood and goals
+                {getExerciseCount()} quick activities picked just for you.
               </CardDescription>
             </CardHeader>
             <CardContent>

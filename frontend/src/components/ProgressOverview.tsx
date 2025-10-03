@@ -1,6 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Trophy, Star, Target, TrendingUp } from "lucide-react";
 
 interface ProgressOverviewProps {
@@ -8,144 +7,140 @@ interface ProgressOverviewProps {
 }
 
 const ProgressOverview = ({ userData }: ProgressOverviewProps) => {
-  const cognitiveAreas = userData.cognitiveAreas || [];
   const streak = userData.streak || 0;
   const totalSessions = userData.totalSessions || 0;
 
-  // Mock progress data - in a real app this would come from user performance
-  const getAreaProgress = (area: string) => {
-    const baseProgress = Math.min(totalSessions * 5, 100);
-    const variation = Math.random() * 20 - 10; // ±10% variation
-    return Math.max(0, Math.min(100, baseProgress + variation));
-  };
-
+  // Simple achievement system - only show earned achievements
   const achievements = [
-    { id: 'first-session', label: 'First Session', earned: totalSessions >= 1 },
-    { id: 'week-streak', label: '7-Day Streak', earned: streak >= 7 },
-    { id: 'month-streak', label: '30-Day Streak', earned: streak >= 30 },
-    { id: 'dedicated', label: 'Dedicated Learner', earned: totalSessions >= 10 },
-    { id: 'consistent', label: 'Consistency Champion', earned: streak >= 14 }
+    { id: 'first-session', label: 'First Session Complete', earned: totalSessions >= 1, icon: '🌱' },
+    { id: 'week-streak', label: '7-Day Streak', earned: streak >= 7, icon: '🏆' },
+    { id: 'dedicated', label: '10 Sessions Complete', earned: totalSessions >= 10, icon: '⭐' },
+    { id: 'month-streak', label: '30-Day Streak', earned: streak >= 30, icon: '🎯' }
   ];
 
   const earnedAchievements = achievements.filter(a => a.earned);
 
+  // Weekly goal progress
+  const weeklyGoal = 7;
+  const weeklyProgress = Math.min(streak, weeklyGoal);
+
   return (
-    <div className="space-y-6">
-      {/* Achievements */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center">
-            <Trophy className="w-5 h-5 mr-2 text-yellow-600" />
-            Achievements
-          </CardTitle>
-          <CardDescription>
-            Your cognitive wellness milestones
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {earnedAchievements.length > 0 ? (
-            <div className="space-y-2">
-              {earnedAchievements.map((achievement) => (
-                <Badge 
-                  key={achievement.id}
-                  variant="secondary" 
-                  className="w-full justify-start py-2 bg-yellow-50 text-yellow-800 border-yellow-200"
-                >
-                  <Star className="w-4 h-4 mr-2" />
-                  {achievement.label}
-                </Badge>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-600 dark:text-gray-400 text-center py-4">
-              Complete your first session to earn achievements!
-            </p>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Cognitive Areas Progress */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center">
-            <Target className="w-5 h-5 mr-2 text-indigo-600" />
-            Focus Areas
-          </CardTitle>
-          <CardDescription>
-            Your progress in selected cognitive skills
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {cognitiveAreas.length > 0 ? (
-            cognitiveAreas.map((area: string) => {
-              const progress = getAreaProgress(area);
-              const areaLabels: { [key: string]: string } = {
-                attention: 'Attention & Focus',
-                memory: 'Memory',
-                language: 'Language',
-                executive: 'Executive Function',
-                processing: 'Processing Speed',
-                spatial: 'Spatial Reasoning',
-                creativity: 'Creativity'
-              };
-              
-              return (
-                <div key={area} className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">
-                      {areaLabels[area] || area}
-                    </span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {Math.round(progress)}%
-                    </span>
-                  </div>
-                  <Progress value={progress} className="h-2" />
-                </div>
-              );
-            })
-          ) : (
-            <p className="text-gray-600 dark:text-gray-400 text-center py-4">
-              No focus areas selected
-            </p>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Weekly Goal */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center">
-            <TrendingUp className="w-5 h-5 mr-2 text-green-600" />
-            This Week's Goal
+    <div className="space-y-8">
+      
+      {/* Current Progress - Large and Clear */}
+      <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl flex items-center justify-center">
+            <TrendingUp className="w-8 h-8 mr-3 text-green-600" />
+            Your Progress
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600 mb-2">
-              {Math.min(streak, 7)}/7
+          <div className="grid md:grid-cols-2 gap-6 text-center">
+            <div>
+              <div className="text-5xl font-bold text-green-600 mb-2">{streak}</div>
+              <p className="text-xl text-green-700 dark:text-green-300">
+                Day{streak !== 1 ? 's' : ''} in a Row
+              </p>
             </div>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Days completed this week
-            </p>
-            <Progress value={(Math.min(streak, 7) / 7) * 100} className="h-3" />
+            <div>
+              <div className="text-5xl font-bold text-blue-600 mb-2">{totalSessions}</div>
+              <p className="text-xl text-blue-700 dark:text-blue-300">
+                Session{totalSessions !== 1 ? 's' : ''} Complete
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Encouragement */}
-      <Card className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200">
-        <CardContent className="pt-6">
+      {/* Weekly Goal - Simple Progress */}
+      <Card>
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl flex items-center justify-center">
+            <Target className="w-8 h-8 mr-3 text-purple-600" />
+            This Week's Goal
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center mb-6">
+            <div className="text-4xl font-bold text-purple-600 mb-2">
+              {weeklyProgress} / {weeklyGoal}
+            </div>
+            <p className="text-xl text-purple-700 dark:text-purple-300">
+              days completed
+            </p>
+          </div>
+          
+          {/* Simple visual progress */}
+          <div className="flex justify-center space-x-2 mb-4">
+            {Array.from({ length: weeklyGoal }, (_, i) => (
+              <div
+                key={i}
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${
+                  i < weeklyProgress ? 'bg-purple-600' : 'bg-gray-300 dark:bg-gray-600'
+                }`}
+              >
+                {i < weeklyProgress ? '✓' : i + 1}
+              </div>
+            ))}
+          </div>
+          
           <div className="text-center">
-            <h3 className="font-semibold text-purple-800 dark:text-purple-200 mb-2">
+            <p className="text-lg text-gray-600 dark:text-gray-400">
+              {weeklyProgress === weeklyGoal 
+                ? "🎉 Weekly goal achieved!" 
+                : `${weeklyGoal - weeklyProgress} more day${weeklyGoal - weeklyProgress !== 1 ? 's' : ''} to go`}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Achievements - Only Show Earned Ones */}
+      {earnedAchievements.length > 0 && (
+        <Card>
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl flex items-center justify-center">
+              <Trophy className="w-8 h-8 mr-3 text-yellow-600" />
+              Your Achievements
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {earnedAchievements.map((achievement) => (
+                <div 
+                  key={achievement.id}
+                  className="flex items-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border-2 border-yellow-200"
+                >
+                  <div className="text-3xl mr-4">{achievement.icon}</div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-yellow-800 dark:text-yellow-200">
+                      {achievement.label}
+                    </h3>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Encouragement */}
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-200">
+        <CardContent className="pt-8 pb-8">
+          <div className="text-center">
+            <div className="text-4xl mb-4">
+              {streak === 0 ? '🌟' : streak < 7 ? '💪' : '🔥'}
+            </div>
+            <h3 className="text-2xl font-bold text-blue-800 dark:text-blue-200 mb-3">
               {streak === 0 
-                ? "Your journey starts today!" 
+                ? "Ready to start?" 
                 : streak < 7 
                   ? "Building momentum!" 
-                  : "You're on fire! 🔥"}
+                  : "You're on fire!"}
             </h3>
-            <p className="text-sm text-purple-700 dark:text-purple-300">
+            <p className="text-xl text-blue-700 dark:text-blue-300">
               {streak === 0 
-                ? "Every expert was once a beginner" 
+                ? "Every journey begins with a single step" 
                 : streak < 7 
                   ? "Consistency is the key to success" 
                   : "Your dedication is truly inspiring"}

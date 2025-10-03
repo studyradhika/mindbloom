@@ -185,19 +185,15 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">{getExerciseCount()}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Exercises</div>
-                  </div>
-                  <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">~{getExerciseCount() * 3}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Minutes</div>
-                  </div>
-                  <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">{exerciseTypes.length}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Exercise Types</div>
-                  </div>
+                {/* Start Button */}
+                <div className="flex justify-center">
+                  <Button 
+                    onClick={startTraining}
+                    size="lg"
+                    className="text-xl px-8 py-4 bg-green-600 hover:bg-green-700"
+                  >
+                    Start Now
+                  </Button>
                 </div>
 
                 {/* Exercise Types Preview */}
@@ -219,14 +215,6 @@ const Dashboard = () => {
                     ))}
                   </div>
                 </div>
-                
-                <Button 
-                  onClick={startTraining}
-                  size="lg"
-                  className="w-full text-xl py-4 bg-green-600 hover:bg-green-700"
-                >
-                  Start Training Session
-                </Button>
               </div>
             </CardContent>
           </Card>

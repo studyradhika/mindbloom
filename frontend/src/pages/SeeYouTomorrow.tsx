@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Brain } from "lucide-react";
+import { Brain, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const SeeYouTomorrow = () => {
@@ -18,9 +18,22 @@ const SeeYouTomorrow = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
-        <div className="flex items-center justify-center space-x-3">
-          <Brain className="h-12 w-12 text-purple-600" />
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">MindBloom</h1>
+        <div className="flex items-center justify-between">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/')}
+            className="text-base px-4 py-2"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
+          </Button>
+          
+          <div className="flex items-center space-x-3">
+            <Brain className="h-12 w-12 text-purple-600" />
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">MindBloom</h1>
+          </div>
+          
+          <div className="w-32"></div> {/* Spacer for center alignment */}
         </div>
       </header>
 

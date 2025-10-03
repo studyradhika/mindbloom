@@ -204,8 +204,8 @@ const Training = () => {
     navigate('/goodbye');
   };
 
-  const handleBack = () => {
-    // Explicitly navigate back to focus selection page
+  const handleBackToFocusSelection = () => {
+    // Navigate directly to focus selection page
     navigate('/focus-selection');
   };
 
@@ -234,11 +234,11 @@ const Training = () => {
           <div className="flex items-center space-x-4">
             <Button 
               variant="outline" 
-              onClick={handleBack}
+              onClick={handleBackToFocusSelection}
               className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Focus Areas
+              Change Focus Areas
             </Button>
             <div className="flex items-center space-x-3">
               <Brain className="h-8 w-8 text-indigo-600" />

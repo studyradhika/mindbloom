@@ -207,7 +207,7 @@ const Dashboard = () => {
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Good {getTimeOfDay()}, {userData.name}, here are your activities for today.
+            {userData.name}, here are your activities for today.
           </h2>
         </div>
 
@@ -294,31 +294,41 @@ const Dashboard = () => {
             </Card>
           )}
 
-          {/* This Week's Goal */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xl flex items-center">
-                <Calendar className="w-5 h-5 mr-2 text-green-600" />
-                This Week's Goal
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600 mb-2">
-                  {Math.min(userData.streak || 0, 7)}/7
+          {/* Progress Metrics */}
+          <div className="grid md:grid-cols-3 gap-6">
+            <Card className="text-center">
+              <CardContent className="pt-6 pb-6">
+                <div className="text-4xl font-bold text-green-600 mb-2">
+                  {userData.totalSessions || 0}
                 </div>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Days completed this week
-                </p>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
-                  <div 
-                    className="bg-green-600 h-3 rounded-full transition-all duration-300"
-                    style={{ width: `${(Math.min(userData.streak || 0, 7) / 7) * 100}%` }}
-                  />
+                <div className="text-gray-600 dark:text-gray-400">
+                  Exercises Done
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center">
+              <CardContent className="pt-6 pb-6">
+                <div className="text-4xl font-bold text-blue-600 mb-2">
+                  {userData.streak || 0}
+                </div>
+                <div className="text-gray-600 dark:text-gray-400">
+                  Day Streak
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center">
+              <CardContent className="pt-6 pb-6">
+                <div className="text-4xl font-bold text-orange-600 mb-2">
+                  {getExerciseCount()}
+                </div>
+                <div className="text-gray-600 dark:text-gray-400">
+                  Today's Goal
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </main>
     </div>

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Brain, Star, Heart } from "lucide-react";
+import { Brain, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const SeeYouTomorrow = () => {
@@ -30,7 +30,7 @@ const SeeYouTomorrow = () => {
           <Card className="mb-8 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200">
             <CardContent className="pt-12 pb-12">
               <div className="w-20 h-20 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Heart className="w-10 h-10 text-white" />
+                <Brain className="w-10 h-10 text-white" />
               </div>
               
               <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
@@ -52,9 +52,7 @@ const SeeYouTomorrow = () => {
                 "The journey of a thousand miles begins with one step."
               </h3>
               <p className="text-green-700 dark:text-green-300 text-lg">
-                Every expert was once a beginner. Your brain is incredibly adaptable, and with just 
-                10 minutes a day, you'll be amazed at what you can achieve. Tomorrow marks the 
-                beginning of a stronger, sharper, more resilient mind.
+                Tomorrow marks the beginning of a stronger, sharper, more resilient mind.
               </p>
             </CardContent>
           </Card>
@@ -77,7 +75,6 @@ const SeeYouTomorrow = () => {
           {/* Footer Message */}
           <div className="mt-12 text-center">
             <p className="text-gray-500 dark:text-gray-400">
-              We'll send you a gentle reminder tomorrow based on your preferred time. 
               Welcome to the MindBloom community! 🌸
             </p>
           </div>

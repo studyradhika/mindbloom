@@ -31,19 +31,15 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-center">
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center">
               <Brain className="w-7 h-7 text-white" />
             </div>
-            <div>
+            <div className="text-center">
               <h1 className="text-2xl font-bold text-gray-900">MindBloom</h1>
               <p className="text-gray-600 text-sm">Keep Your Mind Sharp & Healthy</p>
             </div>
-          </div>
-          <div className="text-gray-600">
-            Welcome Serendipity! 
-            <button className="ml-2 text-green-600 hover:text-green-700">Sign Out</button>
           </div>
         </div>
       </header>
@@ -51,7 +47,7 @@ const Index = () => {
       <main className="container mx-auto px-4">
         {/* Hero Section */}
         <div className="text-center py-16 max-w-4xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
             Scientifically-designed exercises by brain health experts to boost memory, improve focus, and keep your mind active.
           </h2>
           <p className="text-xl text-gray-600 mb-8">

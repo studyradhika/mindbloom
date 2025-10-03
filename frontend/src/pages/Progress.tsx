@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Brain, Home, Calendar, TrendingUp, Trophy, Target } from "lucide-react";
+import PerformanceChart from "@/components/PerformanceChart";
 
 const Progress = () => {
   const navigate = useNavigate();
@@ -23,7 +24,6 @@ const Progress = () => {
 
   const totalSessions = userData.totalSessions || 0;
   const currentStreak = userData.streak || 0;
-  const cognitiveAreas = userData.cognitiveAreas || [];
 
   // Calculate simple progress metrics
   const weeklyGoal = 7;
@@ -78,7 +78,7 @@ const Progress = () => {
       </header>
 
       <main className="container mx-auto px-4 pb-8">
-        <div className="max-w-4xl mx-auto space-y-8">
+        <div className="max-w-6xl mx-auto space-y-8">
           
           {/* Main Progress Stats - Large and Clear */}
           <div className="grid md:grid-cols-2 gap-8">
@@ -114,6 +114,9 @@ const Progress = () => {
               </CardContent>
             </Card>
           </div>
+
+          {/* Performance Chart */}
+          <PerformanceChart userData={userData} />
 
           {/* Weekly Goal Progress */}
           <Card className="border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">

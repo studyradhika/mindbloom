@@ -18,8 +18,26 @@ const Index = () => {
   }, [navigate]);
 
   const handleSignIn = () => {
-    // For demo purposes, just navigate to dashboard
-    // In a real app, this would validate credentials
+    // For demo purposes, create sample user data for existing users
+    const sampleUserData = {
+      name: 'Welcome Back',
+      email: 'user@example.com',
+      ageGroup: '50-59',
+      goals: ['prevention', 'focus', 'memory'],
+      cognitiveAreas: ['memory', 'attention', 'language'],
+      experience: 'some',
+      timePreference: 'morning',
+      onboardingCompleted: true,
+      joinDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days ago
+      streak: 5,
+      totalSessions: 12,
+      lastSessionDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // Yesterday
+      lastSessionScore: 78,
+      lastSessionDuration: 8,
+      exerciseHistory: []
+    };
+    
+    localStorage.setItem('mindbloom-user', JSON.stringify(sampleUserData));
     navigate('/dashboard');
   };
 

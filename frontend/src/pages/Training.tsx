@@ -227,11 +227,6 @@ const Training = () => {
             <Progress value={progress} className="h-2 mb-2" />
             <div className="text-center">
               <h2 className="text-lg font-semibold">{exercises[currentExercise].title}</h2>
-              <div className="mt-2">
-                <Badge variant="outline" className="text-sm">
-                  {exercises[currentExercise].area}
-                </Badge>
-              </div>
             </div>
           </CardContent>
         </Card>

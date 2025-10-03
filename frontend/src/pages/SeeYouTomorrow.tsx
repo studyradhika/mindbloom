@@ -18,9 +18,9 @@ const SeeYouTomorrow = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
-        <div className="flex items-center justify-center space-x-2">
-          <Brain className="h-8 w-8 text-purple-600" />
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">MindBloom</h1>
+        <div className="flex items-center justify-center space-x-3">
+          <Brain className="h-12 w-12 text-purple-600" />
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">MindBloom</h1>
         </div>
       </header>
 
@@ -29,16 +29,15 @@ const SeeYouTomorrow = () => {
           {/* Main Thank You Card */}
           <Card className="mb-8 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200">
             <CardContent className="pt-12 pb-12">
-              <div className="w-20 h-20 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Brain className="w-10 h-10 text-white" />
-              </div>
-              
               <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
                 Thank You for Registering!
               </h2>
               
-              <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-                We're excited to be part of your cognitive wellness journey. 
+              <p className="text-xl text-purple-600 dark:text-purple-300 mb-4">
+                Welcome to the MindBloom community! 🌸
+              </p>
+              
+              <p className="text-xl text-gray-600 dark:text-gray-300">
                 See you tomorrow for your first brain training session!
               </p>
             </CardContent>
@@ -70,13 +69,6 @@ const SeeYouTomorrow = () => {
             <div className="text-gray-600 dark:text-gray-400">
               <p>Changed your mind? You can always start your training today!</p>
             </div>
-          </div>
-
-          {/* Footer Message */}
-          <div className="mt-12 text-center">
-            <p className="text-gray-500 dark:text-gray-400">
-              Welcome to the MindBloom community! 🌸
-            </p>
           </div>
         </div>
       </main>

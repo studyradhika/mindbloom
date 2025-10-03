@@ -8,7 +8,7 @@ const LandingPage = () => {
   const navigate = useNavigate();
 
   const handleStartJourney = () => {
-    navigate('/mindbloom');
+    navigate('/registration');
   };
 
   const handleSignIn = () => {
@@ -16,7 +16,7 @@ const LandingPage = () => {
   };
 
   const handleGetStarted = () => {
-    navigate('/mindbloom');
+    navigate('/registration');
   };
 
   return (
@@ -67,7 +67,7 @@ const LandingPage = () => {
               </span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              MindBloom empowers adults 40+ to maintain and improve cognitive wellness through personalized, 
+              MindBloom empowers adults to maintain and improve cognitive wellness through personalized, 
               evidence-based brain training exercises. Just 10 minutes a day can help enhance memory, focus, and mental clarity.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -112,7 +112,7 @@ const LandingPage = () => {
                 <div className="bg-gradient-to-br from-red-100 to-pink-100 p-4 rounded-full w-fit mx-auto mb-4">
                   <Heart className="h-12 w-12 text-red-500" />
                 </div>
-                <CardTitle className="text-gray-800">Health-Conscious Adults 40+</CardTitle>
+                <CardTitle className="text-gray-800">Health-Conscious Adults</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">
@@ -523,7 +523,7 @@ const LandingPage = () => {
                 </span>
               </div>
               <p className="text-gray-300 mb-4">
-                Evidence-based cognitive wellness platform for adults 40+ and those experiencing cognitive challenges.
+                Evidence-based cognitive wellness platform for adults and those experiencing cognitive challenges.
               </p>
             </div>
             <div>
@@ -555,7 +555,7 @@ const LandingPage = () => {
             </div>
           </div>
           <div className="border-t border-purple-800 mt-8 pt-8 text-center text-gray-300">
-            <p>© 2024 MindBloom. All rights reserved. | Empowering cognitive wellness through evidence-based brain training.</p>
+            <p>© 2025 MindBloom. All rights reserved. | Empowering cognitive wellness through evidence-based brain training.</p>
           </div>
         </div>
       </footer>

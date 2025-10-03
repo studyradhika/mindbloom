@@ -33,8 +33,8 @@ const Index = () => {
       <header className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-center">
           <div className="flex items-center space-x-4">
-            <div className="w-16 h-16 bg-green-600 rounded-xl flex items-center justify-center">
-              <Brain className="w-10 h-10 text-white" />
+            <div className="w-20 h-20 bg-green-600 rounded-xl flex items-center justify-center">
+              <Brain className="w-12 h-12 text-white" />
             </div>
             <div className="text-center">
               <h1 className="text-6xl font-bold text-gray-900 whitespace-nowrap">MindBloom</h1>

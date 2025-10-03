@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Home, Calendar, TrendingUp, TrendingDown, Trophy, Target, LogOut, ArrowLeft, BarChart3, AlertCircle, CheckCircle, Activity, Users, Minus } from "lucide-react";
+import { Brain, Home, Calendar, TrendingUp, TrendingDown, Trophy, Target, LogOut, ArrowLeft, BarChart3, AlertTriangle, CheckCircle, Activity, Users, Minus } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from "recharts";
 import { theme, getAreaColor, getStatusColor } from "@/lib/theme";
 import { getPreviousPage } from "@/lib/navigation";
@@ -280,69 +280,84 @@ const Progress = () => {
     }
   };
 
-  // 4. IMPROVEMENT RECOMMENDATIONS - Based on actual data
-  const getImprovementRecommendations = () => {
+  // 4. SIMPLIFIED RECOMMENDATIONS - Two categories only
+  const getRecommendations = () => {
     const focusAnalytics = getFocusAreaAnalytics();
     const todaysPerf = getTodaysPerformance();
-    const recommendations = [];
+    
+    const performanceAlerts = [];
+    const areasOfExcellence = [];
 
-    // Check for regressing areas
+    // PERFORMANCE ALERTS - Areas needing attention
     const regressingAreas = focusAnalytics.filter(area => 
       area.sinceLastWeek === 'regressed' || area.sinceLastMonth === 'regressed'
     );
+    
     if (regressingAreas.length > 0) {
-      recommendations.push({
-        type: 'concern',
-        title: 'Areas Showing Regression',
-        description: `${regressingAreas.map(a => a.name).join(', ')} have shown some decline recently`,
-        action: 'Consider increasing practice frequency in these areas or adjusting exercise difficulty',
-        priority: 'high'
+      performanceAlerts.push({
+        title: 'Declining Performance Detected',
+        description: `${regressingAreas.map(a => a.name).join(', ')} showing recent decline`,
+        action: 'Consider increasing practice frequency in these areas or adjusting exercise difficulty to rebuild confidence'
       });
     }
 
-    // Check consistency based on actual streak
+    // Check consistency issues
     if ((userData.streak || 0) < 3) {
-      recommendations.push({
-        type: 'improvement',
-        title: 'Build Consistency',
-        description: 'Regular practice is key to cognitive improvement',
-        action: 'Try to maintain daily sessions, even if shorter',
-        priority: 'medium'
+      performanceAlerts.push({
+        title: 'Consistency Gap',
+        description: 'Training sessions have been irregular recently',
+        action: 'Try to maintain daily sessions, even if shorter - consistency is key to cognitive improvement'
       });
     }
 
-    // Check performance scores
+    // Check if exercises are too challenging
     if (todaysPerf.hasData && todaysPerf.averageScore < 60) {
-      recommendations.push({
-        type: 'support',
-        title: 'Performance Support',
-        description: 'Recent scores suggest exercises may be challenging',
-        action: 'Consider adjusting difficulty or taking breaks between exercises',
-        priority: 'medium'
+      performanceAlerts.push({
+        title: 'Challenge Level May Be Too High',
+        description: 'Recent scores suggest exercises may be too difficult',
+        action: 'Consider taking breaks between exercises or adjusting difficulty settings for better success rates'
       });
     }
 
-    // Positive reinforcement for improving areas
+    // AREAS OF EXCELLENCE - Celebrate successes
     const improvingAreas = focusAnalytics.filter(area => 
       area.sinceStarted === 'improved' || area.sinceLastMonth === 'improved'
     );
+    
     if (improvingAreas.length > 0) {
-      recommendations.push({
-        type: 'success',
-        title: 'Excellent Progress!',
-        description: `Outstanding improvement in ${improvingAreas.map(a => a.name).join(', ')}`,
-        action: 'Keep up the excellent work in these areas',
-        priority: 'positive'
+      areasOfExcellence.push({
+        title: 'Outstanding Progress!',
+        description: `Excellent improvement in ${improvingAreas.map(a => a.name).join(', ')}`,
+        action: 'Keep up the excellent work in these areas - your dedication is paying off'
       });
     }
 
-    return recommendations;
+    // Long-term progress recognition
+    const longTermImprovers = focusAnalytics.filter(area => area.sinceStarted === 'improved');
+    if (longTermImprovers.length >= 3) {
+      areasOfExcellence.push({
+        title: 'Remarkable Long-term Growth',
+        description: 'Consistent improvement across multiple cognitive areas since starting',
+        action: 'Your dedication is truly impressive - continue with your current routine for sustained cognitive wellness'
+      });
+    }
+
+    // Consistency achievement
+    if ((userData.streak || 0) >= 7) {
+      areasOfExcellence.push({
+        title: 'Excellent Training Consistency',
+        description: `${userData.streak} day training streak demonstrates strong commitment`,
+        action: 'Your consistent practice is the foundation of cognitive improvement - maintain this excellent habit'
+      });
+    }
+
+    return { performanceAlerts, areasOfExcellence };
   };
 
   const todaysPerformance = getTodaysPerformance();
   const historicalData = generateHistoricalData();
   const focusAreaAnalytics = getFocusAreaAnalytics();
-  const recommendations = getImprovementRecommendations();
+  const { performanceAlerts, areasOfExcellence } = getRecommendations();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
@@ -612,59 +627,70 @@ const Progress = () => {
             </CardContent>
           </Card>
 
-          {/* 4. IMPROVEMENT RECOMMENDATIONS */}
-          <Card className="border-2 border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-2xl flex items-center text-amber-800">
-                <Users className="w-7 h-7 mr-3" />
-                Recommendations for You & Your Caregiver
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recommendations.length > 0 ? recommendations.map((rec, index) => (
-                  <div 
-                    key={index} 
-                    className={`p-4 rounded-lg border-l-4 shadow-sm ${
-                      rec.priority === 'high' ? 'bg-red-50 border-red-400' :
-                      rec.priority === 'medium' ? 'bg-yellow-50 border-yellow-400' :
-                      rec.priority === 'positive' ? 'bg-emerald-50 border-emerald-400' :
-                      'bg-blue-50 border-blue-400'
-                    }`}
-                  >
-                    <div className="flex items-start space-x-3">
-                      <div className="mt-1">
-                        {rec.type === 'concern' && <AlertCircle className="w-5 h-5 text-red-500" />}
-                        {rec.type === 'improvement' && <TrendingUp className="w-5 h-5 text-yellow-500" />}
-                        {rec.type === 'support' && <Users className="w-5 h-5 text-blue-500" />}
-                        {rec.type === 'success' && <CheckCircle className="w-5 h-5 text-emerald-500" />}
+          {/* 4. SIMPLIFIED RECOMMENDATIONS */}
+          <div className="grid md:grid-cols-2 gap-8">
+            
+            {/* Performance Alerts */}
+            <Card className="border-2 border-red-200 bg-gradient-to-r from-red-50 to-orange-50 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-2xl flex items-center text-red-800">
+                  <AlertTriangle className="w-7 h-7 mr-3" />
+                  Performance Alerts
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {performanceAlerts.length > 0 ? performanceAlerts.map((alert, index) => (
+                    <div key={index} className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border-l-4 border-red-400 shadow-sm">
+                      <h3 className="font-semibold text-red-900 mb-2">{alert.title}</h3>
+                      <p className="text-red-700 mb-3">{alert.description}</p>
+                      <div className="bg-red-50 p-3 rounded text-sm">
+                        <strong className="text-red-800">Recommended Action:</strong>
+                        <p className="text-red-700 mt-1">{alert.action}</p>
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900">{rec.title}</h3>
-                        <p className="text-gray-700 mt-1">{rec.description}</p>
-                        <div className="mt-2 p-2 bg-white/50 rounded text-sm">
-                          <strong>Action:</strong> {rec.action}
-                        </div>
-                      </div>
-                      <Badge 
-                        variant={rec.priority === 'high' ? 'destructive' : 
-                                rec.priority === 'positive' ? 'default' : 'secondary'}
-                        className="capitalize"
-                      >
-                        {rec.priority}
-                      </Badge>
                     </div>
-                  </div>
-                )) : (
-                  <div className="text-center py-8">
-                    <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
-                    <p className="text-xl text-gray-700 mb-2">You're doing great!</p>
-                    <p className="text-gray-600">Keep up your excellent progress with regular training sessions.</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                  )) : (
+                    <div className="text-center py-8">
+                      <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+                      <p className="text-xl text-gray-700 mb-2">No Performance Concerns</p>
+                      <p className="text-gray-600">Your cognitive training is on track!</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Areas of Excellence */}
+            <Card className="border-2 border-emerald-200 bg-gradient-to-r from-emerald-50 to-green-50 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-2xl flex items-center text-emerald-800">
+                  <Trophy className="w-7 h-7 mr-3" />
+                  Areas of Excellence
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {areasOfExcellence.length > 0 ? areasOfExcellence.map((excellence, index) => (
+                    <div key={index} className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border-l-4 border-emerald-400 shadow-sm">
+                      <h3 className="font-semibold text-emerald-900 mb-2">{excellence.title}</h3>
+                      <p className="text-emerald-700 mb-3">{excellence.description}</p>
+                      <div className="bg-emerald-50 p-3 rounded text-sm">
+                        <strong className="text-emerald-800">Keep It Up:</strong>
+                        <p className="text-emerald-700 mt-1">{excellence.action}</p>
+                      </div>
+                    </div>
+                  )) : (
+                    <div className="text-center py-8">
+                      <Target className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                      <p className="text-xl text-gray-700 mb-2">Building Excellence</p>
+                      <p className="text-gray-600">Continue training to see your areas of strength emerge!</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+          </div>
 
         </div>
       </main>

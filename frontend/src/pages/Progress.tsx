@@ -80,6 +80,9 @@ const Progress = () => {
       <main className="container mx-auto px-4 pb-8">
         <div className="max-w-6xl mx-auto space-y-8">
           
+          {/* Performance Chart - Now at the top */}
+          <PerformanceChart userData={userData} />
+          
           {/* Main Progress Stats - Large and Clear */}
           <div className="grid md:grid-cols-2 gap-8">
             <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
@@ -114,9 +117,6 @@ const Progress = () => {
               </CardContent>
             </Card>
           </div>
-
-          {/* Performance Chart */}
-          <PerformanceChart userData={userData} />
 
           {/* Weekly Goal Progress */}
           <Card className="border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">

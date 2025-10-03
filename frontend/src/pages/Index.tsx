@@ -32,13 +32,13 @@ const Index = () => {
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-center">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center">
-              <Brain className="w-7 h-7 text-white" />
+          <div className="flex items-center space-x-4">
+            <div className="w-16 h-16 bg-green-600 rounded-xl flex items-center justify-center">
+              <Brain className="w-10 h-10 text-white" />
             </div>
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-900">MindBloom</h1>
-              <p className="text-gray-600 text-sm">Keep Your Mind Sharp & Healthy</p>
+              <h1 className="text-4xl font-bold text-gray-900">MindBloom</h1>
+              <p className="text-lg text-gray-600">Keep Your Mind Sharp & Healthy</p>
             </div>
           </div>
         </div>
@@ -47,14 +47,14 @@ const Index = () => {
       <main className="container mx-auto px-4">
         {/* Hero Section */}
         <div className="text-center py-16 max-w-4xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+          <h2 className="text-xl text-gray-900 mb-6">
             Scientifically-designed exercises by brain health experts to boost memory, improve focus, and keep your mind active.
           </h2>
           <p className="text-xl text-gray-600 mb-8">
             Just 30 minutes a day that can make a real difference. Start your journey to lifelong mental fitness today!
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col gap-4 justify-center items-center">
             <Button 
               onClick={handleSignIn}
               size="lg"

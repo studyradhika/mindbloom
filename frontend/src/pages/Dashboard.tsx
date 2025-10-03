@@ -83,31 +83,29 @@ const Dashboard = () => {
   };
 
   const getAvailableExerciseTypes = () => {
-    // Start with core exercises (removed Memory)
-    const types = ['Attention', 'Language'];
+    // Start with core exercises (restored Memory)
+    const types = ['Memory', 'Attention', 'Language'];
     
-    // Always add one specialized exercise based on mood and user profile
+    // Based on mood and user profile, we might swap one of the core exercises
+    // for a specialized one, but still keep total at 3
     if (userData?.goals?.includes('stress') || 
         todaysMood === 'stressed' || 
         todaysMood === 'foggy' || 
         todaysMood === 'tired' ||
         userData?.goals?.includes('recovery')) {
-      // Add Mindful Memory for stressed/recovery users
-      types.push('Mindful Memory');
+      // Replace Language with Mindful Memory for stressed/recovery users
+      types[2] = 'Mindful Memory';
     } else if (userData?.goals?.includes('recovery') || 
                userData?.goals?.includes('professional') ||
                userData?.cognitiveAreas?.includes('executive') ||
                userData?.experience === 'experienced') {
-      // Add Task Sequencing for executive function focus
-      types.push('Task Sequencing');
+      // Replace Language with Task Sequencing for executive function focus
+      types[2] = 'Task Sequencing';
     } else if (userData?.goals?.includes('professional') ||
                userData?.experience === 'experienced' ||
                todaysMood === 'motivated') {
-      // Add Conversation Practice for social skills
-      types.push('Conversation Practice');
-    } else {
-      // Default to Task Sequencing if no specific conditions are met
-      types.push('Task Sequencing');
+      // Replace Language with Conversation Practice for social skills
+      types[2] = 'Conversation Practice';
     }
     
     return types;
@@ -198,9 +196,8 @@ const Dashboard = () => {
                   </Button>
                 </div>
 
-                {/* Exercise Types Preview */}
+                {/* Exercise Types Preview - Reduced text clutter */}
                 <div className="bg-gradient-to-r from-emerald-100 to-green-100 dark:from-emerald-800/30 dark:to-green-800/30 rounded-lg p-4">
-                  <h3 className="font-semibold mb-3">Today's Exercise Types:</h3>
                   <div className="flex flex-wrap gap-2 justify-center">
                     {exerciseTypes.map((type, index) => (
                       <Badge 

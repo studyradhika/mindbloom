@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Target, Smile, Meh, Frown, Zap, Coffee, BookOpen, CheckSquare, Heart, MessageCircle, BarChart3, Calendar } from "lucide-react";
+import { Brain, Target, Smile, Meh, Frown, Zap, Coffee, BookOpen, CheckSquare, Heart, MessageCircle, BarChart3, Calendar, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import MoodSelector from "@/components/MoodSelector";
 
@@ -41,6 +41,19 @@ const Dashboard = () => {
     const today = new Date().toDateString();
     localStorage.setItem('mindbloom-today-mood', mood);
     localStorage.setItem('mindbloom-last-mood-date', today);
+  };
+
+  const handleSignOut = () => {
+    // Clear all user data
+    localStorage.removeItem('mindbloom-user');
+    localStorage.removeItem('mindbloom-today-mood');
+    localStorage.removeItem('mindbloom-last-mood-date');
+    localStorage.removeItem('mindbloom-notes');
+    localStorage.removeItem('mindbloom-checklists');
+    localStorage.removeItem('mindbloom-reminders');
+    
+    // Navigate to sign out page
+    navigate('/goodbye');
   };
 
   const startTraining = () => {
@@ -138,9 +151,19 @@ const Dashboard = () => {
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Brain className="h-8 w-8 text-indigo-600" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">MindBloom</h1>
+          <div className="flex flex-col items-start">
+            <div className="flex items-center space-x-2 mb-2">
+              <Brain className="h-8 w-8 text-indigo-600" />
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">MindBloom</h1>
+            </div>
+            <Button 
+              variant="ghost" 
+              onClick={handleSignOut}
+              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 p-0 h-auto font-normal"
+            >
+              <LogOut className="w-4 h-4 mr-1" />
+              Sign out
+            </Button>
           </div>
           <div className="flex items-center space-x-3">
             <Button 

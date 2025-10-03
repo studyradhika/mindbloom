@@ -180,10 +180,10 @@ const Dashboard = () => {
 
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Today's Brain Training */}
-          <Card className="border-2 border-indigo-200 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20">
+          <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
             <CardHeader>
               <CardTitle className="text-2xl flex items-center">
-                <Target className="w-6 h-6 mr-2 text-indigo-600" />
+                <Target className="w-6 h-6 mr-2 text-green-600" />
                 Today's Brain Training
               </CardTitle>
               <CardDescription className="text-lg">
@@ -194,15 +194,15 @@ const Dashboard = () => {
               <div className="space-y-4">
                 <div className="grid md:grid-cols-3 gap-4">
                   <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-                    <div className="text-2xl font-bold text-indigo-600">{getExerciseCount()}</div>
+                    <div className="text-2xl font-bold text-green-600">{getExerciseCount()}</div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">Exercises</div>
                   </div>
                   <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-                    <div className="text-2xl font-bold text-indigo-600">~{getExerciseCount() * 3}</div>
+                    <div className="text-2xl font-bold text-green-600">~{getExerciseCount() * 3}</div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">Minutes</div>
                   </div>
                   <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-                    <div className="text-2xl font-bold text-indigo-600">{exerciseTypes.length}</div>
+                    <div className="text-2xl font-bold text-green-600">{exerciseTypes.length}</div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">Exercise Types</div>
                   </div>
                 </div>
@@ -230,7 +230,7 @@ const Dashboard = () => {
                 <Button 
                   onClick={startTraining}
                   size="lg"
-                  className="w-full text-xl py-4 bg-indigo-600 hover:bg-indigo-700"
+                  className="w-full text-xl py-4 bg-green-600 hover:bg-green-700"
                 >
                   Start Training Session
                 </Button>

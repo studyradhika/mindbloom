@@ -174,8 +174,8 @@ const Dashboard = () => {
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Today's Brain Training */}
           <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
-            <CardHeader>
-              <CardTitle className="text-2xl flex items-center">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl flex items-center justify-center">
                 <Target className="w-6 h-6 mr-2 text-green-600" />
                 Let's begin today's brain training
               </CardTitle>
@@ -184,7 +184,7 @@ const Dashboard = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-4 text-center">
                 {/* Start Button */}
                 <div className="flex justify-center">
                   <Button 
@@ -199,7 +199,7 @@ const Dashboard = () => {
                 {/* Exercise Types Preview */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
                   <h3 className="font-semibold mb-3">Today's Exercise Types:</h3>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 justify-center">
                     {exerciseTypes.map((type, index) => (
                       <Badge 
                         key={index}

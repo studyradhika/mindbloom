@@ -37,8 +37,8 @@ const Index = () => {
               <Brain className="w-10 h-10 text-white" />
             </div>
             <div className="text-center">
-              <h1 className="text-4xl font-bold text-gray-900">MindBloom</h1>
-              <p className="text-lg text-gray-600">Keep Your Mind Sharp & Healthy</p>
+              <h1 className="text-4xl font-bold text-gray-900 whitespace-nowrap">MindBloom</h1>
+              <p className="text-lg text-gray-600 whitespace-nowrap">Keep Your Mind Sharp & Healthy</p>
             </div>
           </div>
         </div>
@@ -47,10 +47,10 @@ const Index = () => {
       <main className="container mx-auto px-4">
         {/* Hero Section */}
         <div className="text-center py-16 max-w-4xl mx-auto">
-          <h2 className="text-xl text-gray-900 mb-6">
+          <h2 className="text-xl text-gray-900 mb-6 whitespace-nowrap overflow-hidden">
             Scientifically-designed exercises by brain health experts to boost memory, improve focus, and keep your mind active.
           </h2>
-          <p className="text-xl text-gray-600 mb-8">
+          <p className="text-xl text-gray-600 mb-8 whitespace-nowrap">
             Just 30 minutes a day that can make a real difference. Start your journey to lifelong mental fitness today!
           </p>
           
@@ -75,14 +75,14 @@ const Index = () => {
 
         {/* What You'll Get Section */}
         <div className="py-16">
-          <h3 className="text-3xl font-bold text-center text-gray-900 mb-12">What You'll Get</h3>
+          <h3 className="text-3xl font-bold text-center text-gray-900 mb-12 whitespace-nowrap">What You'll Get</h3>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
             <div className="text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-green-600" />
               </div>
-              <h4 className="text-xl font-semibold mb-3">Easy To Use</h4>
+              <h4 className="text-xl font-semibold mb-3 whitespace-nowrap">Easy To Use</h4>
               <p className="text-gray-600">
                 Three quick exercises each day targeting memory, problem-solving, and creativity.
               </p>
@@ -92,7 +92,7 @@ const Index = () => {
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Shield className="w-8 h-8 text-blue-600" />
               </div>
-              <h4 className="text-xl font-semibold mb-3">Safe & Private</h4>
+              <h4 className="text-xl font-semibold mb-3 whitespace-nowrap">Safe & Private</h4>
               <p className="text-gray-600">
                 Your personal data stays secure and private. No complicated setup required.
               </p>
@@ -102,7 +102,7 @@ const Index = () => {
               <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Play className="w-8 h-8 text-orange-600" />
               </div>
-              <h4 className="text-xl font-semibold mb-3">Just 10 Minutes Each</h4>
+              <h4 className="text-xl font-semibold mb-3 whitespace-nowrap">Just 10 Minutes Each</h4>
               <p className="text-gray-600">
                 Short, engaging exercises that fit easily into your daily routine.
               </p>
@@ -112,7 +112,7 @@ const Index = () => {
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <BarChart3 className="w-8 h-8 text-purple-600" />
               </div>
-              <h4 className="text-xl font-semibold mb-3">See Your Growth</h4>
+              <h4 className="text-xl font-semibold mb-3 whitespace-nowrap">See Your Growth</h4>
               <p className="text-gray-600">
                 Track streaks and celebrate milestones to stay motivated.
               </p>
@@ -123,8 +123,8 @@ const Index = () => {
         {/* Community Section */}
         <div className="py-16 bg-white rounded-2xl my-16">
           <div className="max-w-6xl mx-auto px-8">
-            <h3 className="text-3xl font-bold text-center text-gray-900 mb-4">Join a Supportive Community</h3>
-            <p className="text-xl text-gray-600 text-center mb-12">
+            <h3 className="text-3xl font-bold text-center text-gray-900 mb-4 whitespace-nowrap">Join a Supportive Community</h3>
+            <p className="text-xl text-gray-600 text-center mb-12 whitespace-nowrap">
               Connect with thousands of adults on similar cognitive health journeys
             </p>
             
@@ -134,7 +134,7 @@ const Index = () => {
                 <CardContent className="text-center p-6">
                   <Users className="w-8 h-8 text-green-600 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-green-600">12,847</div>
-                  <div className="text-gray-600">Active Members</div>
+                  <div className="text-gray-600 whitespace-nowrap">Active Members</div>
                 </CardContent>
               </Card>
               
@@ -142,7 +142,7 @@ const Index = () => {
                 <CardContent className="text-center p-6">
                   <Trophy className="w-8 h-8 text-green-600 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-green-600">89,234</div>
-                  <div className="text-gray-600">Challenges Completed</div>
+                  <div className="text-gray-600 whitespace-nowrap">Challenges Completed</div>
                 </CardContent>
               </Card>
               
@@ -150,7 +150,7 @@ const Index = () => {
                 <CardContent className="text-center p-6">
                   <Star className="w-8 h-8 text-green-600 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-green-600">2,156</div>
-                  <div className="text-gray-600">Success Stories</div>
+                  <div className="text-gray-600 whitespace-nowrap">Success Stories</div>
                 </CardContent>
               </Card>
               
@@ -158,7 +158,7 @@ const Index = () => {
                 <CardContent className="text-center p-6">
                   <MessageSquare className="w-8 h-8 text-green-600 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-green-600">456</div>
-                  <div className="text-gray-600">Daily Discussions</div>
+                  <div className="text-gray-600 whitespace-nowrap">Daily Discussions</div>
                 </CardContent>
               </Card>
             </div>
@@ -218,7 +218,7 @@ const Index = () => {
 
         {/* Final CTA Section */}
         <div className="text-center py-16">
-          <h3 className="text-3xl font-bold text-gray-900 mb-6">
+          <h3 className="text-3xl font-bold text-gray-900 mb-6 whitespace-nowrap">
             Excited for Keeping Your Mind Sharp?
           </h3>
           <Button 

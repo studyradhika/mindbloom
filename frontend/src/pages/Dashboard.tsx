@@ -83,29 +83,31 @@ const Dashboard = () => {
   };
 
   const getAvailableExerciseTypes = () => {
-    // Always return the core 3 exercise types
-    const types = ['Memory', 'Attention', 'Language'];
+    // Start with core exercises (removed Memory)
+    const types = ['Attention', 'Language'];
     
-    // Based on mood and user profile, we might swap one of the core exercises
-    // for a specialized one, but still keep total at 3
+    // Always add one specialized exercise based on mood and user profile
     if (userData?.goals?.includes('stress') || 
         todaysMood === 'stressed' || 
         todaysMood === 'foggy' || 
         todaysMood === 'tired' ||
         userData?.goals?.includes('recovery')) {
-      // Replace Language with Mindful Memory for stressed/recovery users
-      types[2] = 'Mindful Memory';
+      // Add Mindful Memory for stressed/recovery users
+      types.push('Mindful Memory');
     } else if (userData?.goals?.includes('recovery') || 
                userData?.goals?.includes('professional') ||
                userData?.cognitiveAreas?.includes('executive') ||
                userData?.experience === 'experienced') {
-      // Replace Language with Task Sequencing for executive function focus
-      types[2] = 'Task Sequencing';
+      // Add Task Sequencing for executive function focus
+      types.push('Task Sequencing');
     } else if (userData?.goals?.includes('professional') ||
                userData?.experience === 'experienced' ||
                todaysMood === 'motivated') {
-      // Replace Language with Conversation Practice for social skills
-      types[2] = 'Conversation Practice';
+      // Add Conversation Practice for social skills
+      types.push('Conversation Practice');
+    } else {
+      // Default to Task Sequencing if no specific conditions are met
+      types.push('Task Sequencing');
     }
     
     return types;

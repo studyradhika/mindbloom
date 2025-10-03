@@ -27,15 +27,15 @@ const SeeYouTomorrow = () => {
       <main className="container mx-auto px-4 py-16">
         <div className="max-w-3xl mx-auto text-center">
           {/* Main Thank You Card */}
-          <Card className="mb-8 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200">
+          <Card className="mb-12 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200">
             <CardContent className="pt-12 pb-12">
-              <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                Thank You for Registering!
-              </h2>
-              
               <p className="text-xl text-purple-600 dark:text-purple-300 mb-4">
                 Welcome to the MindBloom community! 🌸
               </p>
+              
+              <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                Thank You for Registering!
+              </h2>
               
               <p className="text-xl text-gray-600 dark:text-gray-300">
                 See you tomorrow for your first brain training session!

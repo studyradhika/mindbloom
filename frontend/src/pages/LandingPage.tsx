@@ -12,7 +12,7 @@ const LandingPage = () => {
   };
 
   const handleSignIn = () => {
-    navigate('/mindbloom');
+    navigate('/dashboard');
   };
 
   const handleGetStarted = () => {

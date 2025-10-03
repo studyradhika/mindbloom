@@ -78,67 +78,34 @@ const Dashboard = () => {
   };
 
   const getExerciseCount = () => {
-    let count = 3; // Base exercises (Memory, Attention, Language)
-    
-    // Add specialized exercises based on user profile and mood
-    if (userData?.goals?.includes('stress') || 
-        todaysMood === 'stressed' || 
-        todaysMood === 'foggy' || 
-        todaysMood === 'tired' ||
-        userData?.goals?.includes('recovery')) {
-      count += 1; // Mindful Memory
-    }
-    
-    if (userData?.goals?.includes('recovery') || 
-        userData?.goals?.includes('professional') ||
-        userData?.cognitiveAreas?.includes('executive') ||
-        userData?.experience === 'experienced') {
-      count += 1; // Sequencing
-    }
-    
-    if (userData?.goals?.includes('recovery') || 
-        userData?.goals?.includes('professional') ||
-        userData?.experience === 'experienced' ||
-        todaysMood === 'motivated') {
-      count += 1; // Conversation
-    }
-    
-    // For motivated users, include more exercises
-    if (todaysMood === 'motivated') {
-      count = Math.min(count + 1, 6); // Up to 6 exercises
-    }
-    
-    // For tired/stressed users, limit but ensure mindful exercises
-    if (todaysMood === 'tired' || todaysMood === 'stressed') {
-      count = Math.min(count, 4); // Max 4 exercises
-    }
-    
-    return Math.max(3, count); // Always at least 3 exercises
+    // Always return 3 exercises per day
+    return 3;
   };
 
   const getAvailableExerciseTypes = () => {
+    // Always return the core 3 exercise types
     const types = ['Memory', 'Attention', 'Language'];
     
+    // Based on mood and user profile, we might swap one of the core exercises
+    // for a specialized one, but still keep total at 3
     if (userData?.goals?.includes('stress') || 
         todaysMood === 'stressed' || 
         todaysMood === 'foggy' || 
         todaysMood === 'tired' ||
         userData?.goals?.includes('recovery')) {
-      types.push('Mindful Memory');
-    }
-    
-    if (userData?.goals?.includes('recovery') || 
-        userData?.goals?.includes('professional') ||
-        userData?.cognitiveAreas?.includes('executive') ||
-        userData?.experience === 'experienced') {
-      types.push('Task Sequencing');
-    }
-    
-    if (userData?.goals?.includes('recovery') || 
-        userData?.goals?.includes('professional') ||
-        userData?.experience === 'experienced' ||
-        todaysMood === 'motivated') {
-      types.push('Conversation Practice');
+      // Replace Language with Mindful Memory for stressed/recovery users
+      types[2] = 'Mindful Memory';
+    } else if (userData?.goals?.includes('recovery') || 
+               userData?.goals?.includes('professional') ||
+               userData?.cognitiveAreas?.includes('executive') ||
+               userData?.experience === 'experienced') {
+      // Replace Language with Task Sequencing for executive function focus
+      types[2] = 'Task Sequencing';
+    } else if (userData?.goals?.includes('professional') ||
+               userData?.experience === 'experienced' ||
+               todaysMood === 'motivated') {
+      // Replace Language with Conversation Practice for social skills
+      types[2] = 'Conversation Practice';
     }
     
     return types;
@@ -294,36 +261,36 @@ const Dashboard = () => {
             </Card>
           )}
 
-          {/* Progress Metrics */}
-          <div className="grid md:grid-cols-3 gap-6">
+          {/* Progress Metrics - Reduced Size */}
+          <div className="grid md:grid-cols-3 gap-4">
             <Card className="text-center">
-              <CardContent className="pt-6 pb-6">
-                <div className="text-4xl font-bold text-green-600 mb-2">
+              <CardContent className="pt-4 pb-4">
+                <div className="text-2xl font-bold text-green-600 mb-1">
                   {userData.totalSessions || 0}
                 </div>
-                <div className="text-gray-600 dark:text-gray-400">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   Exercises Done
                 </div>
               </CardContent>
             </Card>
 
             <Card className="text-center">
-              <CardContent className="pt-6 pb-6">
-                <div className="text-4xl font-bold text-blue-600 mb-2">
+              <CardContent className="pt-4 pb-4">
+                <div className="text-2xl font-bold text-blue-600 mb-1">
                   {userData.streak || 0}
                 </div>
-                <div className="text-gray-600 dark:text-gray-400">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   Day Streak
                 </div>
               </CardContent>
             </Card>
 
             <Card className="text-center">
-              <CardContent className="pt-6 pb-6">
-                <div className="text-4xl font-bold text-orange-600 mb-2">
+              <CardContent className="pt-4 pb-4">
+                <div className="text-2xl font-bold text-orange-600 mb-1">
                   {getExerciseCount()}
                 </div>
-                <div className="text-gray-600 dark:text-gray-400">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   Today's Goal
                 </div>
               </CardContent>

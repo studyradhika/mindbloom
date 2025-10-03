@@ -21,7 +21,7 @@ const Training = () => {
   const [userData, setUserData] = useState<any>(null);
   const [todaysMood, setTodaysMood] = useState<string>('okay');
 
-  // Enhanced exercise selection with better availability
+  // Updated exercise selection to always return exactly 3 exercises
   const getExerciseSet = () => {
     const baseExercises = [
       {
@@ -71,56 +71,31 @@ const Training = () => {
       }
     ];
 
-    let selectedExercises = [...baseExercises];
+    // Start with base exercises (Memory, Attention)
+    let selectedExercises = [baseExercises[0], baseExercises[1]]; // Memory and Attention
 
-    // Always include mindful memory for stress management and holistic wellness
+    // Choose the third exercise based on user profile and mood
     if (userData?.goals?.includes('stress') || 
         todaysMood === 'stressed' || 
         todaysMood === 'foggy' || 
         todaysMood === 'tired' ||
         userData?.goals?.includes('recovery')) {
-      selectedExercises.push(specializedExercises[1]); // Mindful Memory
-    }
-
-    // Include sequencing for executive function and daily living skills
-    if (userData?.goals?.includes('recovery') || 
-        userData?.goals?.includes('professional') ||
-        userData?.cognitiveAreas?.includes('executive') ||
-        userData?.experience === 'experienced') {
-      selectedExercises.push(specializedExercises[0]); // Sequencing
-    }
-
-    // Include conversation practice for social skills and recovery
-    if (userData?.goals?.includes('recovery') || 
-        userData?.goals?.includes('professional') ||
-        userData?.experience === 'experienced' ||
-        todaysMood === 'motivated') {
-      selectedExercises.push(specializedExercises[2]); // Conversation
-    }
-
-    // For motivated users, include more exercises
-    if (todaysMood === 'motivated') {
-      // Add any missing specialized exercises
-      specializedExercises.forEach(exercise => {
-        if (!selectedExercises.find(e => e.id === exercise.id)) {
-          selectedExercises.push(exercise);
-        }
-      });
-      selectedExercises = selectedExercises.slice(0, 6); // Max 6 exercises
-    }
-
-    // For tired/stressed users, limit but still include mindful exercises
-    if (todaysMood === 'tired' || todaysMood === 'stressed') {
-      // Ensure mindful memory is included for these moods
-      if (!selectedExercises.find(e => e.id === 'mindful-memory')) {
-        selectedExercises.push(specializedExercises[1]);
-      }
-      selectedExercises = selectedExercises.slice(0, 4); // Limit to 4 exercises
-    }
-
-    // Ensure we always have at least the base exercises
-    if (selectedExercises.length < 3) {
-      selectedExercises = [...baseExercises];
+      // Use Mindful Memory as third exercise
+      selectedExercises.push(specializedExercises[1]);
+    } else if (userData?.goals?.includes('recovery') || 
+               userData?.goals?.includes('professional') ||
+               userData?.cognitiveAreas?.includes('executive') ||
+               userData?.experience === 'experienced') {
+      // Use Task Sequencing as third exercise
+      selectedExercises.push(specializedExercises[0]);
+    } else if (userData?.goals?.includes('professional') ||
+               userData?.experience === 'experienced' ||
+               todaysMood === 'motivated') {
+      // Use Conversation Practice as third exercise
+      selectedExercises.push(specializedExercises[2]);
+    } else {
+      // Default to Language exercise
+      selectedExercises.push(baseExercises[2]);
     }
 
     return selectedExercises;
@@ -312,7 +287,7 @@ const Training = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {exercises.map((exercise, index) => (
                 <div 
                   key={exercise.id}

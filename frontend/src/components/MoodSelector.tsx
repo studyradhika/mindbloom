@@ -57,7 +57,7 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Welcome back! How are you feeling today?
+              Welcome to your session! How are you feeling today?
             </h1>
           </div>
 
@@ -94,12 +94,6 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
             >
               Skip - I'll choose later
             </Button>
-          </div>
-
-          <div className="text-center mt-6">
-            <p className="text-gray-500 dark:text-gray-400">
-              Don't worry - you can change this anytime during your session
-            </p>
           </div>
         </div>
       </div>

@@ -37,7 +37,7 @@ const Index = () => {
               <Brain className="w-10 h-10 text-white" />
             </div>
             <div className="text-center">
-              <h1 className="text-4xl font-bold text-gray-900 whitespace-nowrap">MindBloom</h1>
+              <h1 className="text-6xl font-bold text-gray-900 whitespace-nowrap">MindBloom</h1>
               <p className="text-lg text-gray-600 whitespace-nowrap">Keep Your Mind Sharp & Healthy</p>
             </div>
           </div>
@@ -47,7 +47,7 @@ const Index = () => {
       <main className="container mx-auto px-4">
         {/* Hero Section */}
         <div className="text-center py-16 max-w-4xl mx-auto">
-          <h2 className="text-xl text-gray-900 mb-6 whitespace-nowrap">
+          <h2 className="text-xl text-gray-900 mb-6 whitespace-nowrap text-center">
             Scientifically-designed exercises by brain health experts to boost memory, improve focus, and keep your mind active.
           </h2>
           <p className="text-xl text-gray-600 mb-8 whitespace-nowrap">

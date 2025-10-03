@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Brain, Home, Calendar, TrendingUp, Trophy, Target, LogOut, ArrowLeft } from "lucide-react";
+import { Brain, Home, Calendar, TrendingUp, Trophy, Target, LogOut, ArrowLeft, BarChart3 } from "lucide-react";
 import PerformanceChart from "@/components/PerformanceChart";
 
 const Progress = () => {
@@ -66,6 +66,20 @@ const Progress = () => {
       description: 'Completed 10 training sessions',
       earned: totalSessions >= 10,
       icon: '⭐'
+    },
+    { 
+      id: 'month-streak', 
+      title: 'Monthly Champion', 
+      description: 'Maintained a 30-day streak',
+      earned: currentStreak >= 30,
+      icon: '🎯'
+    },
+    { 
+      id: 'high-performer', 
+      title: 'High Performer', 
+      description: 'Achieved 90%+ average score',
+      earned: (userData.lastSessionScore || 0) >= 90,
+      icon: '🌟'
     }
   ];
 
@@ -114,11 +128,11 @@ const Progress = () => {
       <main className="container mx-auto px-4 pb-8">
         <div className="max-w-6xl mx-auto space-y-8">
           
-          {/* Performance Chart - Now at the top */}
+          {/* Performance Chart - Enhanced with detailed analytics */}
           <PerformanceChart userData={userData} />
           
           {/* Main Progress Stats - Large and Clear */}
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-3 gap-8">
             <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
               <CardHeader className="text-center pb-4">
                 <Calendar className="w-12 h-12 text-green-600 mx-auto mb-4" />
@@ -150,20 +164,39 @@ const Progress = () => {
                 </p>
               </CardContent>
             </Card>
+
+            <Card className="border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
+              <CardHeader className="text-center pb-4">
+                <BarChart3 className="w-12 h-12 text-purple-600 mx-auto mb-4" />
+                <CardTitle className="text-2xl text-purple-800 dark:text-purple-200">Average Score</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <div className="text-6xl font-bold text-purple-600 mb-4">
+                  {userData.lastSessionScore ? Math.round(userData.lastSessionScore) : 0}%
+                </div>
+                <p className="text-xl text-purple-700 dark:text-purple-300">
+                  recent performance
+                </p>
+                <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">
+                  {(userData.lastSessionScore || 0) >= 80 ? 'Excellent!' : 
+                   (userData.lastSessionScore || 0) >= 60 ? 'Good work!' : 'Keep practicing!'}
+                </p>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Weekly Goal Progress */}
-          <Card className="border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
+          <Card className="border-2 border-teal-200 bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20">
             <CardHeader className="text-center">
-              <Target className="w-12 h-12 text-purple-600 mx-auto mb-4" />
-              <CardTitle className="text-2xl text-purple-800 dark:text-purple-200">This Week's Goal</CardTitle>
+              <Target className="w-12 h-12 text-teal-600 mx-auto mb-4" />
+              <CardTitle className="text-2xl text-teal-800 dark:text-teal-200">This Week's Goal</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-center mb-6">
-                <div className="text-4xl font-bold text-purple-600 mb-2">
+                <div className="text-4xl font-bold text-teal-600 mb-2">
                   {weeklyProgress} / {weeklyGoal}
                 </div>
-                <p className="text-xl text-purple-700 dark:text-purple-300">
+                <p className="text-xl text-teal-700 dark:text-teal-300">
                   days completed this week
                 </p>
               </div>
@@ -171,7 +204,7 @@ const Progress = () => {
               {/* Simple Progress Bar */}
               <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-6 mb-4">
                 <div 
-                  className="bg-purple-600 h-6 rounded-full transition-all duration-500 flex items-center justify-center"
+                  className="bg-teal-600 h-6 rounded-full transition-all duration-500 flex items-center justify-center"
                   style={{ width: `${weeklyPercentage}%` }}
                 >
                   {weeklyPercentage > 20 && (
@@ -192,7 +225,7 @@ const Progress = () => {
             </CardContent>
           </Card>
 
-          {/* Achievements - Simple and Encouraging */}
+          {/* Achievements - Enhanced */}
           <Card>
             <CardHeader className="text-center">
               <Trophy className="w-12 h-12 text-yellow-600 mx-auto mb-4" />
@@ -200,7 +233,7 @@ const Progress = () => {
             </CardHeader>
             <CardContent>
               {earnedAchievements.length > 0 ? (
-                <div className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
                   {earnedAchievements.map((achievement) => (
                     <div 
                       key={achievement.id}

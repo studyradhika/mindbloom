@@ -184,9 +184,9 @@ const Dashboard = () => {
 
   // This is now the Activity Dashboard - showing training session ready to start
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50 flex flex-col">
       {/* Header */}
-      <header className="container mx-auto px-4 py-8">
+      <header className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
           {/* Left: Change Focus Areas Button */}
           <Button 
@@ -218,12 +218,12 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 pb-8">
-        <div className="max-w-4xl mx-auto space-y-8">
+      <main className="flex-1 container mx-auto px-4 pb-6">
+        <div className="max-w-4xl mx-auto h-full flex flex-col justify-center space-y-6">
           
           {/* Today's Training Session - Main Focus */}
           <Card className="border-2 border-blue-200 bg-gradient-to-r from-blue-50 via-indigo-50 to-teal-50 shadow-lg">
-            <CardHeader className="text-center pb-6">
+            <CardHeader className="text-center pb-4">
               <CardTitle className="text-3xl flex items-center justify-center text-blue-800">
                 <Target className="w-8 h-8 mr-3" />
                 Let's begin your training session
@@ -232,7 +232,7 @@ const Dashboard = () => {
                 3 adaptive exercises • Personalized for your goals • ~10 minutes
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-8">
+            <CardContent className="space-y-6">
               {/* Big Start Button - More prominent and centered */}
               <div className="flex justify-center py-4">
                 <Button 
@@ -245,7 +245,7 @@ const Dashboard = () => {
               </div>
 
               {/* Today's Focus Areas - Subtle and at bottom */}
-              <div className="border-t border-blue-200 pt-4">
+              <div className="border-t border-blue-200 pt-3">
                 <div className="flex items-center justify-between text-sm text-gray-600">
                   <div className="flex items-center space-x-2">
                     <span className="text-gray-500">Today's focus:</span>
@@ -276,7 +276,7 @@ const Dashboard = () => {
 
           {/* Progress Overview */}
           <Card className="border-indigo-200 bg-gradient-to-r from-indigo-50 to-blue-50 shadow-lg">
-            <CardContent className="pt-8 pb-8">
+            <CardContent className="pt-6 pb-6">
               <div className="grid grid-cols-3 divide-x divide-indigo-200">
                 <div className="text-center px-4">
                   <div className="text-3xl font-bold text-indigo-600 mb-2">
@@ -314,9 +314,9 @@ const Dashboard = () => {
               className="border-indigo-200 bg-gradient-to-r from-indigo-50 to-blue-50 cursor-pointer hover:shadow-lg transition-all group"
               onClick={openProgress}
             >
-              <CardContent className="pt-4 pb-4 text-center">
+              <CardContent className="pt-6 pb-6 text-center">
                 <BarChart3 className="w-12 h-12 text-indigo-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
-                <h3 className="text-xl font-semibold text-indigo-900 mb-1">
+                <h3 className="text-xl font-semibold text-indigo-900 mb-2">
                   View Progress
                 </h3>
                 <p className="text-indigo-700">
@@ -329,9 +329,9 @@ const Dashboard = () => {
               className="border-blue-200 bg-gradient-to-r from-blue-50 to-teal-50 cursor-pointer hover:shadow-lg transition-all group"
               onClick={openBrainTips}
             >
-              <CardContent className="pt-4 pb-4 text-center">
+              <CardContent className="pt-6 pb-6 text-center">
                 <BookOpen className="w-12 h-12 text-blue-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
-                <h3 className="text-xl font-semibold text-blue-900 mb-1">
+                <h3 className="text-xl font-semibold text-blue-900 mb-2">
                   Brain Tips
                 </h3>
                 <p className="text-blue-700">
@@ -344,9 +344,9 @@ const Dashboard = () => {
               className="border-teal-200 bg-gradient-to-r from-teal-50 to-cyan-50 cursor-pointer hover:shadow-lg transition-all group"
               onClick={openMemoryTools}
             >
-              <CardContent className="pt-4 pb-4 text-center">
+              <CardContent className="pt-6 pb-6 text-center">
                 <Brain className="w-12 h-12 text-teal-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
-                <h3 className="text-xl font-semibold text-teal-900 mb-1">
+                <h3 className="text-xl font-semibold text-teal-900 mb-2">
                   Memory Tools
                 </h3>
                 <p className="text-teal-700">

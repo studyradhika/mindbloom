@@ -152,7 +152,7 @@ const Dashboard = () => {
 
   if (!userData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50 flex items-center justify-center">
         <Card className="max-w-md mx-auto">
           <CardContent className="pt-6 text-center">
             <Brain className="w-16 h-16 text-indigo-600 mx-auto mb-4 animate-pulse" />
@@ -171,7 +171,7 @@ const Dashboard = () => {
   // If we don't have mood or focus areas, we're in the wrong state
   if (!todaysMood || todaysFocusAreas.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50 flex items-center justify-center">
         <Card className="max-w-md mx-auto">
           <CardContent className="pt-6 text-center">
             <Brain className="w-16 h-16 text-indigo-600 mx-auto mb-4 animate-pulse" />
@@ -184,52 +184,37 @@ const Dashboard = () => {
 
   // This is now the Activity Dashboard - showing training session ready to start
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50">
       {/* Header */}
       <header className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Button 
-              variant="outline" 
-              onClick={changeFocusAreas}
-              className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Change Focus Areas
-            </Button>
-            <div className="flex items-center space-x-3">
-              <Brain className="h-10 w-10 text-indigo-600" />
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Activity Dashboard
-              </h1>
-            </div>
-          </div>
+          {/* Left: Change Focus Areas Button */}
+          <Button 
+            variant="outline" 
+            onClick={changeFocusAreas}
+            className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Change Focus Areas
+          </Button>
+          
+          {/* Center: Brain Icon + Activity Dashboard Text */}
           <div className="flex items-center space-x-3">
-            <Button 
-              variant="outline" 
-              onClick={openProgress}
-              className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
-            >
-              <BarChart3 className="w-4 h-4 mr-2" />
-              Progress
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={openBrainTips}
-              className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
-            >
-              <BookOpen className="w-4 h-4 mr-2" />
-              Brain Tips
-            </Button>
-            <Button 
-              variant="ghost" 
-              onClick={handleSignOut}
-              className="px-3 py-2 text-gray-600 hover:text-gray-800"
-            >
-              <LogOut className="w-4 h-4 mr-1" />
-              Sign Out
-            </Button>
+            <Brain className="h-10 w-10 text-indigo-600" />
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-teal-600 bg-clip-text text-transparent">
+              Activity Dashboard
+            </h1>
           </div>
+          
+          {/* Right: Sign Out Button Only */}
+          <Button 
+            variant="ghost" 
+            onClick={handleSignOut}
+            className="px-3 py-2 text-gray-600 hover:text-gray-800"
+          >
+            <LogOut className="w-4 h-4 mr-1" />
+            Sign Out
+          </Button>
         </div>
       </header>
 
@@ -259,7 +244,7 @@ const Dashboard = () => {
                 </Button>
               </div>
 
-              {/* Centered Focus Areas - Updated background to match */}
+              {/* Centered Focus Areas */}
               <div className="flex justify-center">
                 <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-teal-50 rounded-lg p-4 border border-blue-200 max-w-md w-full">
                   <h3 className="font-semibold text-blue-800 mb-3 flex items-center justify-center">
@@ -326,7 +311,7 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Quick Actions - Updated to consistent color scheme */}
+          {/* Quick Actions */}
           <div className="grid md:grid-cols-3 gap-6">
             <Card 
               className="border-indigo-200 bg-gradient-to-r from-indigo-50 to-blue-50 cursor-pointer hover:shadow-lg transition-all group"

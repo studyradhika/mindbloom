@@ -56,14 +56,14 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
       label: 'Perception',
       description: 'Visual processing and pattern recognition',
       icon: Eye,
-      color: 'text-emerald-600'
+      color: 'text-indigo-600'
     },
     {
       id: 'memory',
       label: 'Memory',
       description: 'Working memory, recall, and retention',
       icon: Brain,
-      color: 'text-indigo-600'
+      color: 'text-blue-600'
     },
     {
       id: 'language',
@@ -77,7 +77,7 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
       label: 'Executive Function',
       description: 'Planning, problem-solving, and decision-making',
       icon: Puzzle,
-      color: 'text-blue-700'
+      color: 'text-indigo-700'
     },
     {
       id: 'spatial',
@@ -91,14 +91,14 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
       label: 'Processing Speed',
       description: 'Quick thinking and mental agility',
       icon: Gauge,
-      color: 'text-emerald-700'
+      color: 'text-blue-700'
     },
     {
       id: 'creativity',
       label: 'Creativity',
       description: 'Creative thinking and mental flexibility',
       icon: Lightbulb,
-      color: 'text-indigo-700'
+      color: 'text-indigo-600'
     }
   ];
 
@@ -191,11 +191,11 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
             </Badge>
           </div>
 
-          {/* Mood-based recommendations - Reduced padding */}
-          <Card className="mb-4 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 border-amber-200">
+          {/* Mood-based recommendations - Updated to blue theme */}
+          <Card className="mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200">
             <CardHeader className="pb-2">
               <CardTitle className="text-base flex items-center">
-                <Lightbulb className="w-4 h-4 mr-2 text-amber-600" />
+                <Lightbulb className="w-4 h-4 mr-2 text-blue-600" />
                 Recommended for your mood: {todaysMood}
               </CardTitle>
             </CardHeader>
@@ -209,7 +209,7 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
                       variant="outline"
                       size="sm"
                       onClick={() => toggleArea(areaId)}
-                      className={`border-amber-200 text-amber-700 hover:bg-amber-100 text-sm py-1 px-2 h-auto ${selectedAreas.includes(areaId) ? 'bg-amber-100 border-amber-300' : ''}`}
+                      className={`border-blue-200 text-blue-700 hover:bg-blue-100 text-sm py-1 px-2 h-auto ${selectedAreas.includes(areaId) ? 'bg-blue-100 border-blue-300' : ''}`}
                     >
                       {area.label}
                     </Button>
@@ -233,7 +233,7 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
                     isSelected 
                       ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
                       : isRecommended
-                        ? 'border-amber-300 bg-amber-50 dark:bg-amber-900/20 hover:border-amber-400'
+                        ? 'border-indigo-300 bg-indigo-50 dark:bg-indigo-900/20 hover:border-indigo-400'
                         : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/10'
                   }`}
                   onClick={() => toggleArea(area.id)}
@@ -258,7 +258,7 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
                       {area.description}
                     </CardDescription>
                     {isRecommended && (
-                      <Badge variant="outline" className="mt-2 text-xs bg-amber-100 text-amber-800 border-amber-300">
+                      <Badge variant="outline" className="mt-2 text-xs bg-indigo-100 text-indigo-800 border-indigo-300">
                         Recommended
                       </Badge>
                     )}

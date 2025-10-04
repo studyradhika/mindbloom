@@ -70,9 +70,27 @@ const SessionComplete = () => {
     );
   };
 
+  const getTodaysProgress = () => {
+    const exerciseHistory = userData.exerciseHistory || [];
+    const today = new Date().toDateString();
+    
+    const todaySession = exerciseHistory.find((session: any) => {
+      const sessionDate = new Date(session.date).toDateString();
+      return sessionDate === today;
+    });
+    
+    if (todaySession && todaySession.exercises) {
+      const completedCount = todaySession.exercises.filter((ex: any) => !ex.skipped && ex.score !== undefined).length;
+      const totalCount = todaySession.exercises.length;
+      return `${completedCount}/${totalCount}`;
+    }
+    
+    return `0/3`;
+  };
+
   if (!results || !userData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+      <div className="h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <Card className="max-w-md mx-auto">
           <CardContent className="pt-6 text-center">
             <p>Loading results...</p>
@@ -86,170 +104,183 @@ const SessionComplete = () => {
   const exerciseNames = getExerciseNames();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-8">
-      {/* Header */}
-      <header className="container mx-auto px-4 mb-8">
+    <div className="h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col overflow-hidden">
+      {/* Compact Header with MindBloom Branding */}
+      <header className="flex-shrink-0 container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          <Button 
-            variant="outline" 
-            onClick={() => navigate('/dashboard')}
-            className="px-3 py-2"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-          <Button 
-            variant="ghost" 
-            onClick={handleSignOut}
-            className="px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-          >
-            <LogOut className="w-4 h-4 mr-1" />
-            Sign Out
-          </Button>
+          {/* MindBloom Branding */}
+          <div className="flex items-center space-x-3">
+            <Brain className="h-8 w-8 text-indigo-600" />
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              MindBloom
+            </h1>
+          </div>
+          
+          {/* Navigation */}
+          <div className="flex items-center space-x-3">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/dashboard')}
+              className="px-3 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Dashboard
+            </Button>
+            <Button 
+              variant="ghost" 
+              onClick={handleSignOut}
+              className="px-3 py-2 text-gray-600 hover:text-gray-800"
+            >
+              <LogOut className="w-4 h-4 mr-1" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 max-w-4xl">
-        {/* Main Title */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Great job completing today's session! 🎉
-          </h1>
-        </div>
+      {/* Main Content - Scrollable */}
+      <main className="flex-1 container mx-auto px-4 overflow-y-auto">
+        <div className="max-w-4xl mx-auto space-y-4">
+          
+          {/* Celebration Title - Compact */}
+          <div className="text-center py-2">
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">
+              Great job completing today's session! 🎉
+            </h2>
+          </div>
 
-        {/* Top Stats Cards */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          {/* Day Streak */}
-          <Card className="bg-white dark:bg-gray-800 shadow-sm">
-            <CardContent className="pt-6 pb-6 text-center">
-              <div className="flex items-center justify-center mb-2">
-                <Trophy className="w-6 h-6 text-yellow-500 mr-2" />
-                <span className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {userData.streak}
-                </span>
-              </div>
-              <p className="text-gray-600 dark:text-gray-400 font-medium">Day Streak</p>
-            </CardContent>
-          </Card>
-
-          {/* Today's Progress */}
-          <Card className="bg-white dark:bg-gray-800 shadow-sm">
-            <CardContent className="pt-6 pb-6 text-center">
-              <div className="flex items-center justify-center mb-2">
-                <Target className="w-6 h-6 text-green-500 mr-2" />
-                <span className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {Math.round(averageScore)}%
-                </span>
-              </div>
-              <p className="text-gray-600 dark:text-gray-400 font-medium">Today's Progress</p>
-            </CardContent>
-          </Card>
-
-          {/* Today's Mood */}
-          <Card className="bg-white dark:bg-gray-800 shadow-sm">
-            <CardContent className="pt-6 pb-6 text-center">
-              <div className="flex items-center justify-center mb-2">
-                <Heart className="w-6 h-6 text-pink-500 mr-2" />
-                <span className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {getMoodLabel(todaysMood)}
-                </span>
-              </div>
-              <p className="text-gray-600 dark:text-gray-400 font-medium">Today's Mood</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Today's Session Card */}
-        <Card className="bg-white dark:bg-gray-800 shadow-sm mb-8">
-          <CardContent className="pt-6 pb-6">
-            <div className="flex items-center mb-4">
-              <Calendar className="w-6 h-6 text-indigo-600 mr-2" />
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Today's Session</h2>
-            </div>
-            
-            <div className="text-center mb-6">
-              <div className="flex items-center justify-center mb-4">
-                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3">
-                  <span className="text-white font-bold">✓</span>
+          {/* Stats Overview - Single Row */}
+          <Card className="bg-white shadow-sm">
+            <CardContent className="py-4">
+              <div className="grid grid-cols-4 divide-x divide-gray-200">
+                <div className="text-center px-3">
+                  <div className="flex items-center justify-center mb-1">
+                    <Trophy className="w-5 h-5 text-yellow-500 mr-1" />
+                    <span className="text-2xl font-bold text-gray-900">
+                      {userData.streak}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600 font-medium">Day Streak</p>
                 </div>
-                <span className="text-xl font-semibold text-green-600">Session Complete!</span>
-              </div>
-              
-              <p className="text-lg text-gray-700 dark:text-gray-300 mb-6">
-                You completed {results.length} exercises in {duration} minutes.
-              </p>
-              
-              <div className="flex flex-wrap justify-center gap-3">
-                {exerciseNames.map((name, index) => (
-                  <Badge 
-                    key={index}
-                    variant="secondary" 
-                    className="text-sm px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-                  >
-                    {name}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Action Cards */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-          {/* View Progress */}
-          <Card 
-            className="bg-white dark:bg-gray-800 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => navigate('/progress')}
-          >
-            <CardContent className="pt-6 pb-6 text-center">
-              <TrendingUp className="w-12 h-12 text-blue-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                View Progress
+                <div className="text-center px-3">
+                  <div className="flex items-center justify-center mb-1">
+                    <Target className="w-5 h-5 text-green-500 mr-1" />
+                    <span className="text-2xl font-bold text-gray-900">
+                      {Math.round(averageScore)}%
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600 font-medium">Today's Score</p>
+                </div>
+
+                <div className="text-center px-3">
+                  <div className="flex items-center justify-center mb-1">
+                    <Calendar className="w-5 h-5 text-blue-500 mr-1" />
+                    <span className="text-2xl font-bold text-gray-900">
+                      {results.length}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600 font-medium">Exercises</p>
+                </div>
+
+                <div className="text-center px-3">
+                  <div className="flex items-center justify-center mb-1">
+                    <Heart className="w-5 h-5 text-pink-500 mr-1" />
+                    <span className="text-2xl font-bold text-gray-900">
+                      {getMoodLabel(todaysMood)}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600 font-medium">Today's Mood</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Session Summary - Compact */}
+          <Card className="bg-white shadow-sm">
+            <CardContent className="py-4">
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-3">
+                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mr-2">
+                    <span className="text-white font-bold text-sm">✓</span>
+                  </div>
+                  <span className="text-lg font-semibold text-green-600">Session Complete!</span>
+                </div>
+                
+                <p className="text-gray-700 mb-3">
+                  Completed in {duration} minutes
+                </p>
+                
+                <div className="flex flex-wrap justify-center gap-2">
+                  {exerciseNames.map((name, index) => (
+                    <Badge 
+                      key={index}
+                      variant="secondary" 
+                      className="text-xs px-3 py-1 bg-gray-100 text-gray-700"
+                    >
+                      {name}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Action Cards - Compact Grid */}
+          <div className="grid md:grid-cols-2 gap-4">
+            <Card 
+              className="bg-white shadow-sm cursor-pointer hover:shadow-md transition-shadow group"
+              onClick={() => navigate('/progress')}
+            >
+              <CardContent className="py-4 text-center">
+                <TrendingUp className="w-10 h-10 text-blue-500 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                  View Progress
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Track your cognitive wellness journey
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="bg-white shadow-sm cursor-pointer hover:shadow-md transition-shadow group"
+              onClick={() => navigate('/brain-tips')}
+            >
+              <CardContent className="py-4 text-center">
+                <BookOpen className="w-10 h-10 text-purple-500 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                  Brain Tips
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Daily wellness insights & education
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Encouragement Banner - Compact */}
+          <Card className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-lg">
+            <CardContent className="py-4 text-center">
+              <h3 className="text-xl font-bold mb-2">
+                You're doing great! ⭐
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                See your cognitive wellness journey
+              <p className="text-sm opacity-90">
+                Every session is a step forward in your cognitive wellness journey.
               </p>
             </CardContent>
           </Card>
 
-          {/* Brain Tips - FIXED NAVIGATION */}
-          <Card 
-            className="bg-white dark:bg-gray-800 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => navigate('/brain-tips')}
-          >
-            <CardContent className="pt-6 pb-6 text-center">
-              <BookOpen className="w-12 h-12 text-purple-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                Brain Tips
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Daily wellness insights & education
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Encouragement Banner */}
-        <Card className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-lg">
-          <CardContent className="pt-8 pb-8 text-center">
-            <h3 className="text-2xl font-bold mb-4">
-              You're doing great! ⭐
-            </h3>
-            <p className="text-lg opacity-90 max-w-2xl mx-auto">
-              Every session is a step forward in your cognitive wellness journey. Remember, consistency matters more than perfection.
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Return to Dashboard Button */}
-        <div className="text-center mt-8">
-          <Button 
-            onClick={() => navigate('/dashboard')}
-            size="lg"
-            className="text-xl px-8 py-4 bg-indigo-600 hover:bg-indigo-700"
-          >
-            Return to Dashboard
-          </Button>
+          {/* Return Button */}
+          <div className="text-center pb-4">
+            <Button 
+              onClick={() => navigate('/dashboard')}
+              size="lg"
+              className="text-lg px-8 py-3 bg-indigo-600 hover:bg-indigo-700"
+            >
+              Return to Dashboard
+            </Button>
+          </div>
         </div>
       </main>
     </div>

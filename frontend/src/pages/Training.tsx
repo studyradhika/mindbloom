@@ -343,48 +343,6 @@ const Training = () => {
           </p>
         </div>
       </div>
-
-      {/* Session Preview */}
-      <div className="container mx-auto px-4 pb-8">
-        <Card className="border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50">
-          <CardHeader>
-            <CardTitle className="text-lg text-purple-900">Today's Adaptive Session</CardTitle>
-            <CardDescription className="text-purple-700">
-              Personalized based on your focus areas and performance history
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {exercises.map((exercise, index) => (
-                <div 
-                  key={exercise.id}
-                  className={`p-4 rounded-lg border-2 transition-all ${
-                    index === currentExercise 
-                      ? 'border-indigo-400 bg-indigo-50 shadow-md' 
-                      : index < currentExercise 
-                        ? 'border-green-400 bg-green-50'
-                        : 'border-gray-200 bg-white'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-semibold text-sm">{exercise.title}</h3>
-                      <p className="text-xs text-gray-600 mt-1">{exercise.area}</p>
-                      <div 
-                        className="w-3 h-3 rounded-full mt-2"
-                        style={{ backgroundColor: getAreaColor(exercise.areaId) }}
-                      />
-                    </div>
-                    <div className="text-lg">
-                      {index < currentExercise ? '✅' : index === currentExercise ? '▶️' : '⭕'}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 };

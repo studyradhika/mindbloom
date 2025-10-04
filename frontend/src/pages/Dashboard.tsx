@@ -223,7 +223,7 @@ const Dashboard = () => {
           
           {/* Today's Training Session - Main Focus */}
           <Card className="border-2 border-blue-200 bg-gradient-to-r from-blue-50 via-indigo-50 to-teal-50 shadow-lg">
-            <CardHeader className="text-center pb-4">
+            <CardHeader className="text-center pb-6">
               <CardTitle className="text-3xl flex items-center justify-center text-blue-800">
                 <Target className="w-8 h-8 mr-3" />
                 Let's begin your training session
@@ -232,46 +232,43 @@ const Dashboard = () => {
                 3 adaptive exercises • Personalized for your goals • ~10 minutes
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Big Start Button */}
-              <div className="flex justify-center">
+            <CardContent className="space-y-8">
+              {/* Big Start Button - More prominent and centered */}
+              <div className="flex justify-center py-4">
                 <Button 
                   onClick={startTraining}
                   size="lg"
-                  className="text-2xl px-16 py-8 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 shadow-xl hover:shadow-2xl transition-all transform hover:scale-105"
+                  className="text-2xl px-20 py-10 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 shadow-xl hover:shadow-2xl transition-all transform hover:scale-105"
                 >
                   Begin Training →
                 </Button>
               </div>
 
-              {/* Centered Focus Areas */}
-              <div className="flex justify-center">
-                <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-teal-50 rounded-lg p-4 border border-blue-200 max-w-md w-full">
-                  <h3 className="font-semibold text-blue-800 mb-3 flex items-center justify-center">
-                    <Target className="w-5 h-5 mr-2" />
-                    Today's Focus Areas
-                  </h3>
-                  <div className="flex flex-wrap justify-center gap-2 mb-3">
-                    {todaysFocusAreas.map((areaId, index) => (
-                      <Badge 
-                        key={index}
-                        variant="outline" 
-                        className="border-blue-300 text-blue-700 bg-blue-50"
-                      >
-                        {getFocusAreaLabel(areaId)}
-                      </Badge>
-                    ))}
+              {/* Today's Focus Areas - Subtle and at bottom */}
+              <div className="border-t border-blue-200 pt-4">
+                <div className="flex items-center justify-between text-sm text-gray-600">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-gray-500">Today's focus:</span>
+                    <div className="flex flex-wrap gap-1">
+                      {todaysFocusAreas.map((areaId, index) => (
+                        <Badge 
+                          key={index}
+                          variant="outline" 
+                          className="text-xs px-2 py-1 border-gray-300 text-gray-600 bg-gray-50"
+                        >
+                          {getFocusAreaLabel(areaId)}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
-                  <div className="text-center">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={changeFocusAreas}
-                      className="text-blue-600 hover:text-blue-700"
-                    >
-                      Change Areas
-                    </Button>
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={changeFocusAreas}
+                    className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 h-auto"
+                  >
+                    Change
+                  </Button>
                 </div>
               </div>
             </CardContent>

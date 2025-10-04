@@ -150,9 +150,9 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
   const recommendations = getMoodBasedRecommendations();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-8">
-      {/* Header */}
-      <header className="container mx-auto px-4 mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-4">
+      {/* Header - Reduced padding */}
+      <header className="container mx-auto px-4 mb-4">
         <div className="flex items-center justify-between">
           <Button 
             variant="outline" 
@@ -163,8 +163,8 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
             Back
           </Button>
           <div className="flex items-center space-x-2">
-            <Brain className="h-8 w-8 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">MindBloom</h1>
+            <Brain className="h-6 w-6 text-blue-600" />
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">MindBloom</h1>
           </div>
           <Button 
             variant="ghost" 
@@ -178,28 +178,28 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
       </header>
 
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-4">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
               Choose Your Focus Areas
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400 mb-2">
+            <p className="text-lg text-gray-600 dark:text-gray-400 mb-2">
               Select up to 3 areas you'd like to work on today
             </p>
-            <Badge variant="outline" className="text-lg px-4 py-2 border-blue-200 text-blue-700">
+            <Badge variant="outline" className="text-base px-3 py-1 border-blue-200 text-blue-700">
               {selectedAreas.length}/3 selected
             </Badge>
           </div>
 
-          {/* Mood-based recommendations */}
-          <Card className="mb-8 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 border-amber-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center">
-                <Lightbulb className="w-5 h-5 mr-2 text-amber-600" />
+          {/* Mood-based recommendations - Reduced padding */}
+          <Card className="mb-4 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 border-amber-200">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center">
+                <Lightbulb className="w-4 h-4 mr-2 text-amber-600" />
                 Recommended for your mood: {todaysMood}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
               <div className="flex flex-wrap gap-2">
                 {recommendations.map(areaId => {
                   const area = focusAreas.find(a => a.id === areaId);
@@ -209,7 +209,7 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
                       variant="outline"
                       size="sm"
                       onClick={() => toggleArea(areaId)}
-                      className={`border-amber-200 text-amber-700 hover:bg-amber-100 ${selectedAreas.includes(areaId) ? 'bg-amber-100 border-amber-300' : ''}`}
+                      className={`border-amber-200 text-amber-700 hover:bg-amber-100 text-sm py-1 px-2 h-auto ${selectedAreas.includes(areaId) ? 'bg-amber-100 border-amber-300' : ''}`}
                     >
                       {area.label}
                     </Button>
@@ -219,8 +219,8 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
             </CardContent>
           </Card>
 
-          {/* Focus area grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {/* Focus area grid - More compact */}
+          <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-3 mb-4">
             {focusAreas.map((area) => {
               const IconComponent = area.icon;
               const isSelected = selectedAreas.includes(area.id);
@@ -229,7 +229,7 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
               return (
                 <Card 
                   key={area.id}
-                  className={`cursor-pointer transition-all duration-200 border-2 hover:shadow-lg ${
+                  className={`cursor-pointer transition-all duration-200 border-2 hover:shadow-md ${
                     isSelected 
                       ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
                       : isRecommended
@@ -238,23 +238,23 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
                   }`}
                   onClick={() => toggleArea(area.id)}
                 >
-                  <CardHeader className="pb-3">
+                  <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-3">
-                        <IconComponent className={`w-6 h-6 ${area.color}`} />
+                      <div className="flex items-center space-x-2">
+                        <IconComponent className={`w-5 h-5 ${area.color}`} />
                         <div className="flex-1">
-                          <CardTitle className="text-lg">{area.label}</CardTitle>
+                          <CardTitle className="text-base">{area.label}</CardTitle>
                         </div>
                       </div>
                       <Checkbox
                         checked={isSelected}
                         onChange={() => toggleArea(area.id)}
-                        className="mt-1"
+                        className="mt-0"
                       />
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <CardDescription className="text-base">
+                  <CardContent className="pt-0">
+                    <CardDescription className="text-sm">
                       {area.description}
                     </CardDescription>
                     {isRecommended && (
@@ -268,19 +268,19 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
             })}
           </div>
 
-          {/* Action buttons */}
+          {/* Action buttons - Reduced spacing */}
           <div className="text-center">
             <Button 
               onClick={handleNext}
               disabled={selectedAreas.length === 0}
               size="lg"
-              className="text-xl px-8 py-4 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700"
+              className="text-lg px-6 py-3 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700"
             >
               Next - Go to Activity Dashboard
             </Button>
             
-            <div className="mt-4 text-gray-600 dark:text-gray-400">
-              <p>
+            <div className="mt-2 text-gray-600 dark:text-gray-400">
+              <p className="text-sm">
                 {selectedAreas.length === 0 
                   ? 'Select at least one focus area to continue'
                   : `${selectedAreas.length} focus area${selectedAreas.length > 1 ? 's' : ''} selected`

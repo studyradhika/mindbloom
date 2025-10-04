@@ -82,11 +82,17 @@ const Dashboard = () => {
   };
 
   const openBrainTips = () => {
+    console.log('Navigating to Brain Tips page...');
     navigate('/brain-tips');
   };
 
   const openProgress = () => {
     navigate('/progress');
+  };
+
+  const openMemoryTools = () => {
+    console.log('Navigating to Memory Tools page...');
+    navigate('/memory-tools');
   };
 
   const changeFocusAreas = () => {
@@ -354,7 +360,7 @@ const Dashboard = () => {
           </Card>
 
           {/* Quick Actions */}
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-3 gap-6">
             <Card 
               className="border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 cursor-pointer hover:shadow-lg transition-all group"
               onClick={openProgress}
@@ -381,6 +387,21 @@ const Dashboard = () => {
                 </h3>
                 <p className="text-amber-700">
                   Daily wellness insights & education
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="border-teal-200 bg-gradient-to-r from-teal-50 to-cyan-50 cursor-pointer hover:shadow-lg transition-all group"
+              onClick={openMemoryTools}
+            >
+              <CardContent className="pt-6 pb-6 text-center">
+                <Brain className="w-12 h-12 text-teal-600 mx-auto mb-4 group-hover:scale-110 transition-transform" />
+                <h3 className="text-xl font-semibold text-teal-900 mb-2">
+                  Memory Tools
+                </h3>
+                <p className="text-teal-700">
+                  Notes, checklists & reminders
                 </p>
               </CardContent>
             </Card>

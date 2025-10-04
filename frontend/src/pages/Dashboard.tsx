@@ -236,22 +236,12 @@ const Dashboard = () => {
       <main className="container mx-auto px-4 pb-8">
         <div className="max-w-4xl mx-auto space-y-8">
           
-          {/* Welcome Message */}
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Ready for training, {userData.name}! 🧠
-            </h2>
-            <p className="text-lg text-gray-600">
-              Your personalized session is prepared based on your mood and focus areas
-            </p>
-          </div>
-
           {/* Today's Training Session - Main Focus */}
           <Card className="border-2 border-emerald-200 bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 shadow-lg">
             <CardHeader className="text-center pb-4">
               <CardTitle className="text-3xl flex items-center justify-center text-emerald-800">
                 <Target className="w-8 h-8 mr-3" />
-                Start Training Session
+                Let's begin your training session
               </CardTitle>
               <CardDescription className="text-xl text-emerald-700">
                 3 adaptive exercises • Personalized for your goals • ~10 minutes

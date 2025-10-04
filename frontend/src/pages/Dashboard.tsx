@@ -259,9 +259,9 @@ const Dashboard = () => {
                 </Button>
               </div>
 
-              {/* Centered Focus Areas - Reduced padding */}
+              {/* Centered Focus Areas - Updated background to match */}
               <div className="flex justify-center">
-                <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-emerald-200 max-w-md w-full">
+                <div className="bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 rounded-lg p-4 border border-emerald-200 max-w-md w-full">
                   <h3 className="font-semibold text-emerald-800 mb-3 flex items-center justify-center">
                     <Target className="w-5 h-5 mr-2" />
                     Today's Focus Areas

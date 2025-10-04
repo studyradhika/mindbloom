@@ -237,13 +237,13 @@ const Dashboard = () => {
         <div className="max-w-4xl mx-auto space-y-8">
           
           {/* Today's Training Session - Main Focus */}
-          <Card className="border-2 border-emerald-200 bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 shadow-lg">
+          <Card className="border-2 border-blue-200 bg-gradient-to-r from-blue-50 via-indigo-50 to-teal-50 shadow-lg">
             <CardHeader className="text-center pb-4">
-              <CardTitle className="text-3xl flex items-center justify-center text-emerald-800">
+              <CardTitle className="text-3xl flex items-center justify-center text-blue-800">
                 <Target className="w-8 h-8 mr-3" />
                 Let's begin your training session
               </CardTitle>
-              <CardDescription className="text-xl text-emerald-700">
+              <CardDescription className="text-xl text-blue-700">
                 3 adaptive exercises • Personalized for your goals • ~10 minutes
               </CardDescription>
             </CardHeader>
@@ -253,7 +253,7 @@ const Dashboard = () => {
                 <Button 
                   onClick={startTraining}
                   size="lg"
-                  className="text-2xl px-16 py-8 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-xl hover:shadow-2xl transition-all transform hover:scale-105"
+                  className="text-2xl px-16 py-8 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 shadow-xl hover:shadow-2xl transition-all transform hover:scale-105"
                 >
                   Begin Training →
                 </Button>
@@ -261,8 +261,8 @@ const Dashboard = () => {
 
               {/* Centered Focus Areas - Updated background to match */}
               <div className="flex justify-center">
-                <div className="bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 rounded-lg p-4 border border-emerald-200 max-w-md w-full">
-                  <h3 className="font-semibold text-emerald-800 mb-3 flex items-center justify-center">
+                <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-teal-50 rounded-lg p-4 border border-blue-200 max-w-md w-full">
+                  <h3 className="font-semibold text-blue-800 mb-3 flex items-center justify-center">
                     <Target className="w-5 h-5 mr-2" />
                     Today's Focus Areas
                   </h3>
@@ -271,7 +271,7 @@ const Dashboard = () => {
                       <Badge 
                         key={index}
                         variant="outline" 
-                        className="border-emerald-300 text-emerald-700 bg-emerald-50"
+                        className="border-blue-300 text-blue-700 bg-blue-50"
                       >
                         {getFocusAreaLabel(areaId)}
                       </Badge>
@@ -282,7 +282,7 @@ const Dashboard = () => {
                       variant="ghost"
                       size="sm"
                       onClick={changeFocusAreas}
-                      className="text-emerald-600 hover:text-emerald-700"
+                      className="text-blue-600 hover:text-blue-700"
                     >
                       Change Areas
                     </Button>
@@ -306,10 +306,10 @@ const Dashboard = () => {
                 </div>
                 
                 <div className="text-center px-4">
-                  <div className="text-3xl font-bold text-emerald-600 mb-2">
+                  <div className="text-3xl font-bold text-blue-600 mb-2">
                     {userData.streak || 0}
                   </div>
-                  <div className="text-sm text-emerald-700 font-medium">
+                  <div className="text-sm text-blue-700 font-medium">
                     Day Streak
                   </div>
                 </div>

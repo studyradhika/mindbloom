@@ -82,19 +82,19 @@ const LandingPage = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
+      <section className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
             <Badge className="mb-2 bg-gradient-to-r from-blue-100 to-teal-100 text-blue-800 hover:from-blue-100 hover:to-teal-100 border-blue-200">
               Evidence-Based Brain Fitness Platform
             </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-12 leading-tight">
+            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-8 leading-tight">
               Strengthen Your Mind,<br />
               <span className="bg-gradient-to-r from-blue-600 via-teal-600 to-indigo-600 bg-clip-text text-transparent">
                 Enhance Your Life
               </span>
             </h1>
-            <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
               MindBloom empowers adults to maintain and improve cognitive wellness through personalized, 
               evidence-based brain training exercises. Just 10 minutes a day can help <strong className="text-gray-800 font-semibold">enhance memory, sharpen focus, and boost mental clarity</strong>.
             </p>
@@ -123,9 +123,9 @@ const LandingPage = () => {
       </section>
 
       {/* Target Audience Section */}
-      <section className="pt-8 pb-16 bg-gradient-to-r from-blue-50 to-teal-50">
+      <section className="pt-4 pb-12 bg-gradient-to-r from-blue-50 to-teal-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
               Your Cognitive Health Matters More Than Ever
             </h2>
@@ -134,16 +134,16 @@ const LandingPage = () => {
               or proactively maintaining mental sharpness, MindBloom provides the tools you need.
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-6">
             <Card className="text-center border-blue-100 hover:shadow-lg transition-all hover:border-blue-200">
-              <CardHeader>
-                <div className="bg-gradient-to-br from-emerald-100 to-green-100 p-4 rounded-full w-fit mx-auto mb-4">
-                  <Heart className="h-12 w-12 text-emerald-500" />
+              <CardHeader className="pb-4">
+                <div className="bg-gradient-to-br from-emerald-100 to-green-100 p-4 rounded-full w-fit mx-auto mb-3">
+                  <Heart className="h-10 w-10 text-emerald-500" />
                 </div>
-                <CardTitle className="text-gray-800">Health-Conscious Adults</CardTitle>
+                <CardTitle className="text-gray-800 text-lg">Health-Conscious Adults</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">
+              <CardContent className="pt-0">
+                <p className="text-gray-600 text-sm">
                   Already investing in physical health? Add mental fitness to your routine with 
                   time-efficient, personalized brain training.
                 </p>
@@ -151,14 +151,14 @@ const LandingPage = () => {
             </Card>
 
             <Card className="text-center border-blue-100 hover:shadow-lg transition-all hover:border-blue-200">
-              <CardHeader>
-                <div className="bg-gradient-to-br from-blue-100 to-teal-100 p-4 rounded-full w-fit mx-auto mb-4">
-                  <Shield className="h-12 w-12 text-blue-500" />
+              <CardHeader className="pb-4">
+                <div className="bg-gradient-to-br from-blue-100 to-teal-100 p-4 rounded-full w-fit mx-auto mb-3">
+                  <Shield className="h-10 w-10 text-blue-500" />
                 </div>
-                <CardTitle className="text-gray-800">Cognitive Recovery</CardTitle>
+                <CardTitle className="text-gray-800 text-lg">Cognitive Recovery</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">
+              <CardContent className="pt-0">
+                <p className="text-gray-600 text-sm">
                   Recovering from surgery, stroke, or TBI? Our adaptive exercises help rebuild 
                   cognitive function with empathy and evidence-based support.
                 </p>
@@ -166,14 +166,14 @@ const LandingPage = () => {
             </Card>
 
             <Card className="text-center border-blue-100 hover:shadow-lg transition-all hover:border-blue-200">
-              <CardHeader>
-                <div className="bg-gradient-to-br from-indigo-100 to-blue-100 p-4 rounded-full w-fit mx-auto mb-4">
-                  <Sparkles className="h-12 w-12 text-indigo-500" />
+              <CardHeader className="pb-4">
+                <div className="bg-gradient-to-br from-indigo-100 to-blue-100 p-4 rounded-full w-fit mx-auto mb-3">
+                  <Sparkles className="h-10 w-10 text-indigo-500" />
                 </div>
-                <CardTitle className="text-gray-800">Proactive Wellness</CardTitle>
+                <CardTitle className="text-gray-800 text-lg">Proactive Wellness</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">
+              <CardContent className="pt-0">
+                <p className="text-gray-600 text-sm">
                   Stay ahead of cognitive changes with daily mental exercises designed to 
                   maintain and enhance your cognitive abilities.
                 </p>
@@ -290,7 +290,7 @@ const LandingPage = () => {
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="h-4 w-4 text-emerald-500 mr-2" />
-                    Adaptive scheduling
+                    Expert-led webinars
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="h-4 w-4 text-emerald-500 mr-2" />

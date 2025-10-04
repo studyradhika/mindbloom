@@ -216,7 +216,7 @@ const Dashboard = () => {
             <Button 
               variant="outline" 
               onClick={openBrainTips}
-              className="px-4 py-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+              className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
             >
               <BookOpen className="w-4 h-4 mr-2" />
               Brain Tips
@@ -315,10 +315,10 @@ const Dashboard = () => {
                 </div>
                 
                 <div className="text-center px-4">
-                  <div className="text-3xl font-bold text-purple-600 mb-2">
+                  <div className="text-3xl font-bold text-teal-600 mb-2">
                     {getTodaysProgress()}
                   </div>
-                  <div className="text-sm text-purple-700 font-medium">
+                  <div className="text-sm text-teal-700 font-medium">
                     Today's Progress
                   </div>
                 </div>
@@ -326,33 +326,33 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Quick Actions - Reduced padding */}
+          {/* Quick Actions - Updated to consistent color scheme */}
           <div className="grid md:grid-cols-3 gap-6">
             <Card 
-              className="border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 cursor-pointer hover:shadow-lg transition-all group"
+              className="border-indigo-200 bg-gradient-to-r from-indigo-50 to-blue-50 cursor-pointer hover:shadow-lg transition-all group"
               onClick={openProgress}
             >
               <CardContent className="pt-4 pb-4 text-center">
-                <BarChart3 className="w-12 h-12 text-purple-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
-                <h3 className="text-xl font-semibold text-purple-900 mb-1">
+                <BarChart3 className="w-12 h-12 text-indigo-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                <h3 className="text-xl font-semibold text-indigo-900 mb-1">
                   View Progress
                 </h3>
-                <p className="text-purple-700">
+                <p className="text-indigo-700">
                   Track your cognitive wellness journey
                 </p>
               </CardContent>
             </Card>
 
             <Card 
-              className="border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 cursor-pointer hover:shadow-lg transition-all group"
+              className="border-blue-200 bg-gradient-to-r from-blue-50 to-teal-50 cursor-pointer hover:shadow-lg transition-all group"
               onClick={openBrainTips}
             >
               <CardContent className="pt-4 pb-4 text-center">
-                <BookOpen className="w-12 h-12 text-amber-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
-                <h3 className="text-xl font-semibold text-amber-900 mb-1">
+                <BookOpen className="w-12 h-12 text-blue-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                <h3 className="text-xl font-semibold text-blue-900 mb-1">
                   Brain Tips
                 </h3>
-                <p className="text-amber-700">
+                <p className="text-blue-700">
                   Daily wellness insights & education
                 </p>
               </CardContent>

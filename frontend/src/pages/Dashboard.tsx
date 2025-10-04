@@ -185,46 +185,46 @@ const Dashboard = () => {
   // This is now the Activity Dashboard - showing training session ready to start
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      {/* Header */}
-      <header className="container mx-auto px-4 py-8">
+      {/* Header - Reduced padding */}
+      <header className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Button 
               variant="outline" 
               onClick={changeFocusAreas}
-              className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+              className="px-3 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Change Focus Areas
             </Button>
             <div className="flex items-center space-x-3">
-              <Brain className="h-10 w-10 text-indigo-600" />
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              <Brain className="h-8 w-8 text-indigo-600" />
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Activity Dashboard
               </h1>
             </div>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             <Button 
               variant="outline" 
               onClick={openProgress}
-              className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+              className="px-3 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
             >
-              <BarChart3 className="w-4 h-4 mr-2" />
+              <BarChart3 className="w-4 h-4 mr-1" />
               Progress
             </Button>
             <Button 
               variant="outline" 
               onClick={openBrainTips}
-              className="px-4 py-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+              className="px-3 py-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
             >
-              <BookOpen className="w-4 h-4 mr-2" />
+              <BookOpen className="w-4 h-4 mr-1" />
               Brain Tips
             </Button>
             <Button 
               variant="ghost" 
               onClick={handleSignOut}
-              className="px-3 py-2 text-gray-600 hover:text-gray-800"
+              className="px-2 py-2 text-gray-600 hover:text-gray-800"
             >
               <LogOut className="w-4 h-4 mr-1" />
               Sign Out
@@ -233,40 +233,39 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 pb-8">
-        <div className="max-w-4xl mx-auto space-y-8">
+      <main className="container mx-auto px-4 pb-4">
+        <div className="max-w-4xl mx-auto space-y-4">
           
-          {/* Today's Training Session - Main Focus */}
+          {/* Today's Training Session - Main Focus - Reduced padding */}
           <Card className="border-2 border-emerald-200 bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 shadow-lg">
-            <CardHeader className="text-center pb-4">
-              <CardTitle className="text-3xl flex items-center justify-center text-emerald-800">
-                <Target className="w-8 h-8 mr-3" />
+            <CardHeader className="text-center pb-2">
+              <CardTitle className="text-2xl flex items-center justify-center text-emerald-800">
+                <Target className="w-6 h-6 mr-2" />
                 Let's begin your training session
               </CardTitle>
-              <CardDescription className="text-xl text-emerald-700">
+              <CardDescription className="text-lg text-emerald-700">
                 3 adaptive exercises • Personalized for your goals • ~10 minutes
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Big Start Button */}
+            <CardContent className="space-y-4">
+              {/* Big Start Button - Reduced size */}
               <div className="flex justify-center">
                 <Button 
                   onClick={startTraining}
-                  size="lg"
-                  className="text-2xl px-16 py-8 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-xl hover:shadow-2xl transition-all transform hover:scale-105"
+                  className="text-xl px-12 py-6 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-xl hover:shadow-2xl transition-all transform hover:scale-105"
                 >
                   Begin Training →
                 </Button>
               </div>
 
-              {/* Centered Focus Areas */}
+              {/* Centered Focus Areas - Reduced padding */}
               <div className="flex justify-center">
-                <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-emerald-200 max-w-md w-full">
-                  <h3 className="font-semibold text-emerald-800 mb-4 flex items-center justify-center">
-                    <Target className="w-5 h-5 mr-2" />
+                <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-emerald-200 max-w-md w-full">
+                  <h3 className="font-semibold text-emerald-800 mb-3 flex items-center justify-center">
+                    <Target className="w-4 h-4 mr-2" />
                     Today's Focus Areas
                   </h3>
-                  <div className="flex flex-wrap justify-center gap-2 mb-4">
+                  <div className="flex flex-wrap justify-center gap-2 mb-3">
                     {todaysFocusAreas.map((areaId, index) => (
                       <Badge 
                         key={index}
@@ -292,12 +291,12 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Progress Overview */}
+          {/* Progress Overview - Reduced padding */}
           <Card className="border-indigo-200 bg-gradient-to-r from-indigo-50 to-blue-50 shadow-lg">
-            <CardContent className="pt-8 pb-8">
+            <CardContent className="pt-4 pb-4">
               <div className="grid grid-cols-3 divide-x divide-indigo-200">
                 <div className="text-center px-4">
-                  <div className="text-3xl font-bold text-indigo-600 mb-2">
+                  <div className="text-2xl font-bold text-indigo-600 mb-1">
                     {userData.totalSessions || 0}
                   </div>
                   <div className="text-sm text-indigo-700 font-medium">
@@ -306,7 +305,7 @@ const Dashboard = () => {
                 </div>
                 
                 <div className="text-center px-4">
-                  <div className="text-3xl font-bold text-emerald-600 mb-2">
+                  <div className="text-2xl font-bold text-emerald-600 mb-1">
                     {userData.streak || 0}
                   </div>
                   <div className="text-sm text-emerald-700 font-medium">
@@ -315,7 +314,7 @@ const Dashboard = () => {
                 </div>
                 
                 <div className="text-center px-4">
-                  <div className="text-3xl font-bold text-purple-600 mb-2">
+                  <div className="text-2xl font-bold text-purple-600 mb-1">
                     {getTodaysProgress()}
                   </div>
                   <div className="text-sm text-purple-700 font-medium">
@@ -326,18 +325,18 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Quick Actions */}
-          <div className="grid md:grid-cols-3 gap-6">
+          {/* Quick Actions - Reduced padding */}
+          <div className="grid md:grid-cols-3 gap-4">
             <Card 
               className="border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 cursor-pointer hover:shadow-lg transition-all group"
               onClick={openProgress}
             >
-              <CardContent className="pt-6 pb-6 text-center">
-                <BarChart3 className="w-12 h-12 text-purple-600 mx-auto mb-4 group-hover:scale-110 transition-transform" />
-                <h3 className="text-xl font-semibold text-purple-900 mb-2">
+              <CardContent className="pt-4 pb-4 text-center">
+                <BarChart3 className="w-10 h-10 text-purple-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                <h3 className="text-lg font-semibold text-purple-900 mb-1">
                   View Progress
                 </h3>
-                <p className="text-purple-700">
+                <p className="text-sm text-purple-700">
                   Track your cognitive wellness journey
                 </p>
               </CardContent>
@@ -347,12 +346,12 @@ const Dashboard = () => {
               className="border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 cursor-pointer hover:shadow-lg transition-all group"
               onClick={openBrainTips}
             >
-              <CardContent className="pt-6 pb-6 text-center">
-                <BookOpen className="w-12 h-12 text-amber-600 mx-auto mb-4 group-hover:scale-110 transition-transform" />
-                <h3 className="text-xl font-semibold text-amber-900 mb-2">
+              <CardContent className="pt-4 pb-4 text-center">
+                <BookOpen className="w-10 h-10 text-amber-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                <h3 className="text-lg font-semibold text-amber-900 mb-1">
                   Brain Tips
                 </h3>
-                <p className="text-amber-700">
+                <p className="text-sm text-amber-700">
                   Daily wellness insights & education
                 </p>
               </CardContent>
@@ -362,12 +361,12 @@ const Dashboard = () => {
               className="border-teal-200 bg-gradient-to-r from-teal-50 to-cyan-50 cursor-pointer hover:shadow-lg transition-all group"
               onClick={openMemoryTools}
             >
-              <CardContent className="pt-6 pb-6 text-center">
-                <Brain className="w-12 h-12 text-teal-600 mx-auto mb-4 group-hover:scale-110 transition-transform" />
-                <h3 className="text-xl font-semibold text-teal-900 mb-2">
+              <CardContent className="pt-4 pb-4 text-center">
+                <Brain className="w-10 h-10 text-teal-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                <h3 className="text-lg font-semibold text-teal-900 mb-1">
                   Memory Tools
                 </h3>
-                <p className="text-teal-700">
+                <p className="text-sm text-teal-700">
                   Notes, checklists & reminders
                 </p>
               </CardContent>

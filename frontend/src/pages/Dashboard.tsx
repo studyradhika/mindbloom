@@ -108,9 +108,9 @@ const Dashboard = () => {
 
   const getMoodIcon = (mood: string) => {
     switch (mood) {
-      case 'motivated': return <Zap className="w-5 h-5 text-emerald-600" />;
+      case 'motivated': return <Zap className="w-5 h-5 text-teal-600" />;
       case 'okay': return <Smile className="w-5 h-5 text-blue-600" />;
-      case 'foggy': return <Coffee className="w-5 h-5 text-amber-600" />;
+      case 'foggy': return <Coffee className="w-5 h-5 text-indigo-600" />;
       case 'tired': return <Meh className="w-5 h-5 text-gray-600" />;
       case 'stressed': return <Frown className="w-5 h-5 text-red-600" />;
       default: return <Smile className="w-5 h-5 text-blue-600" />;

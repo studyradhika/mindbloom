@@ -341,15 +341,15 @@ const Dashboard = () => {
             </Card>
 
             <Card 
-              className="border-teal-200 bg-gradient-to-r from-teal-50 to-cyan-50 cursor-pointer hover:shadow-lg transition-all group"
+              className="border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 cursor-pointer hover:shadow-lg transition-all group"
               onClick={openMemoryTools}
             >
               <CardContent className="pt-10 pb-10 text-center">
-                <Brain className="w-16 h-16 text-teal-600 mx-auto mb-4 group-hover:scale-110 transition-transform" />
-                <h3 className="text-2xl font-semibold text-teal-900 mb-3">
+                <Brain className="w-16 h-16 text-blue-600 mx-auto mb-4 group-hover:scale-110 transition-transform" />
+                <h3 className="text-2xl font-semibold text-blue-900 mb-3">
                   Memory Tools
                 </h3>
-                <p className="text-lg text-teal-700">
+                <p className="text-lg text-blue-700">
                   Notes, checklists & reminders
                 </p>
               </CardContent>

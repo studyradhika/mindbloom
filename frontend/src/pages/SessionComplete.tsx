@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Trophy, Target, Calendar, TrendingUp, ArrowLeft, LogOut, Heart } from "lucide-react";
+import { Brain, Trophy, Target, Calendar, TrendingUp, ArrowLeft, LogOut, Heart, BookOpen } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
 
 const SessionComplete = () => {
@@ -212,13 +212,13 @@ const SessionComplete = () => {
             </CardContent>
           </Card>
 
-          {/* Brain Tips */}
+          {/* Brain Tips - FIXED NAVIGATION */}
           <Card 
             className="bg-white dark:bg-gray-800 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => navigate('/memory-tools')}
+            onClick={() => navigate('/brain-tips')}
           >
             <CardContent className="pt-6 pb-6 text-center">
-              <Brain className="w-12 h-12 text-purple-500 mx-auto mb-4" />
+              <BookOpen className="w-12 h-12 text-purple-500 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 Brain Tips
               </h3>

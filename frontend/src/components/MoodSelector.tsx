@@ -34,8 +34,8 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
       label: 'Motivated',
       icon: Zap,
       description: 'Feeling energized and ready for challenges',
-      color: 'hover:bg-emerald-50 hover:border-emerald-200 dark:hover:bg-emerald-900/20',
-      iconColor: 'text-emerald-600'
+      color: 'hover:bg-teal-50 hover:border-teal-200 dark:hover:bg-teal-900/20',
+      iconColor: 'text-teal-600'
     },
     {
       id: 'okay',
@@ -50,8 +50,8 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
       label: 'Foggy',
       description: 'Mind feels a bit cloudy, prefer gentler exercises',
       icon: Coffee,
-      color: 'hover:bg-amber-50 hover:border-amber-200 dark:hover:bg-amber-900/20',
-      iconColor: 'text-amber-600'
+      color: 'hover:bg-indigo-50 hover:border-indigo-200 dark:hover:bg-indigo-900/20',
+      iconColor: 'text-indigo-600'
     },
     {
       id: 'tired',
@@ -82,14 +82,14 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50 dark:from-gray-900 dark:to-gray-800 py-8">
       {/* Header */}
       <header className="container mx-auto px-4 mb-8">
         <div className="flex items-center justify-between">
           <Button 
             variant="outline" 
             onClick={handleBack}
-            className="px-3 py-2"
+            className="px-3 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home

@@ -41,7 +41,7 @@ const Progress = () => {
 
   if (!userData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50 flex items-center justify-center">
         <Card className="max-w-md mx-auto">
           <CardContent className="pt-6 text-center">
             <Brain className="w-16 h-16 text-indigo-600 mx-auto mb-4 animate-pulse" />
@@ -52,15 +52,15 @@ const Progress = () => {
     );
   }
 
-  // Focus areas mapping with consistent colors
+  // Focus areas mapping with blue/indigo/teal colors
   const focusAreas = [
-    { id: 'memory', name: 'Memory', color: theme.colors.cognitive.memory, icon: '🧠' },
-    { id: 'attention', name: 'Attention', color: theme.colors.cognitive.attention, icon: '🎯' },
-    { id: 'language', name: 'Language', color: theme.colors.cognitive.language, icon: '💬' },
-    { id: 'executive', name: 'Executive Function', color: theme.colors.cognitive.executive, icon: '⚡' },
-    { id: 'creativity', name: 'Creativity', color: theme.colors.cognitive.creativity, icon: '🎨' },
-    { id: 'processing', name: 'Processing Speed', color: theme.colors.cognitive.processing, icon: '⚡' },
-    { id: 'spatial', name: 'Spatial Reasoning', color: theme.colors.cognitive.spatial, icon: '📐' }
+    { id: 'memory', name: 'Memory', color: '#3b82f6', icon: '🧠' },
+    { id: 'attention', name: 'Attention', color: '#0891b2', icon: '🎯' },
+    { id: 'language', name: 'Language', color: '#1e40af', icon: '💬' },
+    { id: 'executive', name: 'Executive Function', color: '#4f46e5', icon: '⚡' },
+    { id: 'creativity', name: 'Creativity', color: '#0284c7', icon: '🎨' },
+    { id: 'processing', name: 'Processing Speed', color: '#0d9488', icon: '⚡' },
+    { id: 'spatial', name: 'Spatial Reasoning', color: '#1d4ed8', icon: '📐' }
   ];
 
   // Helper function to determine improvement status
@@ -249,16 +249,16 @@ const Progress = () => {
     });
   };
 
-  // Helper function to get status display properties
+  // Helper function to get status display properties with blue theme
   const getStatusDisplay = (status: string) => {
     switch (status) {
       case 'improved':
         return {
           label: 'Improved',
           icon: <TrendingUp className="w-4 h-4" />,
-          color: 'text-emerald-600',
-          bgColor: 'bg-emerald-50',
-          borderColor: 'border-emerald-200'
+          color: 'text-blue-600',
+          bgColor: 'bg-blue-50',
+          borderColor: 'border-blue-200'
         };
       case 'regressed':
         return {
@@ -360,7 +360,7 @@ const Progress = () => {
   const { performanceAlerts, areasOfExcellence } = getRecommendations();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50">
       {/* Header */}
       <header className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between">
@@ -375,7 +375,7 @@ const Progress = () => {
             </Button>
             <div className="flex items-center space-x-3">
               <Brain className="h-10 w-10 text-indigo-600" />
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-teal-600 bg-clip-text text-transparent">
                 Performance Analytics
               </h1>
             </div>
@@ -405,9 +405,9 @@ const Progress = () => {
         <div className="max-w-6xl mx-auto space-y-8">
           
           {/* 1. TODAY'S PERFORMANCE */}
-          <Card className="border-2 border-emerald-200 bg-gradient-to-r from-emerald-50 to-green-50 shadow-lg">
+          <Card className="border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-teal-50 shadow-lg">
             <CardHeader>
-              <CardTitle className="text-2xl flex items-center text-emerald-800">
+              <CardTitle className="text-2xl flex items-center text-blue-800">
                 <Calendar className="w-7 h-7 mr-3" />
                 Today's Performance
               </CardTitle>
@@ -417,21 +417,21 @@ const Progress = () => {
                 <div className="space-y-6">
                   {/* Overall Stats */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="text-center p-4 bg-white/80 backdrop-blur-sm rounded-lg border border-emerald-200">
-                      <div className="text-3xl font-bold text-emerald-600">{todaysPerformance.averageScore}%</div>
-                      <div className="text-sm text-emerald-700 font-medium">Average Score</div>
+                    <div className="text-center p-4 bg-white/80 backdrop-blur-sm rounded-lg border border-blue-200">
+                      <div className="text-3xl font-bold text-blue-600">{todaysPerformance.averageScore}%</div>
+                      <div className="text-sm text-blue-700 font-medium">Average Score</div>
                     </div>
                     <div className="text-center p-4 bg-white/80 backdrop-blur-sm rounded-lg border border-indigo-200">
                       <div className="text-3xl font-bold text-indigo-600">{todaysPerformance.completedExercises}/{todaysPerformance.totalExercises}</div>
                       <div className="text-sm text-indigo-700 font-medium">Completed</div>
                     </div>
-                    <div className="text-center p-4 bg-white/80 backdrop-blur-sm rounded-lg border border-purple-200">
-                      <div className="text-3xl font-bold text-purple-600">{todaysPerformance.duration}min</div>
-                      <div className="text-sm text-purple-700 font-medium">Duration</div>
+                    <div className="text-center p-4 bg-white/80 backdrop-blur-sm rounded-lg border border-teal-200">
+                      <div className="text-3xl font-bold text-teal-600">{todaysPerformance.duration}min</div>
+                      <div className="text-sm text-teal-700 font-medium">Duration</div>
                     </div>
-                    <div className="text-center p-4 bg-white/80 backdrop-blur-sm rounded-lg border border-amber-200">
-                      <div className="text-3xl font-bold text-amber-600 capitalize">{todaysPerformance.mood}</div>
-                      <div className="text-sm text-amber-700 font-medium">Mood</div>
+                    <div className="text-center p-4 bg-white/80 backdrop-blur-sm rounded-lg border border-cyan-200">
+                      <div className="text-3xl font-bold text-cyan-600 capitalize">{todaysPerformance.mood}</div>
+                      <div className="text-sm text-cyan-700 font-medium">Mood</div>
                     </div>
                   </div>
 
@@ -514,9 +514,9 @@ const Progress = () => {
                     <Line 
                       type="monotone" 
                       dataKey="score" 
-                      stroke={theme.colors.primary[600]}
+                      stroke="#3b82f6"
                       strokeWidth={3}
-                      dot={{ r: 5, fill: theme.colors.primary[600] }}
+                      dot={{ r: 5, fill: '#3b82f6' }}
                       name="Performance Score (%)"
                     />
                   </LineChart>
@@ -531,36 +531,36 @@ const Progress = () => {
                   </div>
                   <div className="text-sm text-indigo-700 font-medium">Average Score</div>
                 </div>
-                <div className="text-center p-3 bg-white/80 backdrop-blur-sm rounded-lg border border-emerald-200">
-                  <div className="text-xl font-bold text-emerald-600">
+                <div className="text-center p-3 bg-white/80 backdrop-blur-sm rounded-lg border border-blue-200">
+                  <div className="text-xl font-bold text-blue-600">
                     {Math.max(...historicalData.map(d => d.score))}%
                   </div>
-                  <div className="text-sm text-emerald-700 font-medium">Best Score</div>
+                  <div className="text-sm text-blue-700 font-medium">Best Score</div>
                 </div>
-                <div className="text-center p-3 bg-white/80 backdrop-blur-sm rounded-lg border border-purple-200">
-                  <div className="text-xl font-bold text-purple-600">
+                <div className="text-center p-3 bg-white/80 backdrop-blur-sm rounded-lg border border-teal-200">
+                  <div className="text-xl font-bold text-teal-600">
                     {historicalData.reduce((sum, d) => sum + d.activities, 0)}
                   </div>
-                  <div className="text-sm text-purple-700 font-medium">Total Activities</div>
+                  <div className="text-sm text-teal-700 font-medium">Total Activities</div>
                 </div>
-                <div className="text-center p-3 bg-white/80 backdrop-blur-sm rounded-lg border border-amber-200">
-                  <div className="text-xl font-bold text-amber-600 flex items-center justify-center">
+                <div className="text-center p-3 bg-white/80 backdrop-blur-sm rounded-lg border border-cyan-200">
+                  <div className="text-xl font-bold text-cyan-600 flex items-center justify-center">
                     {historicalData[historicalData.length - 1]?.score > historicalData[0]?.score ? (
                       <><TrendingUp className="w-4 h-4 mr-1" />Up</>
                     ) : (
                       <><TrendingDown className="w-4 h-4 mr-1" />Down</>
                     )}
                   </div>
-                  <div className="text-sm text-amber-700 font-medium">Trend</div>
+                  <div className="text-sm text-cyan-700 font-medium">Trend</div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* 3. FOCUS AREA ANALYTICS */}
-          <Card className="border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 shadow-lg">
+          <Card className="border-2 border-teal-200 bg-gradient-to-r from-teal-50 to-cyan-50 shadow-lg">
             <CardHeader>
-              <CardTitle className="text-2xl flex items-center text-purple-800">
+              <CardTitle className="text-2xl flex items-center text-teal-800">
                 <Target className="w-7 h-7 mr-3" />
                 Focus Area Performance Progress
               </CardTitle>
@@ -651,7 +651,7 @@ const Progress = () => {
                     </div>
                   )) : (
                     <div className="text-center py-8">
-                      <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+                      <CheckCircle className="w-16 h-16 text-blue-500 mx-auto mb-4" />
                       <p className="text-xl text-gray-700 mb-2">No Performance Concerns</p>
                       <p className="text-gray-600">Your cognitive training is on track!</p>
                     </div>
@@ -661,9 +661,9 @@ const Progress = () => {
             </Card>
 
             {/* Areas of Excellence */}
-            <Card className="border-2 border-emerald-200 bg-gradient-to-r from-emerald-50 to-green-50 shadow-lg">
+            <Card className="border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-teal-50 shadow-lg">
               <CardHeader>
-                <CardTitle className="text-2xl flex items-center text-emerald-800">
+                <CardTitle className="text-2xl flex items-center text-blue-800">
                   <Trophy className="w-7 h-7 mr-3" />
                   Areas of Excellence
                 </CardTitle>
@@ -671,12 +671,12 @@ const Progress = () => {
               <CardContent>
                 <div className="space-y-4">
                   {areasOfExcellence.length > 0 ? areasOfExcellence.map((excellence, index) => (
-                    <div key={index} className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border-l-4 border-emerald-400 shadow-sm">
-                      <h3 className="font-semibold text-emerald-900 mb-2">{excellence.title}</h3>
-                      <p className="text-emerald-700 mb-3">{excellence.description}</p>
-                      <div className="bg-emerald-50 p-3 rounded text-sm">
-                        <strong className="text-emerald-800">Keep It Up:</strong>
-                        <p className="text-emerald-700 mt-1">{excellence.action}</p>
+                    <div key={index} className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border-l-4 border-blue-400 shadow-sm">
+                      <h3 className="font-semibold text-blue-900 mb-2">{excellence.title}</h3>
+                      <p className="text-blue-700 mb-3">{excellence.description}</p>
+                      <div className="bg-blue-50 p-3 rounded text-sm">
+                        <strong className="text-blue-800">Keep It Up:</strong>
+                        <p className="text-blue-700 mt-1">{excellence.action}</p>
                       </div>
                     </div>
                   )) : (

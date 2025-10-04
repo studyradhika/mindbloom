@@ -11,12 +11,12 @@ const BrainTips = () => {
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
 
   const topics = [
-    { id: 'Daily Wellness', label: 'Daily Wellness', icon: Heart, color: 'text-red-500' },
-    { id: 'Memory Health', label: 'Memory Health', icon: Brain, color: 'text-blue-500' },
-    { id: 'Healthy Living', label: 'Healthy Living', icon: Activity, color: 'text-green-500' },
-    { id: 'Brain Nutrition', label: 'Brain Nutrition', icon: Apple, color: 'text-orange-500' },
-    { id: 'Sleep & Rest', label: 'Sleep & Rest', icon: Moon, color: 'text-indigo-500' },
-    { id: 'Social Connection', label: 'Social Connection', icon: Users, color: 'text-purple-500' }
+    { id: 'Daily Wellness', label: 'Daily Wellness', icon: Heart, color: 'text-blue-500' },
+    { id: 'Memory Health', label: 'Memory Health', icon: Brain, color: 'text-indigo-500' },
+    { id: 'Healthy Living', label: 'Healthy Living', icon: Activity, color: 'text-teal-500' },
+    { id: 'Brain Nutrition', label: 'Brain Nutrition', icon: Apple, color: 'text-cyan-500' },
+    { id: 'Sleep & Rest', label: 'Sleep & Rest', icon: Moon, color: 'text-blue-600' },
+    { id: 'Social Connection', label: 'Social Connection', icon: Users, color: 'text-indigo-600' }
   ];
 
   const tips = {
@@ -109,21 +109,21 @@ const BrainTips = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50 p-4">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
           <Button 
             variant="outline" 
             onClick={handleBackToDashboard}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
           </Button>
           <div>
             <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
-              <Brain className="text-purple-500" />
+              <Brain className="text-indigo-500" />
               Brain Tips & Wellness
             </h1>
             <p className="text-gray-600 mt-1">Evidence-based insights for cognitive health</p>
@@ -131,7 +131,7 @@ const BrainTips = () => {
         </div>
 
         {/* Featured Tip */}
-        <Card className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white">
+        <Card className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Lightbulb className="text-yellow-300" />
@@ -168,7 +168,7 @@ const BrainTips = () => {
                     className={`flex flex-col items-center gap-2 h-auto p-4 ${
                       isSelected 
                         ? 'bg-indigo-600 hover:bg-indigo-700 text-white' 
-                        : 'hover:bg-accent hover:text-accent-foreground'
+                        : 'hover:bg-indigo-50 hover:text-indigo-700 border-indigo-200'
                     }`}
                   >
                     <IconComponent className={`w-6 h-6 ${isSelected ? 'text-white' : topic.color}`} />
@@ -188,11 +188,11 @@ const BrainTips = () => {
                 {(() => {
                   const topic = topics.find(t => t.id === selectedTopic);
                   const IconComponent = topic?.icon || Heart;
-                  return <IconComponent className={`w-8 h-8 ${topic?.color || 'text-red-500'}`} />;
+                  return <IconComponent className={`w-8 h-8 ${topic?.color || 'text-blue-500'}`} />;
                 })()}
                 <div>
                   <CardTitle className="text-2xl">{currentTip.title}</CardTitle>
-                  <Badge variant="secondary" className="mt-1">{currentTip.category}</Badge>
+                  <Badge variant="secondary" className="mt-1 bg-indigo-100 text-indigo-800">{currentTip.category}</Badge>
                 </div>
               </div>
               <div className="text-sm text-gray-500">
@@ -206,9 +206,9 @@ const BrainTips = () => {
             </p>
 
             {/* Action Step */}
-            <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-400">
-              <h4 className="font-semibold text-green-800 mb-2">💡 Action Step:</h4>
-              <p className="text-green-700">{currentTip.actionStep}</p>
+            <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
+              <h4 className="font-semibold text-blue-800 mb-2">💡 Action Step:</h4>
+              <p className="text-blue-700">{currentTip.actionStep}</p>
             </div>
 
             {/* Navigation */}
@@ -216,7 +216,7 @@ const BrainTips = () => {
               <Button 
                 variant="outline" 
                 onClick={handlePreviousTip}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Previous
@@ -236,7 +236,7 @@ const BrainTips = () => {
               <Button 
                 variant="outline" 
                 onClick={handleNextTip}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
               >
                 Next
                 <ArrowLeft className="w-4 h-4 rotate-180" />
@@ -249,15 +249,15 @@ const BrainTips = () => {
         <Card className="bg-white/90 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Target className="text-green-500" />
+              <Target className="text-teal-500" />
               Personalized for You
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="bg-green-50 p-4 rounded-lg">
-                <h4 className="font-semibold text-green-800 mb-2">Stress Management</h4>
-                <p className="text-green-700 text-sm">
+              <div className="bg-teal-50 p-4 rounded-lg border border-teal-200">
+                <h4 className="font-semibold text-teal-800 mb-2">Stress Management</h4>
+                <p className="text-teal-700 text-sm">
                   Try the breathing exercises and stress reduction tips in our Daily Wellness section.
                 </p>
               </div>
@@ -266,7 +266,7 @@ const BrainTips = () => {
         </Card>
 
         {/* Motivational Footer */}
-        <Card className="bg-gradient-to-r from-green-500 to-blue-600 text-white">
+        <Card className="bg-gradient-to-r from-teal-500 to-blue-600 text-white">
           <CardContent className="p-6 text-center">
             <h3 className="text-xl font-semibold mb-2">Knowledge is Power! 🧠</h3>
             <p className="opacity-90">

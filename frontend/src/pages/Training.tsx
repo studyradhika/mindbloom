@@ -211,7 +211,7 @@ const Training = () => {
 
   if (!userData || exercises.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50 flex items-center justify-center">
         <Card className="max-w-md mx-auto">
           <CardContent className="pt-6 text-center">
             <Brain className="w-16 h-16 text-indigo-600 mx-auto mb-4 animate-pulse" />
@@ -227,7 +227,7 @@ const Training = () => {
   const currentExerciseData = exercises[currentExercise];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
@@ -242,7 +242,7 @@ const Training = () => {
             </Button>
             <div className="flex items-center space-x-3">
               <Brain className="h-8 w-8 text-indigo-600" />
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-teal-600 bg-clip-text text-transparent">
                 Training Session
               </h1>
             </div>
@@ -287,7 +287,7 @@ const Training = () => {
               <div className="flex items-center space-x-2 text-gray-600">
                 <Clock className="w-4 h-4" />
                 <span className="text-sm">
-                  {Math.round((Date.now() - sessionStartTime) / 1000 / 60)} min
+                  {Math.roun((Date.now() - sessionStartTime) / 1000 / 60)} min
                 </span>
               </div>
             </div>
@@ -321,7 +321,7 @@ const Training = () => {
           <Button
             variant="outline"
             onClick={restartExercise}
-            className="px-6 py-3 border-amber-200 text-amber-700 hover:bg-amber-50"
+            className="px-6 py-3 border-cyan-200 text-cyan-700 hover:bg-cyan-50"
           >
             <RotateCcw className="w-4 h-4 mr-2" />
             Restart Exercise

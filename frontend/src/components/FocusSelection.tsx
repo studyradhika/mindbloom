@@ -150,14 +150,14 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
   const recommendations = getMoodBasedRecommendations();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50 dark:from-gray-900 dark:to-gray-800 py-4">
       {/* Header - Reduced padding */}
       <header className="container mx-auto px-4 mb-4">
         <div className="flex items-center justify-between">
           <Button 
             variant="outline" 
             onClick={handleBack}
-            className="px-3 py-2"
+            className="px-3 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back

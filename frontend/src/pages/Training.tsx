@@ -287,7 +287,7 @@ const Training = () => {
               <div className="flex items-center space-x-2 text-gray-600">
                 <Clock className="w-4 h-4" />
                 <span className="text-sm">
-                  {Math.roun((Date.now() - sessionStartTime) / 1000 / 60)} min
+                  {Math.round((Date.now() - sessionStartTime) / 1000 / 60)} min
                 </span>
               </div>
             </div>

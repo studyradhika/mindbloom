@@ -274,39 +274,39 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Progress Overview */}
-          <Card className="border-indigo-200 bg-gradient-to-r from-indigo-50 to-blue-50 shadow-lg">
-            <CardContent className="pt-10 pb-10">
-              <div className="grid grid-cols-3 divide-x divide-indigo-200">
-                <div className="text-center px-6">
-                  <div className="text-4xl font-bold text-indigo-600 mb-3">
+          {/* Progress Overview - De-emphasized */}
+          <div className="bg-white/60 backdrop-blur-sm rounded-lg border border-gray-200 shadow-sm">
+            <div className="pt-4 pb-4 px-6">
+              <div className="grid grid-cols-3 divide-x divide-gray-200">
+                <div className="text-center px-3">
+                  <div className="text-xl font-semibold text-gray-700 mb-1">
                     {userData.totalSessions || 0}
                   </div>
-                  <div className="text-base text-indigo-700 font-medium">
+                  <div className="text-xs text-gray-500 font-medium">
                     Total Sessions
                   </div>
                 </div>
                 
-                <div className="text-center px-6">
-                  <div className="text-4xl font-bold text-blue-600 mb-3">
+                <div className="text-center px-3">
+                  <div className="text-xl font-semibold text-gray-700 mb-1">
                     {userData.streak || 0}
                   </div>
-                  <div className="text-base text-blue-700 font-medium">
+                  <div className="text-xs text-gray-500 font-medium">
                     Day Streak
                   </div>
                 </div>
                 
-                <div className="text-center px-6">
-                  <div className="text-4xl font-bold text-teal-600 mb-3">
+                <div className="text-center px-3">
+                  <div className="text-xl font-semibold text-gray-700 mb-1">
                     {getTodaysProgress()}
                   </div>
-                  <div className="text-base text-teal-700 font-medium">
+                  <div className="text-xs text-gray-500 font-medium">
                     Today's Progress
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Quick Actions */}
           <div className="grid md:grid-cols-3 gap-8">

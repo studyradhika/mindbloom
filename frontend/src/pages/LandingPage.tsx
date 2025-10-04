@@ -88,7 +88,7 @@ const LandingPage = () => {
             <Badge className="mb-4 bg-gradient-to-r from-blue-100 to-teal-100 text-blue-800 hover:from-blue-100 hover:to-teal-100 border-blue-200">
               Evidence-Based Brain Fitness Platform
             </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-12 leading-tight">
               Strengthen Your Mind,<br />
               <span className="bg-gradient-to-r from-blue-600 via-teal-600 to-indigo-600 bg-clip-text text-transparent">
                 Enhance Your Life
@@ -96,7 +96,7 @@ const LandingPage = () => {
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
               MindBloom empowers adults to maintain and improve cognitive wellness through personalized, 
-              evidence-based brain training exercises. Just 10 minutes a day can help enhance memory, focus, and mental clarity.
+              evidence-based brain training exercises. Just 10 minutes a day can help <strong className="text-gray-800 font-semibold">enhance memory, sharpen focus, and boost mental clarity</strong>.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button 

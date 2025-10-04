@@ -259,14 +259,14 @@ const Dashboard = () => {
                 </Button>
               </div>
 
-              {/* Centered Focus Areas */}
+              {/* Centered Focus Areas - Reduced padding */}
               <div className="flex justify-center">
-                <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-emerald-200 max-w-md w-full">
-                  <h3 className="font-semibold text-emerald-800 mb-4 flex items-center justify-center">
+                <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-emerald-200 max-w-md w-full">
+                  <h3 className="font-semibold text-emerald-800 mb-3 flex items-center justify-center">
                     <Target className="w-5 h-5 mr-2" />
                     Today's Focus Areas
                   </h3>
-                  <div className="flex flex-wrap justify-center gap-2 mb-4">
+                  <div className="flex flex-wrap justify-center gap-2 mb-3">
                     {todaysFocusAreas.map((areaId, index) => (
                       <Badge 
                         key={index}
@@ -326,15 +326,15 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Quick Actions */}
+          {/* Quick Actions - Reduced padding */}
           <div className="grid md:grid-cols-3 gap-6">
             <Card 
               className="border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 cursor-pointer hover:shadow-lg transition-all group"
               onClick={openProgress}
             >
-              <CardContent className="pt-6 pb-6 text-center">
-                <BarChart3 className="w-12 h-12 text-purple-600 mx-auto mb-4 group-hover:scale-110 transition-transform" />
-                <h3 className="text-xl font-semibold text-purple-900 mb-2">
+              <CardContent className="pt-4 pb-4 text-center">
+                <BarChart3 className="w-12 h-12 text-purple-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                <h3 className="text-xl font-semibold text-purple-900 mb-1">
                   View Progress
                 </h3>
                 <p className="text-purple-700">
@@ -347,9 +347,9 @@ const Dashboard = () => {
               className="border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 cursor-pointer hover:shadow-lg transition-all group"
               onClick={openBrainTips}
             >
-              <CardContent className="pt-6 pb-6 text-center">
-                <BookOpen className="w-12 h-12 text-amber-600 mx-auto mb-4 group-hover:scale-110 transition-transform" />
-                <h3 className="text-xl font-semibold text-amber-900 mb-2">
+              <CardContent className="pt-4 pb-4 text-center">
+                <BookOpen className="w-12 h-12 text-amber-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                <h3 className="text-xl font-semibold text-amber-900 mb-1">
                   Brain Tips
                 </h3>
                 <p className="text-amber-700">
@@ -362,9 +362,9 @@ const Dashboard = () => {
               className="border-teal-200 bg-gradient-to-r from-teal-50 to-cyan-50 cursor-pointer hover:shadow-lg transition-all group"
               onClick={openMemoryTools}
             >
-              <CardContent className="pt-6 pb-6 text-center">
-                <Brain className="w-12 h-12 text-teal-600 mx-auto mb-4 group-hover:scale-110 transition-transform" />
-                <h3 className="text-xl font-semibold text-teal-900 mb-2">
+              <CardContent className="pt-4 pb-4 text-center">
+                <Brain className="w-12 h-12 text-teal-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                <h3 className="text-xl font-semibold text-teal-900 mb-1">
                   Memory Tools
                 </h3>
                 <p className="text-teal-700">

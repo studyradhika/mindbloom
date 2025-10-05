@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Target, Smile, Meh, Frown, Zap, Coffee, BookOpen, BarChart3, LogOut, Home } from "lucide-react";
+import { Brain, Target, Smile, Meh, Frown, Zap, Coffee, BookOpen, BarChart3, LogOut, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { theme, getAreaColor } from "@/lib/theme";
 import { getPreviousPage } from "@/lib/navigation";
@@ -72,8 +72,8 @@ const Dashboard = () => {
     navigate('/goodbye');
   };
 
-  const handleBackToDashboard = () => {
-    navigate('/dashboard');
+  const handleBack = () => {
+    navigate('/focus-selection');
   };
 
   const startTraining = () => {
@@ -166,14 +166,14 @@ const Dashboard = () => {
       {/* Header - Updated Layout */}
       <header className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between">
-          {/* LEFT: Back to Dashboard Button */}
+          {/* LEFT: Back Button (goes to focus selection) */}
           <Button 
             variant="outline" 
-            onClick={handleBackToDashboard}
+            onClick={handleBack}
             className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
           >
-            <Home className="w-4 h-4 mr-2" />
-            Back to Dashboard
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
           </Button>
           
           {/* CENTER: MindBloom Branding */}
@@ -245,7 +245,7 @@ const Dashboard = () => {
                     onClick={changeFocusAreas}
                     className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 h-auto"
                   >
-                    Change
+                    Change Focus Area
                   </Button>
                 </div>
               </div>

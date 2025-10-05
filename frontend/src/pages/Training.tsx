@@ -209,6 +209,10 @@ const Training = () => {
     navigate('/focus-selection');
   };
 
+  const handleDashboard = () => {
+    navigate('/dashboard');
+  };
+
   if (!userData || exercises.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50 flex items-center justify-center">
@@ -228,43 +232,36 @@ const Training = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50">
-      {/* Header */}
+      {/* Header - Updated Layout */}
       <header className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Button 
-              variant="outline" 
-              onClick={handleBackToFocusSelection}
-              className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Change Focus Areas
-            </Button>
-            <div className="flex items-center space-x-3">
-              <Brain className="h-8 w-8 text-indigo-600" />
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-teal-600 bg-clip-text text-transparent">
-                Training Session
-              </h1>
-            </div>
-          </div>
+          {/* LEFT: Dashboard Button */}
+          <Button 
+            variant="outline" 
+            onClick={handleDashboard}
+            className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+          >
+            <Home className="w-4 h-4 mr-2" />
+            Dashboard
+          </Button>
+          
+          {/* CENTER: Training Session Branding */}
           <div className="flex items-center space-x-3">
-            <Button 
-              variant="outline" 
-              onClick={() => navigate('/dashboard')}
-              className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
-            >
-              <Home className="w-4 h-4 mr-2" />
-              Dashboard
-            </Button>
-            <Button 
-              variant="ghost" 
-              onClick={handleSignOut}
-              className="px-3 py-2 text-gray-600 hover:text-gray-800"
-            >
-              <LogOut className="w-4 h-4 mr-1" />
-              Sign Out
-            </Button>
+            <Brain className="h-8 w-8 text-indigo-600" />
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-teal-600 bg-clip-text text-transparent">
+              Training Session
+            </h1>
           </div>
+          
+          {/* RIGHT: Sign Out Button */}
+          <Button 
+            variant="ghost" 
+            onClick={handleSignOut}
+            className="px-3 py-2 text-gray-600 hover:text-gray-800"
+          >
+            <LogOut className="w-4 h-4 mr-1" />
+            Sign Out
+          </Button>
         </div>
       </header>
 

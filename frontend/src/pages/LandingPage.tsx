@@ -1,23 +1,46 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, ArrowRight, Heart, Shield, Sparkles, Clock, Zap, TrendingUp, Users, Activity, BookOpen, Target, CheckCircle, Star, Award } from "lucide-react";
+import { Brain, ArrowRight, Heart, Shield, Sparkles, Clock, Zap, TrendingUp, Users, Activity, BookOpen, Target, CheckCircle, Star, Award, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const [loggedInUser, setLoggedInUser] = useState<any>(null);
+
+  useEffect(() => {
+    const userData = localStorage.getItem('mindbloom-user');
+    if (userData) {
+      setLoggedInUser(JSON.parse(userData));
+    } else {
+      setLoggedInUser(null);
+    }
+  }, []);
 
   const handleStartJourney = () => {
     navigate('/registration');
   };
 
   const handleSignIn = () => {
-    // Navigate to the dedicated SignIn page
     navigate('/signin');
   };
 
   const handleGetStarted = () => {
     navigate('/registration');
+  };
+
+  const handleSignOut = () => {
+    localStorage.removeItem('mindbloom-user');
+    localStorage.removeItem('mindbloom-today-mood');
+    localStorage.removeItem('mindbloom-last-mood-date');
+    localStorage.removeItem('mindbloom-today-focus-areas');
+    localStorage.removeItem('mindbloom-last-focus-date');
+    localStorage.removeItem('mindbloom-notes');
+    localStorage.removeItem('mindbloom-checklists');
+    localStorage.removeItem('mindbloom-reminders');
+    setLoggedInUser(null); // Clear user from state
+    navigate('/'); // Redirect to landing page
   };
 
   return (
@@ -36,19 +59,36 @@ const LandingPage = () => {
               <a href="#features" className="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
               <a href="#benefits" className="text-gray-600 hover:text-blue-600 transition-colors">Benefits</a>
               <a href="#about" className="text-gray-600 hover:text-blue-600 transition-colors">About</a>
-              <Button 
-                variant="outline" 
-                onClick={handleSignIn}
-                className="mr-2 border-blue-200 text-blue-600 hover:bg-blue-50"
-              >
-                Sign In
-              </Button>
-              <Button 
-                onClick={handleGetStarted}
-                className="bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700"
-              >
-                Get Started
-              </Button>
+              
+              {loggedInUser ? (
+                <div className="flex items-center space-x-4">
+                  <span className="text-gray-700 font-medium">Hello, {loggedInUser.name}!</span>
+                  <Button 
+                    variant="ghost" 
+                    onClick={handleSignOut}
+                    className="px-3 py-2 text-gray-600 hover:text-gray-800"
+                  >
+                    <LogOut className="w-4 h-4 mr-1" />
+                    Sign Out
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Button 
+                    variant="outline" 
+                    onClick={handleSignIn}
+                    className="mr-2 border-blue-200 text-blue-600 hover:bg-blue-50"
+                  >
+                    Sign In
+                  </Button>
+                  <Button 
+                    onClick={handleGetStarted}
+                    className="bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700"
+                  >
+                    Get Started
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>

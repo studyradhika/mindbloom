@@ -184,15 +184,18 @@ const Dashboard = () => {
             </h1>
           </div>
           
-          {/* RIGHT: Sign Out Button */}
-          <Button 
-            variant="ghost" 
-            onClick={handleSignOut}
-            className="px-3 py-2 text-gray-600 hover:text-gray-800"
-          >
-            <LogOut className="w-4 h-4 mr-1" />
-            Sign Out
-          </Button>
+          {/* RIGHT: User Name and Sign Out Button */}
+          <div className="flex items-center space-x-4">
+            <span className="text-gray-700 dark:text-gray-300 font-medium">Hello, {userData.name}!</span>
+            <Button 
+              variant="ghost" 
+              onClick={handleSignOut}
+              className="px-3 py-2 text-gray-600 hover:text-gray-800"
+            >
+              <LogOut className="w-4 h-4 mr-1" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 

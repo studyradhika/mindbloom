@@ -18,19 +18,24 @@ const MemoryExercise = ({ onComplete, mood, userPreferences }: MemoryExercisePro
   const [score, setScore] = useState(0);
   const [startTime] = useState(Date.now());
   const [showingSequence, setShowingSequence] = useState(false);
+  const timeoutRef = useState<ReturnType<typeof setTimeout> | null>(null);
 
-  // Adjust difficulty based on mood and experience
-  const getDifficulty = () => {
-    let baseLength = 4;
-    
-    if (mood === 'motivated') baseLength = 6;
-    else if (mood === 'foggy' || mood === 'tired') baseLength = 3;
-    else if (mood === 'stressed') baseLength = 3;
-    
-    if (userPreferences.experience === 'experienced') baseLength += 1;
-    else if (userPreferences.experience === 'beginner') baseLength -= 1;
-    
-    return Math.max(3, Math.min(8, baseLength));
+  // Adjust difficulty based on the 'difficulty' prop
+  const getSequenceLength = (difficulty: number) => {
+    let length = 4; // Base length
+    if (difficulty >= 2.5) {
+      length = 7;
+    } else if (difficulty >= 1.5) {
+      length = 5;
+    } else { // difficulty < 1.5
+      length = 3;
+    }
+
+    // Further adjust based on mood for a gentler experience if needed
+    if (mood === 'foggy' || mood === 'tired' || mood === 'stressed') {
+      length = Math.max(3, length - 1);
+    }
+    return length;
   };
 
   const colors = [
@@ -48,10 +53,10 @@ const MemoryExercise = ({ onComplete, mood, userPreferences }: MemoryExercisePro
     if (phase === 'memorize') {
       generateSequence();
     }
-  }, [phase]);
+  }, [phase, userPreferences.difficulty, mood]);
 
   const generateSequence = () => {
-    const length = getDifficulty();
+    const length = getSequenceLength(userPreferences.difficulty);
     const newSequence = Array.from({ length }, () => Math.floor(Math.random() * colors.length) + 1);
     setSequence(newSequence);
     showSequence(newSequence);
@@ -100,7 +105,7 @@ const MemoryExercise = ({ onComplete, mood, userPreferences }: MemoryExercisePro
         exerciseId: 'memory',
         score: percentage,
         timeSpent: Math.round((Date.now() - startTime) / 1000),
-        difficulty: sequence.length,
+        difficulty: userPreferences.difficulty, // Use adaptive difficulty
         correct,
         total: sequence.length
       };

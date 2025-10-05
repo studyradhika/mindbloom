@@ -57,13 +57,13 @@ export const calculateDifficulty = (exerciseId: string, userData: any): number =
 // Select exercises with variety and retry logic
 export const selectExercises = (focusAreas: string[], userData: any, mood: string): string[] => {
   const exerciseMap: { [key: string]: string[] } = {
-    memory: ['memory', 'mindful-memory', 'visual-recall'],
+    memory: ['memory', 'mindful-memory', 'visual-recall'], // Added visual-recall
     attention: ['attention', 'pattern-recognition', 'rapid-matching'],
     language: ['language', 'conversation', 'word-association'],
     executive: ['sequencing', 'logic-puzzle'],
     creativity: ['mindful-memory', 'story-creation'], // mindful-memory can also be creative
     processing: ['attention', 'rapid-matching'], // attention for focus, rapid-matching for speed
-    spatial: ['memory', 'spatial-puzzle'], // memory for visual recall, spatial-puzzle for reasoning
+    spatial: ['memory', 'spatial-puzzle', 'visual-recall'], // Added visual-recall for spatial
     general: ['memory', 'attention', 'language', 'sequencing', 'mindful-memory', 'conversation', 'visual-recall', 'pattern-recognition', 'word-association', 'logic-puzzle', 'story-creation', 'rapid-matching', 'spatial-puzzle']
   };
   

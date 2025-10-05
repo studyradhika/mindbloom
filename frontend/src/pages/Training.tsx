@@ -14,6 +14,7 @@ import LanguageExercise from "@/components/exercises/LanguageExercise";
 import SequencingExercise from "@/components/exercises/SequencingExercise";
 import MindfulMemoryExercise from "@/components/exercises/MindfulMemoryExercise";
 import ConversationExercise from "@/components/exercises/ConversationExercise";
+import VisualRecallExercise from "@/components/exercises/VisualRecallExercise"; // Import new exercise
 
 const Training = () => {
   const navigate = useNavigate();
@@ -49,13 +50,13 @@ const Training = () => {
         area: 'Memory & Mindfulness',
         areaId: 'memory'
       },
-      'visual-recall': {
+      'visual-recall': { // New exercise component
         id: 'visual-recall',
         title: 'Visual Recall',
         description: 'Memorize and recall visual patterns',
-        component: MemoryExercise, // Reusing MemoryExercise for now
-        area: 'Memory',
-        areaId: 'memory'
+        component: VisualRecallExercise,
+        area: 'Memory & Spatial',
+        areaId: 'spatial' // Can also be memory, but spatial fits well
       },
       attention: {
         id: 'attention',
@@ -133,7 +134,7 @@ const Training = () => {
         id: 'spatial-puzzle',
         title: 'Spatial Puzzle',
         description: 'Arrange shapes or objects in space',
-        component: MemoryExercise, // Reusing MemoryExercise for now
+        component: VisualRecallExercise, // Reusing VisualRecallExercise for now
         area: 'Spatial Reasoning',
         areaId: 'spatial'
       }
@@ -364,7 +365,7 @@ const Training = () => {
           mood={todaysMood}
           userPreferences={{
             ...userData,
-            difficulty: calculateDifficulty(currentExerciseData.id, userData)
+            difficulty: calculateDifficulty(currentExerciseData.id, userData) // Pass calculated difficulty
           }}
         />
       </div>

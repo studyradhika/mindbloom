@@ -20,6 +20,7 @@ const MindfulMemoryExercise = ({ onComplete, mood, userPreferences }: MindfulMem
   const [score, setScore] = useState(0);
   const [startTime] = useState(Date.now());
   const [stressLevel, setStressLevel] = useState(5);
+  const breathingTimeoutRef = useState<ReturnType<typeof setTimeout> | null>(null);
 
   // Calming memory items based on nature and positive themes
   const calmingItems = [
@@ -28,28 +29,26 @@ const MindfulMemoryExercise = ({ onComplete, mood, userPreferences }: MindfulMem
     'Starry night', 'Morning dew', 'Butterfly wings', 'Cozy fireplace', 'Fresh rain'
   ];
 
-  // Adjust difficulty based on mood and stress
-  const getDifficulty = () => {
+  // Adjust difficulty based on the 'difficulty' prop
+  const getDifficultySettings = (difficulty: number) => {
     let itemCount = 6;
     let breathingDuration = 60; // seconds
     
-    if (mood === 'stressed' || mood === 'tired') {
-      itemCount = 4;
-      breathingDuration = 90;
-    } else if (mood === 'motivated') {
-      itemCount = 8;
-      breathingDuration = 45;
-    } else if (mood === 'foggy') {
-      itemCount = 5;
-      breathingDuration = 75;
+    if (difficulty >= 2.5) {
+      itemCount = 8; breathingDuration = 45;
+    } else if (difficulty >= 1.5) {
+      itemCount = 6; breathingDuration = 60;
+    } else { // difficulty < 1.5
+      itemCount = 4; breathingDuration = 75;
     }
     
-    if (userPreferences.experience === 'beginner') {
-      itemCount -= 1;
-      breathingDuration += 15;
+    // Further adjust based on mood for a gentler experience if needed
+    if (mood === 'stressed' || mood === 'tired' || mood === 'foggy') {
+      itemCount = Math.max(3, itemCount - 1);
+      breathingDuration = Math.min(90, breathingDuration + 15);
     }
     
-    return { itemCount: Math.max(3, itemCount), breathingDuration };
+    return { itemCount, breathingDuration };
   };
 
   useEffect(() => {
@@ -80,8 +79,8 @@ const MindfulMemoryExercise = ({ onComplete, mood, userPreferences }: MindfulMem
     setPhase('breathing');
     
     // Auto-transition to memory phase after breathing duration
-    const { breathingDuration } = getDifficulty();
-    setTimeout(() => {
+    const { breathingDuration } = getDifficultySettings(userPreferences.difficulty);
+    breathingTimeoutRef.current = setTimeout(() => {
       setBreathingActive(false);
       generateMemoryItems();
       setPhase('memory');
@@ -89,7 +88,7 @@ const MindfulMemoryExercise = ({ onComplete, mood, userPreferences }: MindfulMem
   };
 
   const generateMemoryItems = () => {
-    const { itemCount } = getDifficulty();
+    const { itemCount } = getDifficultySettings(userPreferences.difficulty);
     const shuffled = [...calmingItems].sort(() => Math.random() - 0.5);
     setMemoryItems(shuffled.slice(0, itemCount));
   };
@@ -121,7 +120,8 @@ const MindfulMemoryExercise = ({ onComplete, mood, userPreferences }: MindfulMem
         timeSpent: Math.round((Date.now() - startTime) / 1000),
         memoryAccuracy: accuracy,
         stressReduction: stressReduction,
-        category: 'mindful-cognitive'
+        category: 'mindful-cognitive',
+        difficulty: userPreferences.difficulty // Use adaptive difficulty
       };
       onComplete(result);
     }, 3000);

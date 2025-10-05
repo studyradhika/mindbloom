@@ -130,52 +130,33 @@ const BrainTips = () => {
           </div>
         </div>
 
-        {/* Featured Tip */}
-        <Card className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lightbulb className="text-yellow-300" />
-              Today's Featured Tip
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <h3 className="text-xl font-semibold mb-2">The Method of Loci</h3>
-            <p className="opacity-90 mb-3">
+        {/* Featured Tip - More appealing, less bright */}
+        <Card className="bg-white shadow-lg border-2 border-indigo-200 overflow-hidden">
+          <div className="bg-gradient-to-r from-indigo-50 to-blue-50 px-6 py-4 border-b border-indigo-100">
+            <div className="flex items-center gap-3">
+              <div className="bg-yellow-100 p-2 rounded-full">
+                <Lightbulb className="w-6 h-6 text-yellow-600" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-indigo-900">Today's Featured Tip</h2>
+                <p className="text-indigo-700 text-sm">Daily wisdom for cognitive wellness</p>
+              </div>
+            </div>
+          </div>
+          <CardContent className="p-6">
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">The Method of Loci</h3>
+            <p className="text-gray-700 text-lg leading-relaxed mb-4">
               Also called the "memory palace" technique, this involves associating information with familiar locations. 
               Ancient Greeks used this method to memorize long speeches.
             </p>
-            <div className="bg-white/20 p-3 rounded-lg">
-              <p className="text-sm font-medium">💡 Try this: Try associating your grocery list with rooms in your house.</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Topic Exploration */}
-        <Card className="bg-white/90 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle>Explore Topics</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-              {topics.map((topic) => {
-                const IconComponent = topic.icon;
-                const isSelected = selectedTopic === topic.id;
-                return (
-                  <Button
-                    key={topic.id}
-                    variant={isSelected ? "default" : "outline"}
-                    onClick={() => handleTopicSelect(topic.id)}
-                    className={`flex flex-col items-center gap-2 h-auto p-4 ${
-                      isSelected 
-                        ? 'bg-indigo-600 hover:bg-indigo-700 text-white' 
-                        : 'hover:bg-indigo-50 hover:text-indigo-700 border-indigo-200'
-                    }`}
-                  >
-                    <IconComponent className={`w-6 h-6 ${isSelected ? 'text-white' : topic.color}`} />
-                    <span className="text-sm">{topic.label}</span>
-                  </Button>
-                );
-              })}
+            <div className="bg-gradient-to-r from-yellow-50 to-amber-50 border-l-4 border-yellow-400 p-4 rounded-r-lg">
+              <div className="flex items-start gap-2">
+                <span className="text-yellow-600 font-bold text-lg">💡</span>
+                <div>
+                  <p className="font-semibold text-yellow-800 mb-1">Try this:</p>
+                  <p className="text-yellow-700">Try associating your grocery list with rooms in your house.</p>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -261,6 +242,36 @@ const BrainTips = () => {
                   Try the breathing exercises and stress reduction tips in our Daily Wellness section.
                 </p>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Topic Exploration - Moved to bottom */}
+        <Card className="bg-white/90 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle>Explore Topics</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+              {topics.map((topic) => {
+                const IconComponent = topic.icon;
+                const isSelected = selectedTopic === topic.id;
+                return (
+                  <Button
+                    key={topic.id}
+                    variant={isSelected ? "default" : "outline"}
+                    onClick={() => handleTopicSelect(topic.id)}
+                    className={`flex flex-col items-center gap-2 h-auto p-4 ${
+                      isSelected 
+                        ? 'bg-indigo-600 hover:bg-indigo-700 text-white' 
+                        : 'hover:bg-indigo-50 hover:text-indigo-700 border-indigo-200'
+                    }`}
+                  >
+                    <IconComponent className={`w-6 h-6 ${isSelected ? 'text-white' : topic.color}`} />
+                    <span className="text-sm">{topic.label}</span>
+                  </Button>
+                );
+              })}
             </div>
           </CardContent>
         </Card>

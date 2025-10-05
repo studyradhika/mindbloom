@@ -235,14 +235,14 @@ const Training = () => {
       {/* Header - Updated Layout */}
       <header className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
-          {/* LEFT: Dashboard Button */}
+          {/* LEFT: Back to Dashboard Button */}
           <Button 
             variant="outline" 
             onClick={handleDashboard}
             className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
           >
             <Home className="w-4 h-4 mr-2" />
-            Dashboard
+            Back to Dashboard
           </Button>
           
           {/* CENTER: Training Session Branding */}

@@ -357,8 +357,9 @@ const Training = () => {
 
       {/* Exercise Content */}
       <div className="container mx-auto px-4">
+        {/* Added exerciseData.id to key for better re-render */}
         <CurrentExerciseComponent
-          key={`${currentExerciseData.id}-${currentExercise}-${Date.now()}`} {/* Added exerciseData.id to key for better re-render */}
+          key={`${currentExerciseData.id}-${currentExercise}-${Date.now()}`}
           onComplete={handleExerciseComplete}
           mood={todaysMood}
           userPreferences={{

@@ -91,22 +91,35 @@ const Progress = () => {
       const areaPerformance: { [key: string]: { scores: number[], average: number, count: number } } = {};
       
       todaySession.exercises.forEach((exercise: any) => {
-        let areaId = 'memory';
+        let areaId = 'general'; // Default to general if not mapped
         
         switch (exercise.exerciseId) {
           case 'memory':
           case 'mindful-memory':
+          case 'visual-recall':
             areaId = 'memory';
             break;
           case 'attention':
+          case 'pattern-recognition':
             areaId = 'attention';
             break;
           case 'language':
           case 'conversation':
+          case 'word-association':
             areaId = 'language';
             break;
           case 'sequencing':
+          case 'logic-puzzle':
             areaId = 'executive';
+            break;
+          case 'story-creation':
+            areaId = 'creativity';
+            break;
+          case 'rapid-matching':
+            areaId = 'processing';
+            break;
+          case 'spatial-puzzle':
+            areaId = 'spatial';
             break;
         }
 
@@ -213,13 +226,19 @@ const Progress = () => {
       const areaExercises = Object.keys(exerciseStats).filter(exerciseId => {
         switch (area.id) {
           case 'memory':
-            return ['memory', 'mindful-memory'].includes(exerciseId);
+            return ['memory', 'mindful-memory', 'visual-recall'].includes(exerciseId);
           case 'attention':
-            return exerciseId === 'attention';
+            return ['attention', 'pattern-recognition'].includes(exerciseId);
           case 'language':
-            return ['language', 'conversation'].includes(exerciseId);
+            return ['language', 'conversation', 'word-association'].includes(exerciseId);
           case 'executive':
-            return exerciseId === 'sequencing';
+            return ['sequencing', 'logic-puzzle'].includes(exerciseId);
+          case 'creativity':
+            return ['mindful-memory', 'story-creation'].includes(exerciseId);
+          case 'processing':
+            return ['attention', 'rapid-matching'].includes(exerciseId);
+          case 'spatial':
+            return ['memory', 'spatial-puzzle'].includes(exerciseId);
           default:
             return false;
         }

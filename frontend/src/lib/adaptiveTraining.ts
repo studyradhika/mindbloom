@@ -57,14 +57,14 @@ export const calculateDifficulty = (exerciseId: string, userData: any): number =
 // Select exercises with variety and retry logic
 export const selectExercises = (focusAreas: string[], userData: any, mood: string): string[] => {
   const exerciseMap: { [key: string]: string[] } = {
-    memory: ['memory', 'mindful-memory'],
-    attention: ['attention'],
-    language: ['language', 'conversation'],
-    executive: ['sequencing'],
-    creativity: ['mindful-memory'],
-    processing: ['attention'],
-    spatial: ['memory'],
-    general: ['memory', 'attention', 'language']
+    memory: ['memory', 'mindful-memory', 'visual-recall'],
+    attention: ['attention', 'pattern-recognition', 'rapid-matching'],
+    language: ['language', 'conversation', 'word-association'],
+    executive: ['sequencing', 'logic-puzzle'],
+    creativity: ['mindful-memory', 'story-creation'], // mindful-memory can also be creative
+    processing: ['attention', 'rapid-matching'], // attention for focus, rapid-matching for speed
+    spatial: ['memory', 'spatial-puzzle'], // memory for visual recall, spatial-puzzle for reasoning
+    general: ['memory', 'attention', 'language', 'sequencing', 'mindful-memory', 'conversation', 'visual-recall', 'pattern-recognition', 'word-association', 'logic-puzzle', 'story-creation', 'rapid-matching', 'spatial-puzzle']
   };
   
   const availableExercises: string[] = [];
@@ -90,34 +90,63 @@ export const selectExercises = (focusAreas: string[], userData: any, mood: strin
   
   let selectedExercises: string[] = [];
   
-  // First priority: retry exercises with poor performance
-  retryExercises.forEach(exerciseId => {
+  // 1. Prioritize retry exercises with poor performance
+  const shuffledRetry = [...retryExercises].sort(() => Math.random() - 0.5); // Shuffle retry exercises
+  shuffledRetry.forEach(exerciseId => {
     if (selectedExercises.length < 3 && availableExercises.includes(exerciseId)) {
       selectedExercises.push(exerciseId);
     }
   });
   
-  // Second priority: new exercises from focus areas
-  const uniqueAvailable = [...new Set(availableExercises)];
-  uniqueAvailable.forEach(exerciseId => {
-    if (selectedExercises.length < 3 && 
-        !selectedExercises.includes(exerciseId) && 
-        !recentExercises.includes(exerciseId)) {
+  // 2. Add exercises from focus areas, avoiding recent and already selected ones
+  let potentialNewExercises = [...new Set(availableExercises)].filter(
+    (id) => !selectedExercises.includes(id) && !recentExercises.includes(id)
+  );
+  potentialNewExercises = potentialNewExercises.sort(() => Math.random() - 0.5); // Shuffle for variety
+
+  potentialNewExercises.forEach(exerciseId => {
+    if (selectedExercises.length < 3) {
       selectedExercises.push(exerciseId);
     }
   });
   
-  // Fill remaining slots with any available exercises
-  uniqueAvailable.forEach(exerciseId => {
-    if (selectedExercises.length < 3 && !selectedExercises.includes(exerciseId)) {
-      selectedExercises.push(exerciseId);
-    }
-  });
+  // 3. Fill any remaining slots with other available exercises, ensuring variety
+  if (selectedExercises.length < 3) {
+    let fallbackPool = [...new Set(availableExercises)].filter(
+      (id) => !selectedExercises.includes(id)
+    );
+    fallbackPool = fallbackPool.sort(() => Math.random() - 0.5); // Shuffle fallback pool
+
+    fallbackPool.forEach(exerciseId => {
+      if (selectedExercises.length < 3) {
+        selectedExercises.push(exerciseId);
+      }
+    });
+  }
   
-  // Ensure we have exactly 3 exercises
+  // Ensure we have exactly 3 exercises, using a general fallback if necessary
   while (selectedExercises.length < 3) {
-    const fallback = ['memory', 'attention', 'language'];
-    selectedExercises.push(fallback[selectedExercises.length]);
+    const generalFallback = exerciseMap.general; // Use the expanded general pool
+    const randomFallback = generalFallback[Math.floor(Math.random() * generalFallback.length)];
+    if (!selectedExercises.includes(randomFallback)) {
+      selectedExercises.push(randomFallback);
+    } else {
+      // If the random fallback is already selected, try another random one
+      // This loop ensures we eventually find a unique one if possible
+      let uniqueFound = false;
+      for (let i = 0; i < generalFallback.length; i++) {
+        const alternativeFallback = generalFallback[(Math.floor(Math.random() * generalFallback.length) + i) % generalFallback.length];
+        if (!selectedExercises.includes(alternativeFallback)) {
+          selectedExercises.push(alternativeFallback);
+          uniqueFound = true;
+          break;
+        }
+      }
+      if (!uniqueFound) {
+        // Fallback to just adding a duplicate if no unique options left (shouldn't happen with a decent pool)
+        selectedExercises.push(generalFallback[0]);
+      }
+    }
   }
   
   return selectedExercises.slice(0, 3);

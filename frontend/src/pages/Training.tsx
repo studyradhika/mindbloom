@@ -41,6 +41,22 @@ const Training = () => {
         area: 'Memory',
         areaId: 'memory'
       },
+      'mindful-memory': {
+        id: 'mindful-memory',
+        title: 'Mindful Memory',
+        description: 'Memory training with guided breathing',
+        component: MindfulMemoryExercise,
+        area: 'Memory & Mindfulness',
+        areaId: 'memory'
+      },
+      'visual-recall': {
+        id: 'visual-recall',
+        title: 'Visual Recall',
+        description: 'Memorize and recall visual patterns',
+        component: MemoryExercise, // Reusing MemoryExercise for now
+        area: 'Memory',
+        areaId: 'memory'
+      },
       attention: {
         id: 'attention',
         title: 'Attention Training',
@@ -49,11 +65,43 @@ const Training = () => {
         area: 'Attention',
         areaId: 'attention'
       },
+      'pattern-recognition': {
+        id: 'pattern-recognition',
+        title: 'Pattern Recognition',
+        description: 'Identify and match visual patterns',
+        component: AttentionExercise, // Reusing AttentionExercise for now
+        area: 'Attention & Perception',
+        areaId: 'attention'
+      },
+      'rapid-matching': {
+        id: 'rapid-matching',
+        title: 'Rapid Matching',
+        description: 'Quickly match symbols or items',
+        component: AttentionExercise, // Reusing AttentionExercise for now
+        area: 'Processing Speed',
+        areaId: 'processing'
+      },
       language: {
         id: 'language',
         title: 'Word Skills',
         description: 'Language and verbal reasoning',
         component: LanguageExercise,
+        area: 'Language',
+        areaId: 'language'
+      },
+      conversation: {
+        id: 'conversation',
+        title: 'Social Skills',
+        description: 'Real-world conversation practice',
+        component: ConversationExercise,
+        area: 'Language & Communication',
+        areaId: 'language'
+      },
+      'word-association': {
+        id: 'word-association',
+        title: 'Word Association',
+        description: 'Connect words based on meaning',
+        component: LanguageExercise, // Reusing LanguageExercise for now
         area: 'Language',
         areaId: 'language'
       },
@@ -65,21 +113,29 @@ const Training = () => {
         area: 'Executive Function',
         areaId: 'executive'
       },
-      'mindful-memory': {
-        id: 'mindful-memory',
-        title: 'Mindful Memory',
-        description: 'Memory training with guided breathing',
-        component: MindfulMemoryExercise,
-        area: 'Creativity & Mindfulness',
+      'logic-puzzle': {
+        id: 'logic-puzzle',
+        title: 'Logic Puzzle',
+        description: 'Solve logical problems and deductions',
+        component: SequencingExercise, // Reusing SequencingExercise for now
+        area: 'Executive Function',
+        areaId: 'executive'
+      },
+      'story-creation': {
+        id: 'story-creation',
+        title: 'Story Creation',
+        description: 'Develop imaginative narratives',
+        component: MindfulMemoryExercise, // Reusing MindfulMemoryExercise for now
+        area: 'Creativity',
         areaId: 'creativity'
       },
-      conversation: {
-        id: 'conversation',
-        title: 'Social Skills',
-        description: 'Real-world conversation practice',
-        component: ConversationExercise,
-        area: 'Language & Communication',
-        areaId: 'language'
+      'spatial-puzzle': {
+        id: 'spatial-puzzle',
+        title: 'Spatial Puzzle',
+        description: 'Arrange shapes or objects in space',
+        component: MemoryExercise, // Reusing MemoryExercise for now
+        area: 'Spatial Reasoning',
+        areaId: 'spatial'
       }
     };
 
@@ -302,7 +358,7 @@ const Training = () => {
       {/* Exercise Content */}
       <div className="container mx-auto px-4">
         <CurrentExerciseComponent
-          key={`${currentExercise}-${Date.now()}`}
+          key={`${currentExerciseData.id}-${currentExercise}-${Date.now()}`} {/* Added exerciseData.id to key for better re-render */}
           onComplete={handleExerciseComplete}
           mood={todaysMood}
           userPreferences={{

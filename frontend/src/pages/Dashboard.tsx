@@ -166,14 +166,14 @@ const Dashboard = () => {
       {/* Header - Updated Layout */}
       <header className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between">
-          {/* LEFT: Back Button (goes to focus selection) */}
+          {/* LEFT: Change Focus Areas Button (goes to focus selection) */}
           <Button 
             variant="outline" 
             onClick={handleBack}
             className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
+            Change Focus Areas
           </Button>
           
           {/* CENTER: MindBloom Branding */}

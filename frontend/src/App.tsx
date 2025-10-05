@@ -16,6 +16,7 @@ import MemoryTools from "./pages/MemoryTools";
 import Progress from "./pages/Progress";
 import FocusSelection from "./pages/FocusSelection";
 import BrainTips from "./pages/BrainTips";
+import SignIn from "./pages/SignIn"; // Import the new SignIn component
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/memory-tools" element={<MemoryTools />} />
           <Route path="/progress" element={<Progress />} />
           <Route path="/brain-tips" element={<BrainTips />} />
+          <Route path="/signin" element={<SignIn />} /> {/* Add the new SignIn route */}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -18,35 +18,8 @@ const Index = () => {
   }, [navigate]);
 
   const handleSignIn = () => {
-    // For demo purposes, create sample user data for existing users
-    const sampleUserData = {
-      name: 'Sarah',
-      email: 'user@example.com',
-      ageGroup: '50-59',
-      goals: ['prevention', 'focus', 'memory'],
-      cognitiveAreas: ['memory', 'attention', 'language'],
-      experience: 'some',
-      timePreference: 'morning',
-      onboardingCompleted: true,
-      joinDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days ago
-      streak: 5,
-      totalSessions: 12,
-      lastSessionDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // Yesterday
-      lastSessionScore: 78,
-      lastSessionDuration: 8,
-      exerciseHistory: []
-    };
-    
-    localStorage.setItem('mindbloom-user', JSON.stringify(sampleUserData));
-    
-    // Clear any existing mood and focus data to force mood check
-    localStorage.removeItem('mindbloom-today-mood');
-    localStorage.removeItem('mindbloom-last-mood-date');
-    localStorage.removeItem('mindbloom-today-focus-areas');
-    localStorage.removeItem('mindbloom-last-focus-date');
-    
-    // Navigate to dashboard, which will redirect to mood selector
-    navigate('/dashboard');
+    // Navigate to the new SignIn page
+    navigate('/signin');
   };
 
   const handleSignUp = () => {
@@ -263,6 +236,55 @@ const Index = () => {
           </p>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="bg-gradient-to-r from-gray-900 to-blue-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <Brain className="h-8 w-8 text-blue-400" />
+                <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-teal-400 bg-clip-text text-transparent">
+                  MindBloom
+                </span>
+              </div>
+              <p className="text-gray-300 mb-4">
+                Evidence-based cognitive wellness platform for adults and those experiencing cognitive challenges.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4 text-blue-300">Platform</h3>
+              <ul className="space-y-2 text-gray-300">
+                <li><a href="#" className="hover:text-blue-300 transition-colors">Features</a></li>
+                <li><a href="#" className="hover:text-blue-300 transition-colors">Pricing</a></li>
+                <li><a href="#" className="hover:text-blue-300 transition-colors">Free Trial</a></li>
+                <li><a href="#" className="hover:text-blue-300 transition-colors">Mobile App</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4 text-teal-300">Support</h3>
+              <ul className="space-y-2 text-gray-300">
+                <li><a href="#" className="hover:text-teal-300 transition-colors">Help Center</a></li>
+                <li><a href="#" className="hover:text-teal-300 transition-colors">Community</a></li>
+                <li><a href="#" className="hover:text-teal-300 transition-colors">Contact Us</a></li>
+                <li><a href="#" className="hover:text-teal-300 transition-colors">Clinical Research</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4 text-indigo-300">Company</h3>
+              <ul className="space-y-2 text-gray-300">
+                <li><a href="#" className="hover:text-indigo-300 transition-colors">About Us</a></li>
+                <li><a href="#" className="hover:text-indigo-300 transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-indigo-300 transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="hover:text-indigo-300 transition-colors">HIPAA Compliance</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-blue-800 mt-8 pt-8 text-center text-gray-300">
+            <p>© 2025 MindBloom. All rights reserved. | Empowering cognitive wellness through evidence-based brain training.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

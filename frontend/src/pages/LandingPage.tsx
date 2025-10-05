@@ -12,35 +12,8 @@ const LandingPage = () => {
   };
 
   const handleSignIn = () => {
-    // Create sample user data for existing users signing in
-    const sampleUserData = {
-      name: 'Sarah',
-      email: 'user@example.com',
-      ageGroup: '50-59',
-      goals: ['prevention', 'focus', 'memory'],
-      cognitiveAreas: ['memory', 'attention', 'language'],
-      experience: 'some',
-      timePreference: 'morning',
-      onboardingCompleted: true,
-      joinDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days ago
-      streak: 5,
-      totalSessions: 12,
-      lastSessionDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // Yesterday
-      lastSessionScore: 78,
-      lastSessionDuration: 8,
-      exerciseHistory: []
-    };
-    
-    localStorage.setItem('mindbloom-user', JSON.stringify(sampleUserData));
-    
-    // Clear any existing mood and focus data to force mood check
-    localStorage.removeItem('mindbloom-today-mood');
-    localStorage.removeItem('mindbloom-last-mood-date');
-    localStorage.removeItem('mindbloom-today-focus-areas');
-    localStorage.removeItem('mindbloom-last-focus-date');
-    
-    // Navigate to dashboard, which will redirect to mood selector
-    navigate('/dashboard');
+    // Navigate to the dedicated SignIn page
+    navigate('/signin');
   };
 
   const handleGetStarted = () => {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Brain, ArrowRight, Heart, Shield, Sparkles, Clock, Zap, TrendingUp, Users, Activity, BookOpen, Target, CheckCircle, Star, Award, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Target, Smile, Meh, Frown, Zap, Coffee, BookOpen, BarChart3, LogOut, ArrowLeft, Home } from "lucide-react";
+import { Brain, Target, Smile, Meh, Frown, Zap, Coffee, BookOpen, BarChart3, LogOut, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { theme, getAreaColor } from "@/lib/theme";
 import { getPreviousPage } from "@/lib/navigation";
@@ -81,7 +81,6 @@ const Dashboard = () => {
   };
 
   const openBrainTips = () => {
-    console.log('Navigating to Brain Tips page...');
     navigate('/brain-tips');
   };
 
@@ -90,30 +89,11 @@ const Dashboard = () => {
   };
 
   const openMemoryTools = () => {
-    console.log('Navigating to Memory Tools page...');
     navigate('/memory-tools');
   };
 
   const changeFocusAreas = () => {
     navigate('/focus-selection');
-  };
-
-  const changeMood = () => {
-    // Clear mood data and show mood selector
-    localStorage.removeItem('mindbloom-today-mood');
-    localStorage.removeItem('mindbloom-last-mood-date');
-    setShowMoodSelector(true);
-  };
-
-  const getMoodIcon = (mood: string) => {
-    switch (mood) {
-      case 'motivated': return <Zap className="w-5 h-5 text-teal-600" />;
-      case 'okay': return <Smile className="w-5 h-5 text-blue-600" />;
-      case 'foggy': return <Coffee className="w-5 h-5 text-indigo-600" />;
-      case 'tired': return <Meh className="w-5 h-5 text-gray-600" />;
-      case 'stressed': return <Frown className="w-5 h-5 text-red-600" />;
-      default: return <Smile className="w-5 h-5 text-blue-600" />;
-    }
   };
 
   const getFocusAreaLabel = (areaId: string) => {
@@ -181,13 +161,12 @@ const Dashboard = () => {
     );
   }
 
-  // This is now the Activity Dashboard - showing training session ready to start
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50">
-      {/* Header */}
+      {/* Header - Updated Layout */}
       <header className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between">
-          {/* Left: Back to Dashboard Button */}
+          {/* LEFT: Back to Dashboard Button */}
           <Button 
             variant="outline" 
             onClick={handleBackToDashboard}
@@ -197,7 +176,7 @@ const Dashboard = () => {
             Back to Dashboard
           </Button>
           
-          {/* Center: Brain Icon + Activity Dashboard Text */}
+          {/* CENTER: MindBloom Branding */}
           <div className="flex items-center space-x-3">
             <Brain className="h-10 w-10 text-indigo-600" />
             <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-teal-600 bg-clip-text text-transparent">
@@ -205,7 +184,7 @@ const Dashboard = () => {
             </h1>
           </div>
           
-          {/* Right: Sign Out Button */}
+          {/* RIGHT: Sign Out Button */}
           <Button 
             variant="ghost" 
             onClick={handleSignOut}
@@ -232,7 +211,7 @@ const Dashboard = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-8 pb-8">
-              {/* Big Start Button - More prominent and centered */}
+              {/* Big Start Button */}
               <div className="flex justify-center py-8">
                 <Button 
                   onClick={startTraining}
@@ -243,7 +222,7 @@ const Dashboard = () => {
                 </Button>
               </div>
 
-              {/* Today's Focus Areas - Subtle and at bottom */}
+              {/* Today's Focus Areas */}
               <div className="border-t border-blue-200 pt-4">
                 <div className="flex items-center justify-between text-sm text-gray-600">
                   <div className="flex items-center space-x-2">

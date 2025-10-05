@@ -20,6 +20,7 @@ const SessionComplete = () => {
   }, []);
 
   const handleSignOut = () => {
+    // Clear all user data
     localStorage.removeItem('mindbloom-user');
     localStorage.removeItem('mindbloom-today-mood');
     localStorage.removeItem('mindbloom-last-mood-date');
@@ -28,6 +29,7 @@ const SessionComplete = () => {
     localStorage.removeItem('mindbloom-notes');
     localStorage.removeItem('mindbloom-checklists');
     localStorage.removeItem('mindbloom-reminders');
+    
     navigate('/goodbye');
   };
 
@@ -115,7 +117,7 @@ const SessionComplete = () => {
             className="px-3 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Dashboard
+            Back to Dashboard
           </Button>
           
           {/* MindBloom Branding - Center */}

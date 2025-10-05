@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Target, Smile, Meh, Frown, Zap, Coffee, BookOpen, BarChart3, LogOut, ArrowLeft } from "lucide-react";
+import { Brain, Target, Smile, Meh, Frown, Zap, Coffee, BookOpen, BarChart3, LogOut, ArrowLeft, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { theme, getAreaColor } from "@/lib/theme";
 import { getPreviousPage } from "@/lib/navigation";
@@ -72,9 +72,8 @@ const Dashboard = () => {
     navigate('/goodbye');
   };
 
-  const handleBack = () => {
-    const previousPage = getPreviousPage('/dashboard');
-    navigate(previousPage);
+  const handleBackToDashboard = () => {
+    navigate('/dashboard');
   };
 
   const startTraining = () => {
@@ -188,14 +187,14 @@ const Dashboard = () => {
       {/* Header */}
       <header className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between">
-          {/* Left: Change Focus Areas Button */}
+          {/* Left: Back to Dashboard Button */}
           <Button 
             variant="outline" 
-            onClick={changeFocusAreas}
+            onClick={handleBackToDashboard}
             className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Change Focus Areas
+            <Home className="w-4 h-4 mr-2" />
+            Back to Dashboard
           </Button>
           
           {/* Center: Brain Icon + Activity Dashboard Text */}
@@ -206,7 +205,7 @@ const Dashboard = () => {
             </h1>
           </div>
           
-          {/* Right: Sign Out Button Only */}
+          {/* Right: Sign Out Button */}
           <Button 
             variant="ghost" 
             onClick={handleSignOut}

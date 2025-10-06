@@ -112,14 +112,16 @@ const VisualRecallExercise = ({ onComplete, mood, userPreferences }: VisualRecal
     console.log("Total Highlights (targets):", totalHighlights);
     console.log("Total Grid Cells:", totalGridCells);
 
-    const baseScore = (correctCount / totalHighlights) * 100;
-    const penaltyPerIncorrect = (100 / totalGridCells);
-    const totalPenalty = incorrectSelections * penaltyPerIncorrect;
-    const finalScore = Math.max(0, baseScore - totalPenalty);
+    let scoreFromCorrect = 0;
+    if (totalHighlights > 0) {
+      scoreFromCorrect = (correctCount / totalHighlights) * 100;
+    }
 
-    console.log("Base Score (correct targets only):", baseScore);
-    console.log("Penalty per incorrect click:", penaltyPerIncorrect);
-    console.log("Total Penalty:", totalPenalty);
+    const penaltyFromIncorrect = (incorrectSelections / totalGridCells) * 100;
+    const finalScore = Math.max(0, scoreFromCorrect - penaltyFromIncorrect);
+
+    console.log("Score from Correct Recalls:", scoreFromCorrect);
+    console.log("Penalty from Incorrect Clicks:", penaltyFromIncorrect);
     console.log("Final Score:", finalScore);
     console.log("---------------------------------------");
 

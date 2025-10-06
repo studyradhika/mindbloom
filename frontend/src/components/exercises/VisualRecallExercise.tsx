@@ -90,6 +90,10 @@ const VisualRecallExercise = ({ onComplete, mood, userPreferences }: VisualRecal
   };
 
   const submitRecall = () => {
+    console.log("--- VisualRecallExercise Submit Debug ---");
+    console.log("Highlighted Cells (Correct Pattern):", highlightedCells);
+    console.log("User Selections:", userSelections);
+
     let correctCount = 0;
     highlightedCells.forEach(cell => {
       if (userSelections.includes(cell)) {
@@ -97,10 +101,27 @@ const VisualRecallExercise = ({ onComplete, mood, userPreferences }: VisualRecal
       }
     });
 
-    // Penalize for incorrect selections (clicking non-highlighted cells)
     const incorrectSelections = userSelections.filter(cell => !highlightedCells.includes(cell)).length;
-    const baseScore = (correctCount / highlightedCells.length) * 100;
-    const finalScore = Math.max(0, baseScore - (incorrectSelections * (100 / (gridSize * gridSize)))); // Deduct points for wrong clicks
+    const missedHighlights = highlightedCells.filter(cell => !userSelections.includes(cell)).length;
+    const totalHighlights = highlightedCells.length;
+    const totalGridCells = gridSize * gridSize;
+
+    console.log("Correct Recalls (targets found):", correctCount);
+    console.log("Missed Highlights (targets not found):", missedHighlights);
+    console.log("Incorrect Clicks (non-targets clicked):", incorrectSelections);
+    console.log("Total Highlights (targets):", totalHighlights);
+    console.log("Total Grid Cells:", totalGridCells);
+
+    const baseScore = (correctCount / totalHighlights) * 100;
+    const penaltyPerIncorrect = (100 / totalGridCells);
+    const totalPenalty = incorrectSelections * penaltyPerIncorrect;
+    const finalScore = Math.max(0, baseScore - totalPenalty);
+
+    console.log("Base Score (correct targets only):", baseScore);
+    console.log("Penalty per incorrect click:", penaltyPerIncorrect);
+    console.log("Total Penalty:", totalPenalty);
+    console.log("Final Score:", finalScore);
+    console.log("---------------------------------------");
 
     setScore(finalScore);
     setPhase('feedback');
@@ -119,7 +140,7 @@ const VisualRecallExercise = ({ onComplete, mood, userPreferences }: VisualRecal
   };
 
   const startExercise = () => {
-    setPhase('memorize');
+    setPhase('instructions'); // Start from instructions to ensure fresh state
   };
 
   const renderInstructions = () => (
@@ -160,7 +181,7 @@ const VisualRecallExercise = ({ onComplete, mood, userPreferences }: VisualRecal
           </div>
         </div>
         
-        <Button onClick={startExercise} size="lg" className="w-full text-xl py-4">
+        <Button onClick={() => setPhase('memorize')} size="lg" className="w-full text-xl py-4">
           Start Visual Recall
         </Button>
       </CardContent>

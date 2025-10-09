@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { theme, getAreaColor } from "@/lib/theme";
 import { getPreviousPage } from "@/lib/navigation";
 import MoodSelector from "@/components/MoodSelector";
+import ProfileSettingsButton from "@/components/ProfileSettingsButton"; // Import the new component
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -184,9 +185,10 @@ const Dashboard = () => {
             </h1>
           </div>
           
-          {/* RIGHT: User Name and Sign Out Button */}
+          {/* RIGHT: User Name, Settings, and Sign Out Button */}
           <div className="flex items-center space-x-4">
             <span className="text-gray-700 dark:text-gray-300 font-medium">Hello, {userData.name}!</span>
+            <ProfileSettingsButton /> {/* Add the settings button here */}
             <Button 
               variant="ghost" 
               onClick={handleSignOut}

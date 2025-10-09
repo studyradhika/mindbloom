@@ -17,6 +17,7 @@ import Progress from "./pages/Progress";
 import FocusSelection from "./pages/FocusSelection";
 import BrainTips from "./pages/BrainTips";
 import SignIn from "./pages/SignIn"; // Import the new SignIn component
+import UserSettings from "./pages/UserSettings"; // Import the new UserSettings component
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/progress" element={<Progress />} />
           <Route path="/brain-tips" element={<BrainTips />} />
           <Route path="/signin" element={<SignIn />} /> {/* Add the new SignIn route */}
+          <Route path="/settings" element={<UserSettings />} /> {/* Add the new UserSettings route */}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

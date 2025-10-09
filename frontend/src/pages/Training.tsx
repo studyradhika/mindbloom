@@ -15,6 +15,7 @@ import SequencingExercise from "@/components/exercises/SequencingExercise";
 import MindfulMemoryExercise from "@/components/exercises/MindfulMemoryExercise";
 import ConversationExercise from "@/components/exercises/ConversationExercise";
 import VisualRecallExercise from "@/components/exercises/VisualRecallExercise"; // Import new exercise
+import ProfileSettingsButton from "@/components/ProfileSettingsButton"; // Import the new component
 
 const Training = () => {
   const navigate = useNavigate();
@@ -310,15 +311,18 @@ const Training = () => {
             </h1>
           </div>
           
-          {/* RIGHT: Sign Out Button */}
-          <Button 
-            variant="ghost" 
-            onClick={handleSignOut}
-            className="px-3 py-2 text-gray-600 hover:text-gray-800"
-          >
-            <LogOut className="w-4 h-4 mr-1" />
-            Sign Out
-          </Button>
+          {/* RIGHT: Settings and Sign Out Button */}
+          <div className="flex items-center space-x-2">
+            <ProfileSettingsButton /> {/* Add the settings button here */}
+            <Button 
+              variant="ghost" 
+              onClick={handleSignOut}
+              className="px-3 py-2 text-gray-600 hover:text-gray-800"
+            >
+              <LogOut className="w-4 h-4 mr-1" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 

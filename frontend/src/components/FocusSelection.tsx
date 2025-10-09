@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Brain, Target, Eye, MessageSquare, Zap, Puzzle, Gauge, Lightbulb, Grid3X3, ArrowLeft, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { showSuccess, showError } from "@/utils/toast";
+import ProfileSettingsButton from "@/components/ProfileSettingsButton"; // Import the new component
 
 interface FocusSelectionProps {
   userName: string;
@@ -166,14 +167,17 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
             <Brain className="h-6 w-6 text-blue-600" />
             <h1 className="text-xl font-bold text-gray-900 dark:text-white">MindBloom</h1>
           </div>
-          <Button 
-            variant="ghost" 
-            onClick={handleSignOut}
-            className="px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-          >
-            <LogOut className="w-4 h-4 mr-1" />
-            Sign Out
-          </Button>
+          <div className="flex items-center space-x-2">
+            <ProfileSettingsButton /> {/* Add the settings button here */}
+            <Button 
+              variant="ghost" 
+              onClick={handleSignOut}
+              className="px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+            >
+              <LogOut className="w-4 h-4 mr-1" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 

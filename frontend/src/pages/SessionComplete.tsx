@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Brain, Trophy, Target, Calendar, TrendingUp, ArrowLeft, LogOut, Heart, BookOpen } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
+import ProfileSettingsButton from "@/components/ProfileSettingsButton"; // Import the new component
 
 const SessionComplete = () => {
   const location = useLocation();
@@ -129,14 +130,17 @@ const SessionComplete = () => {
           </div>
           
           {/* Sign Out Button - Right */}
-          <Button 
-            variant="ghost" 
-            onClick={handleSignOut}
-            className="px-3 py-2 text-gray-600 hover:text-gray-800"
-          >
-            <LogOut className="w-4 h-4 mr-1" />
-            Sign Out
-          </Button>
+          <div className="flex items-center space-x-2">
+            <ProfileSettingsButton /> {/* Add the settings button here */}
+            <Button 
+              variant="ghost" 
+              onClick={handleSignOut}
+              className="px-3 py-2 text-gray-600 hover:text-gray-800"
+            >
+              <LogOut className="w-4 h-4 mr-1" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 

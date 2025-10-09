@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Brain, Home, LogOut, ArrowLeft } from "lucide-react";
 import MemoryNotebook from "@/components/MemoryNotebook";
+import ProfileSettingsButton from "@/components/ProfileSettingsButton"; // Import the new component
 
 const MemoryTools = () => {
   const navigate = useNavigate();
@@ -55,6 +56,7 @@ const MemoryTools = () => {
             </div>
           </div>
           <div className="flex items-center space-x-2">
+            <ProfileSettingsButton /> {/* Add the settings button here */}
             <Button 
               variant="outline" 
               onClick={() => navigate('/dashboard')}

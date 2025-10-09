@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, ArrowLeft, Lightbulb, Heart, Activity, Apple, Moon, Users, Target } from "lucide-react";
+import { Brain, ArrowLeft, Lightbulb, Heart, Activity, Apple, Moon, Users, Target, LogOut, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ProfileSettingsButton from "@/components/ProfileSettingsButton"; // Import the new component
 
 const BrainTips = () => {
   const navigate = useNavigate();
@@ -108,11 +109,23 @@ const BrainTips = () => {
     navigate('/dashboard');
   };
 
+  const handleSignOut = () => {
+    localStorage.removeItem('mindbloom-user');
+    localStorage.removeItem('mindbloom-today-mood');
+    localStorage.removeItem('mindbloom-last-mood-date');
+    localStorage.removeItem('mindbloom-today-focus-areas');
+    localStorage.removeItem('mindbloom-last-focus-date');
+    localStorage.removeItem('mindbloom-notes');
+    localStorage.removeItem('mindbloom-checklists');
+    localStorage.removeItem('mindbloom-reminders');
+    navigate('/goodbye');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50 p-4">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center justify-between gap-4 mb-6">
           <Button 
             variant="outline" 
             onClick={handleBackToDashboard}
@@ -121,12 +134,22 @@ const BrainTips = () => {
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
-              <Brain className="text-indigo-500" />
+          <div className="flex items-center space-x-3">
+            <Brain className="h-8 w-8 text-indigo-600" />
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-teal-600 bg-clip-text text-transparent">
               Brain Tips & Wellness
             </h1>
-            <p className="text-gray-600 mt-1">Evidence-based insights for cognitive health</p>
+          </div>
+          <div className="flex items-center space-x-3">
+            <ProfileSettingsButton /> {/* Add the settings button here */}
+            <Button 
+              variant="ghost" 
+              onClick={handleSignOut}
+              className="px-3 py-2 text-gray-600 hover:text-gray-800"
+            >
+              <LogOut className="w-4 h-4 mr-1" />
+              Sign Out
+            </Button>
           </div>
         </div>
 

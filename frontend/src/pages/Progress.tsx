@@ -7,6 +7,7 @@ import { Brain, Home, Calendar, TrendingUp, TrendingDown, Trophy, Target, LogOut
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from "recharts";
 import { theme, getAreaColor, getStatusColor } from "@/lib/theme";
 import { getPreviousPage } from "@/lib/navigation";
+import ProfileSettingsButton from "@/components/ProfileSettingsButton"; // Import the new component
 
 const Progress = () => {
   const navigate = useNavigate();
@@ -400,6 +401,7 @@ const Progress = () => {
             </div>
           </div>
           <div className="flex items-center space-x-3">
+            <ProfileSettingsButton /> {/* Add the settings button here */}
             <Button 
               variant="outline" 
               onClick={() => navigate('/dashboard')}

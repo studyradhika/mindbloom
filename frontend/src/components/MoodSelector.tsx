@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Zap, Smile, Coffee, Meh, Frown, ArrowLeft, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ProfileSettingsButton from "@/components/ProfileSettingsButton"; // Import the new component
 
 interface MoodSelectorProps {
   onMoodSelected: (mood: string) => void;
@@ -94,14 +95,17 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Button>
-          <Button 
-            variant="ghost" 
-            onClick={handleSignOut}
-            className="px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-          >
-            <LogOut className="w-4 h-4 mr-1" />
-            Sign Out
-          </Button>
+          <div className="flex items-center space-x-2">
+            <ProfileSettingsButton /> {/* Add the settings button here */}
+            <Button 
+              variant="ghost" 
+              onClick={handleSignOut}
+              className="px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+            >
+              <LogOut className="w-4 h-4 mr-1" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 

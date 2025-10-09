@@ -143,7 +143,7 @@ const LandingPage = () => {
               Your Cognitive Health Matters More Than Ever
             </h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Whether you're experiencing age-related changes, recovering from cognitive trauma, or proactively maintaining mental sharpness, MindBloom provides the AI powered tools you need.
+              Whether you're experiencing age-related changes, recovering from cognitive trauma, or proactively maintaining mental sharpness, MindBloom provides the <strong className="text-blue-700 dark:text-blue-300">AI powered</strong> tools you need.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">

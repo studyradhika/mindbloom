@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Brain, ArrowRight, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { showSuccess } from "@/utils/toast";
+import ScrollIndicator from "@/components/ui/scroll-indicator";
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -354,6 +355,7 @@ const Onboarding = () => {
             />
           </div>
         </div>
+        <ScrollIndicator />
       </div>
 
       {/* Step Content */}

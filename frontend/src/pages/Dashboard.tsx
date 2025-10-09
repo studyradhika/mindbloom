@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Target, Smile, Meh, Frown, Zap, Coffee, BookOpen, BarChart3, LogOut, ArrowLeft } from "lucide-react";
+import { Brain, Target, Smile, Meh, Frown, Zap, Coffee, BookOpen, BarChart3, LogOut, ArrowLeft, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { theme, getAreaColor } from "@/lib/theme";
 import { getPreviousPage } from "@/lib/navigation";
@@ -77,6 +77,10 @@ const Dashboard = () => {
     navigate('/focus-selection');
   };
 
+  const handleHome = () => {
+    navigate('/');
+  };
+
   const startTraining = () => {
     navigate('/training');
   };
@@ -145,7 +149,7 @@ const Dashboard = () => {
 
   // Show mood selector if needed
   if (showMoodSelector) {
-    return <MoodSelector onMoodSelected={handleMoodSelected} userName={userData.name} />;
+    return <MoodSelector onMoodSelected={handleMoodSelected} userName={userData.displayName || userData.name} />;
   }
 
   // If we don't have mood or focus areas, we're in the wrong state
@@ -167,36 +171,48 @@ const Dashboard = () => {
       {/* Header - Updated Layout */}
       <header className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between">
-          {/* LEFT: Change Focus Areas Button (goes to focus selection) */}
-          <Button 
-            variant="outline" 
-            onClick={handleBack}
-            className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Change Focus Areas
-          </Button>
+          {/* LEFT: Home Button and Change Focus Areas Button */}
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              onClick={handleHome}
+              className="px-3 py-2 text-gray-600 hover:text-gray-800"
+            >
+              <Home className="w-4 h-4 mr-1" />
+              Home
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleBack}
+              className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Change Focus Areas
+            </Button>
+          </div>
           
-          {/* CENTER: MindBloom Branding */}
-          <div className="flex items-center space-x-3">
+          {/* CENTER: Activity Dashboard Branding */}
+          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-3">
             <Brain className="h-10 w-10 text-indigo-600" />
             <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-teal-600 bg-clip-text text-transparent">
               Activity Dashboard
             </h1>
           </div>
           
-          {/* RIGHT: User Name, Settings, and Sign Out Button */}
+          {/* RIGHT: Settings, Sign Out Button, and User Greeting */}
           <div className="flex items-center space-x-4">
-            <span className="text-gray-700 dark:text-gray-300 font-medium">Hello, {userData.name}!</span>
             <ProfileSettingsButton /> {/* Add the settings button here */}
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               onClick={handleSignOut}
               className="px-3 py-2 text-gray-600 hover:text-gray-800"
             >
               <LogOut className="w-4 h-4 mr-1" />
               Sign Out
             </Button>
+            <div className="flex items-center justify-center px-3 py-1 bg-gradient-to-r from-blue-600 to-teal-600 text-white text-sm font-medium rounded-full">
+              Hi, {userData.displayName || userData.name}
+            </div>
           </div>
         </div>
       </header>

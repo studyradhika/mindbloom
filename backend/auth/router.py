@@ -59,6 +59,9 @@ async def signup(user_data: UserCreate, db: AsyncIOMotorDatabase = Depends(get_d
             "cognitiveConditions": user_data.cognitiveConditions,
             "otherCondition": user_data.otherCondition,
             "reminderTime": user_data.reminderTime,
+            "timePreference": user_data.timePreference,
+            "goals": user_data.goals,
+            "cognitiveAreas": user_data.cognitiveAreas,
             "streak": 0,
             "totalSessions": 0,
             "createdAt": datetime.utcnow()

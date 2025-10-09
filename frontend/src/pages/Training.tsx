@@ -16,6 +16,7 @@ import MindfulMemoryExercise from "@/components/exercises/MindfulMemoryExercise"
 import ConversationExercise from "@/components/exercises/ConversationExercise";
 import VisualRecallExercise from "@/components/exercises/VisualRecallExercise"; // Import new exercise
 import ProfileSettingsButton from "@/components/ProfileSettingsButton"; // Import the new component
+import ScrollIndicator from "@/components/ui/scroll-indicator";
 
 const Training = () => {
   const navigate = useNavigate();
@@ -211,11 +212,23 @@ const Training = () => {
           ...(updatedUserData.exerciseHistory || []),
           {
             date: new Date().toISOString(),
+            sessionStartTime: new Date(sessionStartTime).toISOString(),
+            sessionEndTime: new Date().toISOString(),
             exercises: results,
             mood: todaysMood,
             focusAreas: todaysFocusAreas,
+            focusAreasCompleted: [...new Set(results.map(r => exercises.find(e => e.id === r.exerciseId)?.areaId).filter(Boolean))],
             duration: sessionDuration,
-            averageScore
+            averageScore,
+            username: userData.name || userData.displayName,
+            exercisePerformance: results.map(r => ({
+              exerciseId: r.exerciseId,
+              areaId: exercises.find(e => e.id === r.exerciseId)?.areaId,
+              score: r.score || 0,
+              timeSpent: r.timeSpent || 0,
+              difficulty: r.difficulty || 1,
+              completed: !r.skipped
+            }))
           }
         ].slice(-30) // Keep last 30 sessions
       };
@@ -294,12 +307,12 @@ const Training = () => {
       <header className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
           {/* LEFT: Back to Dashboard Button */}
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={handleDashboard}
             className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
           >
-            <Home className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Button>
           
@@ -311,17 +324,20 @@ const Training = () => {
             </h1>
           </div>
           
-          {/* RIGHT: Settings and Sign Out Button */}
+          {/* RIGHT: Settings, Sign Out Button, and User Greeting */}
           <div className="flex items-center space-x-2">
             <ProfileSettingsButton /> {/* Add the settings button here */}
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               onClick={handleSignOut}
               className="px-3 py-2 text-gray-600 hover:text-gray-800"
             >
               <LogOut className="w-4 h-4 mr-1" />
               Sign Out
             </Button>
+            <div className="flex items-center justify-center px-3 py-1 bg-gradient-to-r from-blue-600 to-teal-600 text-white text-sm font-medium rounded-full">
+              Hi, {userData.displayName || userData.name}
+            </div>
           </div>
         </div>
       </header>
@@ -402,6 +418,7 @@ const Training = () => {
           </p>
         </div>
       </div>
+      <ScrollIndicator />
     </div>
   );
 };

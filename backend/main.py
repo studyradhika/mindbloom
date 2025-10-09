@@ -9,6 +9,7 @@ from auth.router import router as auth_router
 from users.router import router as users_router
 from training.router import router as training_router
 from progress.router import router as progress_router
+from memory_notes.router import router as memory_notes_router
 
 # Load environment variables
 load_dotenv()
@@ -64,3 +65,4 @@ app.include_router(auth_router, prefix="/api/v1/auth", tags=["authentication"])
 app.include_router(users_router, prefix="/api/v1/users", tags=["users"])
 app.include_router(training_router, prefix="/api/v1/training", tags=["training"])
 app.include_router(progress_router, prefix="/api/v1/progress", tags=["progress"])
+app.include_router(memory_notes_router, prefix="/api/v1/memory-notes", tags=["memory-notes"])

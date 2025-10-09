@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,16 +9,35 @@ import { Textarea } from "@/components/ui/textarea";
 import { Brain, ArrowRight, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { showSuccess } from "@/utils/toast";
+import ScrollIndicator from "@/components/ui/scroll-indicator";
 
 const Registration = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
+
+  useEffect(() => {
+    // Load temporary registration data
+    const tempData = localStorage.getItem('mindbloom-registration-temp');
+    if (tempData) {
+      const registrationData = JSON.parse(tempData);
+      setFormData(prev => ({
+        ...prev,
+        name: registrationData.name,
+        email: registrationData.email
+      }));
+    } else {
+      // If no temp data, redirect to auth
+      navigate('/auth');
+    }
+  }, [navigate]);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    displayName: '',
     ageGroup: '',
     cognitiveConditions: [] as string[],
     otherCondition: '',
+    cognitiveAreas: [] as string[],
     reminderTime: '',
     startToday: ''
   });
@@ -28,7 +47,7 @@ const Registration = () => {
   const handleNext = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
-    } else {
+    } else if (currentStep === totalSteps) {
       completeRegistration();
     }
   };
@@ -47,12 +66,24 @@ const Registration = () => {
       joinDate: new Date().toISOString(),
       streak: 0,
       totalSessions: 0,
+      lastSessionDate: null,
+      lastSessionScore: null,
+      lastSessionDuration: null,
+      exerciseHistory: [],
+      exerciseStats: {},
       goals: ['prevention'], // Default goal
       cognitiveAreas: ['memory', 'attention'], // Default areas
       experience: 'beginner' // Default experience
     };
     
+    // Save to both session and persistent storage
     localStorage.setItem('mindbloom-user', JSON.stringify(userData));
+    const userProfileKey = `mindbloom-profile-${formData.email.toLowerCase()}`;
+    localStorage.setItem(userProfileKey, JSON.stringify(userData));
+    
+    // Clean up temporary registration data
+    localStorage.removeItem('mindbloom-registration-temp');
+    
     showSuccess("Welcome to MindBloom! Your account has been created.");
     
     // Navigate based on user choice
@@ -63,7 +94,7 @@ const Registration = () => {
     }
   };
 
-  const updateFormData = (field: string, value: any) => {
+  const updateFormData = (field: string, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -79,7 +110,7 @@ const Registration = () => {
   const isStepValid = () => {
     switch (currentStep) {
       case 1:
-        return formData.name.trim() && formData.email.trim() && formData.ageGroup;
+        return formData.displayName.trim() && formData.ageGroup;
       case 2:
         return true; // Optional step
       case 3:
@@ -104,26 +135,38 @@ const Registration = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-lg">What's your name?</Label>
+                <Label htmlFor="name" className="text-lg">Full Name</Label>
                 <Input
                   id="name"
-                  placeholder="Your first name"
                   value={formData.name}
-                  onChange={(e) => updateFormData('name', e.target.value)}
-                  className="text-lg p-4"
+                  readOnly
+                  disabled
+                  className="text-lg p-4 bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-60"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-lg">Email address</Label>
+                <Label htmlFor="email" className="text-lg">Email Address</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="your.email@example.com"
                   value={formData.email}
-                  onChange={(e) => updateFormData('email', e.target.value)}
+                  readOnly
+                  disabled
+                  className="text-lg p-4 bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-60"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="displayName" className="text-lg">Display Name</Label>
+                <Input
+                  id="displayName"
+                  placeholder="How would you like to be addressed?"
+                  value={formData.displayName}
+                  onChange={(e) => updateFormData('displayName', e.target.value)}
                   className="text-lg p-4"
                 />
+                <p className="text-sm text-gray-500">This is how we'll greet you throughout the app</p>
               </div>
 
               <div className="space-y-4">
@@ -265,14 +308,23 @@ const Registration = () => {
         return (
           <Card className="w-full max-w-2xl mx-auto">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl">Ready to Begin?</CardTitle>
+              <CardTitle className="text-3xl text-green-600">Thank You for Registering! 🎉</CardTitle>
               <CardDescription className="text-lg">
-                Would you like to start your first brain training session today?
+                Welcome to the MindBloom community! Your cognitive wellness journey begins now.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <RadioGroup 
-                value={formData.startToday} 
+              <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-6 border border-green-200 text-center">
+                <p className="text-green-700 dark:text-green-300 text-lg mb-4">
+                  🧠 Your account has been successfully created!
+                </p>
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  Are you ready to start your brain training journey?
+                </p>
+              </div>
+
+              <RadioGroup
+                value={formData.startToday}
                 onValueChange={(value) => updateFormData('startToday', value)}
                 className="space-y-4"
               >
@@ -337,6 +389,7 @@ const Registration = () => {
             />
           </div>
         </div>
+        <ScrollIndicator />
       </div>
 
       {/* Step Content */}

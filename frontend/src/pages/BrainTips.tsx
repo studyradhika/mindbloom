@@ -126,14 +126,24 @@ const BrainTips = () => {
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between gap-4 mb-6">
-          <Button 
-            variant="outline" 
-            onClick={handleBackToDashboard}
-            className="flex items-center gap-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Dashboard
-          </Button>
+          <div className="flex items-center space-x-3">
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/')}
+              className="px-3 py-2 text-gray-600 hover:text-gray-800"
+            >
+              <Home className="w-4 h-4 mr-1" />
+              Home
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleBackToDashboard}
+              className="flex items-center gap-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Dashboard
+            </Button>
+          </div>
           <div className="flex items-center space-x-3">
             <Brain className="h-8 w-8 text-indigo-600" />
             <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-teal-600 bg-clip-text text-transparent">
@@ -142,8 +152,8 @@ const BrainTips = () => {
           </div>
           <div className="flex items-center space-x-3">
             <ProfileSettingsButton /> {/* Add the settings button here */}
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               onClick={handleSignOut}
               className="px-3 py-2 text-gray-600 hover:text-gray-800"
             >

@@ -107,11 +107,8 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
     setSelectedAreas(prev => {
       if (prev.includes(areaId)) {
         return prev.filter(id => id !== areaId);
-      } else if (prev.length < 3) {
-        return [...prev, areaId];
       } else {
-        showError('You can select up to 3 focus areas');
-        return prev;
+        return [...prev, areaId];
       }
     });
   };
@@ -155,28 +152,31 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
       {/* Header - Reduced padding */}
       <header className="container mx-auto px-4 mb-4">
         <div className="flex items-center justify-between">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={handleBack}
             className="px-3 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
+            Change Mood
           </Button>
-          <div className="flex items-center space-x-2">
+          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-2">
             <Brain className="h-6 w-6 text-blue-600" />
             <h1 className="text-xl font-bold text-gray-900 dark:text-white">MindBloom</h1>
           </div>
           <div className="flex items-center space-x-2">
             <ProfileSettingsButton /> {/* Add the settings button here */}
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               onClick={handleSignOut}
               className="px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
             >
               <LogOut className="w-4 h-4 mr-1" />
               Sign Out
             </Button>
+            <div className="flex items-center justify-center px-3 py-1 bg-gradient-to-r from-blue-600 to-teal-600 text-white text-sm font-medium rounded-full">
+              Hi, {userName}
+            </div>
           </div>
         </div>
       </header>
@@ -185,40 +185,37 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-4">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              Choose Your Focus Areas
+              Choose Your Cognitive Focus Areas
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400 mb-2">
-              Select up to 3 areas you'd like to work on today
+              Select the areas you'd like to work on today
             </p>
-            <Badge variant="outline" className="text-base px-3 py-1 border-blue-200 text-blue-700">
-              {selectedAreas.length}/3 selected
-            </Badge>
           </div>
 
           {/* Mood-based recommendations - Updated to blue theme */}
           <Card className="mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base flex items-center">
-                <Lightbulb className="w-4 h-4 mr-2 text-blue-600" />
-                Recommended for your mood: {todaysMood}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="flex flex-wrap gap-2">
-                {recommendations.map(areaId => {
-                  const area = focusAreas.find(a => a.id === areaId);
-                  return area ? (
-                    <Button
-                      key={areaId}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => toggleArea(areaId)}
-                      className={`border-blue-200 text-blue-700 hover:bg-blue-100 text-sm py-1 px-2 h-auto ${selectedAreas.includes(areaId) ? 'bg-blue-100 border-blue-300' : ''}`}
-                    >
-                      {area.label}
-                    </Button>
-                  ) : null;
-                })}
+            <CardContent className="pt-4">
+              <div className="flex items-center flex-wrap gap-2">
+                <div className="flex items-center">
+                  <Lightbulb className="w-4 h-4 mr-2 text-blue-600" />
+                  <span className="text-base font-medium">Your profile and mood based recommendations:</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {recommendations.map(areaId => {
+                    const area = focusAreas.find(a => a.id === areaId);
+                    return area ? (
+                      <Button
+                        key={areaId}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleArea(areaId)}
+                        className={`border-blue-200 text-blue-700 hover:bg-blue-100 text-sm py-1 px-2 h-auto ${selectedAreas.includes(areaId) ? 'bg-blue-100 border-blue-300' : ''}`}
+                      >
+                        {area.label}
+                      </Button>
+                    ) : null;
+                  })}
+                </div>
               </div>
             </CardContent>
           </Card>

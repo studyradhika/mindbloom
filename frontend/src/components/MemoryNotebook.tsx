@@ -91,7 +91,7 @@ const MemoryNotebook = ({ userData }: MemoryNotebookProps) => {
       createdAt: new Date().toISOString()
     };
 
-    saveChecklists([...checklists, chec
+    saveChecklists([...checklists, checklist
 
 ]);
     setNewChecklist({ title: '', items: [''] });
@@ -430,11 +430,8 @@ const MemoryNotebook = ({ userData }: MemoryNotebookProps) => {
     <div className="max-w-4xl mx-auto">
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="text-2xl flex items-center">
+          <CardDescription className="text-lg flex items-center">
             <BookOpen className="w-6 h-6 mr-2 text-indigo-600" />
-            Memory Notebook
-          </CardTitle>
-          <CardDescription className="text-lg">
             Your personal memory support system - notes, checklists, and reminders to help with daily life
           </CardDescription>
         </CardHeader>

@@ -24,17 +24,20 @@ const SignIn = () => {
     // In a real app, you would validate credentials against a backend
     
     let userData = null;
-    const storedUserData = localStorage.getItem('mindbloom-user');
+    
+    // Check for existing user profile using a persistent key based on email
+    const userProfileKey = `mindbloom-profile-${email.toLowerCase()}`;
+    const storedUserProfile = localStorage.getItem(userProfileKey);
+    
+    console.log('🔐 SignIn: Attempting sign in with email:', email);
+    console.log('🔐 SignIn: Looking for profile with key:', userProfileKey);
+    console.log('🔐 SignIn: Existing stored user profile:', storedUserProfile ? JSON.parse(storedUserProfile) : 'None');
 
-    if (storedUserData) {
-      userData = JSON.parse(storedUserData);
-      // If existing user, ensure email matches (for demo purposes, we'll just update it)
-      // In a real app, you'd verify password and email.
-      if (userData.email !== email) {
-        showError("Email does not match existing user. Please register or use the correct email.");
-        return;
-      }
+    if (storedUserProfile) {
+      userData = JSON.parse(storedUserProfile);
+      console.log('🔐 SignIn: Found existing user profile, restoring data');
     } else {
+      console.log('🔐 SignIn: No existing user profile found, creating new profile');
       // If no existing user, create a new default profile
       userData = {
         name: email.split('@')[0] || 'User', // Use part of email as default name
@@ -54,9 +57,18 @@ const SignIn = () => {
         exerciseHistory: [],
         exerciseStats: {}
       };
+      
+      // Save the new profile persistently
+      localStorage.setItem(userProfileKey, JSON.stringify(userData));
+      console.log('🔐 SignIn: New profile saved with key:', userProfileKey);
     }
     
+    console.log('🔐 SignIn: Final user data to save:', userData);
     localStorage.setItem('mindbloom-user', JSON.stringify(userData));
+    
+    // Verify the data was saved
+    const savedData = localStorage.getItem('mindbloom-user');
+    console.log('🔐 SignIn: Data saved to localStorage:', JSON.parse(savedData || '{}'));
     
     // Clear any existing mood and focus data to force mood check for the new day
     localStorage.removeItem('mindbloom-today-mood');
@@ -107,7 +119,7 @@ const SignIn = () => {
             <Input
               id="password"
               type="password"
-              placeholder="••••••••"
+              placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="text-lg p-4"

@@ -24,7 +24,7 @@ const FocusSelectionPage = () => {
     return <div>Loading...</div>;
   }
 
-  return <FocusSelection userName={userData.name} todaysMood={todaysMood} />;
+  return <FocusSelection userName={userData.displayName || userData.name} todaysMood={todaysMood} />;
 };
 
 export default FocusSelectionPage;

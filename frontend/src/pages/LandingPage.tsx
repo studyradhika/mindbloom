@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, ArrowRight, Heart, Shield, Sparkles, Clock, Zap, TrendingUp, Users, Activity, BookOpen, Target, CheckCircle, Star, Award, LogOut } from "lucide-react";
+import { Brain, ArrowRight, Heart, Shield, Sparkles, Clock, Zap, TrendingUp, Users, Activity, BookOpen, Target, CheckCircle, Star, Award, LogOut, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ScrollIndicator from "@/components/ui/scroll-indicator";
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -19,7 +20,17 @@ const LandingPage = () => {
   }, []);
 
   const handleStartJourney = () => {
-    navigate('/registration');
+    if (loggedInUser) {
+      // If user is logged in, clear mood data to force mood selector, then go to dashboard
+      localStorage.removeItem('mindbloom-today-mood');
+      localStorage.removeItem('mindbloom-last-mood-date');
+      localStorage.removeItem('mindbloom-today-focus-areas');
+      localStorage.removeItem('mindbloom-last-focus-date');
+      navigate('/dashboard');
+    } else {
+      // If user is not logged in, take them directly to registration
+      navigate('/auth?mode=register');
+    }
   };
 
   const handleSignIn = () => {
@@ -27,7 +38,7 @@ const LandingPage = () => {
   };
 
   const handleGetStarted = () => {
-    navigate('/registration');
+    navigate('/auth?mode=register');
   };
 
   const handleSignOut = () => {
@@ -43,6 +54,20 @@ const LandingPage = () => {
     navigate('/'); // Redirect to landing page
   };
 
+  const handleSettings = () => {
+    navigate('/settings');
+  };
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-teal-50 to-indigo-50">
       {/* Navigation */}
@@ -55,33 +80,47 @@ const LandingPage = () => {
                 MindBloom
               </span>
             </div>
-            <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
-              <a href="#benefits" className="text-gray-600 hover:text-blue-600 transition-colors">Benefits</a>
-              <a href="#about" className="text-gray-600 hover:text-blue-600 transition-colors">About</a>
-              
+            <div className="flex-1 flex justify-center">
+              <div className="hidden md:flex items-center space-x-8">
+                <button onClick={() => scrollToSection('about')} className="text-gray-600 hover:text-blue-600 transition-colors">About</button>
+                <button onClick={() => scrollToSection('features')} className="text-gray-600 hover:text-blue-600 transition-colors">Features</button>
+                <button onClick={() => scrollToSection('benefits')} className="text-gray-600 hover:text-blue-600 transition-colors">Benefits</button>
+                <button onClick={() => scrollToSection('testimonials')} className="text-gray-600 hover:text-blue-600 transition-colors">Testimonials</button>
+              </div>
+            </div>
+            <div className="flex items-center">
               {loggedInUser ? (
-                <div className="flex items-center space-x-4">
-                  <span className="text-gray-700 font-medium">Hello, {loggedInUser.name}!</span>
-                  <Button 
-                    variant="ghost" 
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="ghost"
+                    onClick={handleSettings}
+                    className="px-3 py-2 text-gray-600 hover:text-gray-800"
+                  >
+                    <Settings className="w-4 h-4 mr-1" />
+                    Settings
+                  </Button>
+                  <Button
+                    variant="ghost"
                     onClick={handleSignOut}
                     className="px-3 py-2 text-gray-600 hover:text-gray-800"
                   >
                     <LogOut className="w-4 h-4 mr-1" />
                     Sign Out
                   </Button>
+                  <div className="flex items-center justify-center px-3 py-1 bg-gradient-to-r from-blue-600 to-teal-600 text-white text-sm font-medium rounded-full">
+                    Hi, {loggedInUser.displayName || loggedInUser.name || 'User'}
+                  </div>
                 </div>
               ) : (
                 <>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={handleSignIn}
                     className="mr-2 border-blue-200 text-blue-600 hover:bg-blue-50"
                   >
                     Sign In
                   </Button>
-                  <Button 
+                  <Button
                     onClick={handleGetStarted}
                     className="bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700"
                   >
@@ -136,7 +175,7 @@ const LandingPage = () => {
       </section>
 
       {/* Target Audience Section */}
-      <section className="pt-4 pb-12 bg-gradient-to-r from-blue-50 to-teal-50">
+      <section id="about" className="pt-4 pb-12 bg-gradient-to-r from-blue-50 to-teal-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
@@ -462,7 +501,7 @@ const LandingPage = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20">
+      <section id="testimonials" className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
@@ -529,18 +568,17 @@ const LandingPage = () => {
             Join thousands of adults who are already improving their cognitive wellness with MindBloom's evidence-based approach.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
+            <Button
               onClick={handleStartJourney}
               size="lg"
               className="text-lg px-8 py-3 bg-white text-blue-600 hover:bg-gray-50 shadow-lg hover:shadow-xl transition-all"
             >
-              Start Free Trial
+              {loggedInUser ? 'Continue Training' : 'Start Free Trial'}
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
               size="lg"
-              className="text-lg px-8 py-3 border-white text-white hover:bg-white/10 backdrop-blur-sm"
+              className="text-lg px-8 py-3 bg-white/20 border-2 border-white text-white hover:bg-white hover:text-blue-600 backdrop-blur-sm transition-all"
             >
               Schedule Demo
             </Button>
@@ -599,6 +637,7 @@ const LandingPage = () => {
           </div>
         </div>
       </footer>
+      <ScrollIndicator />
     </div>
   );
 };

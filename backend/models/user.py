@@ -11,6 +11,9 @@ class UserCreate(BaseModel):
     cognitiveConditions: List[str] = []
     otherCondition: Optional[str] = None
     reminderTime: str
+    timePreference: Optional[str] = None
+    goals: List[str] = []
+    cognitiveAreas: List[str] = []
 
 class UserInDB(BaseModel):
     """Model for user as stored in database"""
@@ -22,6 +25,9 @@ class UserInDB(BaseModel):
     cognitiveConditions: List[str] = []
     otherCondition: Optional[str] = None
     reminderTime: str
+    timePreference: Optional[str] = None
+    goals: List[str] = []
+    cognitiveAreas: List[str] = []
     streak: int = 0
     totalSessions: int = 0
     createdAt: datetime
@@ -35,6 +41,9 @@ class User(BaseModel):
     cognitiveConditions: List[str] = []
     otherCondition: Optional[str] = None
     reminderTime: str
+    timePreference: Optional[str] = None
+    goals: List[str] = []
+    cognitiveAreas: List[str] = []
     streak: int = 0
     totalSessions: int = 0
     createdAt: datetime
@@ -47,6 +56,17 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     """Model for token data"""
     email: Optional[str] = None
+
+class UserUpdate(BaseModel):
+    """Model for updating user settings (email is not updatable)"""
+    name: Optional[str] = None
+    ageGroup: Optional[str] = None
+    cognitiveConditions: Optional[List[str]] = None
+    otherCondition: Optional[str] = None
+    reminderTime: Optional[str] = None
+    timePreference: Optional[str] = None
+    goals: Optional[List[str]] = None
+    cognitiveAreas: Optional[List[str]] = None
 
 class UserLogin(BaseModel):
     """Model for user login"""

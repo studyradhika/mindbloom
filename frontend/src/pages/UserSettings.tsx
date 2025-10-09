@@ -9,13 +9,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Brain, ArrowLeft, Save, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { showSuccess, showError } from "@/utils/toast";
+import ScrollIndicator from "@/components/ui/scroll-indicator";
 
 const UserSettings = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: '',
-    email: '', // Email is read-only
+    displayName: '',
     ageGroup: '',
     cognitiveConditions: [] as string[],
     otherCondition: '',
@@ -32,7 +33,7 @@ const UserSettings = () => {
       setUserData(parsedData);
       setFormData({
         name: parsedData.name || '',
-        email: parsedData.email || '',
+        displayName: parsedData.displayName || '',
         ageGroup: parsedData.ageGroup || '',
         cognitiveConditions: parsedData.cognitiveConditions || [],
         otherCondition: parsedData.otherCondition || '',
@@ -60,19 +61,37 @@ const UserSettings = () => {
   };
 
   const handleSaveChanges = () => {
-    if (!formData.name.trim() || !formData.ageGroup) {
-      showError("Please fill in your name and age group.");
+    if (!formData.displayName.trim() || !formData.ageGroup) {
+      showError("Please fill in your display name and age group.");
       return;
     }
 
     const updatedUserData = {
       ...userData,
       ...formData,
+      email: userData.email, // Preserve original email, never allow changes
       lastModifiedDate: new Date().toISOString(),
     };
 
+    console.log('🔧 UserSettings: Saving user data:', updatedUserData);
+    console.log('🔧 UserSettings: Previous user data:', userData);
+    
+    // Save to current session storage
     localStorage.setItem('mindbloom-user', JSON.stringify(updatedUserData));
+    
+    // Also save to persistent profile storage using email-based key
+    const userProfileKey = `mindbloom-profile-${updatedUserData.email.toLowerCase()}`;
+    localStorage.setItem(userProfileKey, JSON.stringify(updatedUserData));
+    console.log('🔧 UserSettings: Data also saved to persistent profile:', userProfileKey);
+    
     setUserData(updatedUserData); // Update local state
+    
+    // Verify the data was saved correctly
+    const savedData = localStorage.getItem('mindbloom-user');
+    const savedProfile = localStorage.getItem(userProfileKey);
+    console.log('🔧 UserSettings: Data saved to localStorage:', JSON.parse(savedData || '{}'));
+    console.log('🔧 UserSettings: Data saved to persistent profile:', JSON.parse(savedProfile || '{}'));
+    
     showSuccess("Profile settings saved successfully!");
     navigate('/dashboard');
   };
@@ -128,27 +147,41 @@ const UserSettings = () => {
           <CardContent className="space-y-8">
             {/* Basic Information */}
             <div className="space-y-4 border-b pb-6">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Basic Information</h2>
+              <h2 className="text-xl font-semibold text-indigo-700 dark:text-indigo-400">Basic Information</h2>
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-lg">Your Name</Label>
+                <Label htmlFor="name" className="text-lg">Username</Label>
                 <Input
                   id="name"
-                  placeholder="Your first name"
+                  placeholder="Username"
                   value={formData.name}
-                  onChange={(e) => updateFormData('name', e.target.value)}
-                  className="text-lg p-4"
+                  readOnly
+                  disabled
+                  className="text-lg p-4 bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-60"
                 />
+                <p className="text-sm text-gray-500">Username cannot be changed here.</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-lg">Email Address</Label>
                 <Input
                   id="email"
                   type="email"
-                  value={formData.email}
+                  value={userData.email || ''}
                   readOnly
-                  className="text-lg p-4 bg-gray-100 dark:bg-gray-700 cursor-not-allowed"
+                  disabled
+                  className="text-lg p-4 bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-60"
                 />
                 <p className="text-sm text-gray-500">Email cannot be changed here.</p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="displayName" className="text-lg">Display Name</Label>
+                <Input
+                  id="displayName"
+                  placeholder="How you'd like to be addressed"
+                  value={formData.displayName}
+                  onChange={(e) => updateFormData('displayName', e.target.value)}
+                  className="text-lg p-4"
+                />
+                <p className="text-sm text-gray-500">This is how we'll greet you throughout the app.</p>
               </div>
               <div className="space-y-4">
                 <Label className="text-lg">Age Group</Label>
@@ -178,10 +211,12 @@ const UserSettings = () => {
             </div>
 
             {/* Cognitive Health & Goals */}
-            <div className="space-y-4 border-b pb-6">
+            <div className="space-y-6 border-b pb-6">
               <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Cognitive Health & Goals</h2>
-              <div className="space-y-4">
-                <Label className="text-lg">Baseline Cognitive Conditions (Optional)</Label>
+              
+              {/* Baseline Cognitive Conditions */}
+              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-6 space-y-4">
+                <Label className="text-lg font-semibold text-indigo-700 dark:text-indigo-400">Baseline Cognitive Conditions (Optional)</Label>
                 <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200">
                   <p className="text-blue-700 dark:text-blue-300 text-sm">
                     This information is completely private and helps us provide better support for your cognitive wellness journey.
@@ -197,9 +232,9 @@ const UserSettings = () => {
                   { id: 'early-dementia', label: 'Early-stage dementia', desc: 'Early dementia diagnosis with family/caregiver support' },
                   { id: 'other', label: 'Other condition', desc: 'Please specify below' }
                 ].map((condition) => (
-                  <div key={condition.id} className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                  <div key={condition.id} className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-white dark:hover:bg-gray-700 cursor-pointer"
                        onClick={() => toggleArrayItem('cognitiveConditions', condition.id)}>
-                    <Checkbox 
+                    <Checkbox
                       id={condition.id}
                       checked={formData.cognitiveConditions.includes(condition.id)}
                       onChange={() => toggleArrayItem('cognitiveConditions', condition.id)}
@@ -227,8 +262,9 @@ const UserSettings = () => {
                 )}
               </div>
 
-              <div className="space-y-4 mt-6">
-                <Label className="text-lg">Your Primary Goals</Label>
+              {/* Workout Goals */}
+              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-6 space-y-4">
+                <Label className="text-lg font-semibold text-indigo-700 dark:text-indigo-400">Workout Goals</Label>
                 {[
                   { id: 'prevention', label: 'Prevent cognitive decline', desc: 'Stay mentally sharp as I age' },
                   { id: 'recovery', label: 'Cognitive recovery', desc: 'Recover from injury, surgery, or trauma' },
@@ -237,9 +273,9 @@ const UserSettings = () => {
                   { id: 'stress', label: 'Manage stress & brain fog', desc: 'Reduce mental fatigue and overwhelm' },
                   { id: 'professional', label: 'Maintain professional edge', desc: 'Stay sharp for demanding work' }
                 ].map((goal) => (
-                  <div key={goal.id} className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                  <div key={goal.id} className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-white dark:hover:bg-gray-700 cursor-pointer"
                        onClick={() => toggleArrayItem('goals', goal.id)}>
-                    <Checkbox 
+                    <Checkbox
                       id={goal.id}
                       checked={formData.goals.includes(goal.id)}
                       onChange={() => toggleArrayItem('goals', goal.id)}
@@ -255,8 +291,9 @@ const UserSettings = () => {
                 ))}
               </div>
 
-              <div className="space-y-4 mt-6">
-                <Label className="text-lg">Cognitive Areas to Focus On</Label>
+              {/* Cognitive Focus Areas */}
+              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-6 space-y-4">
+                <Label className="text-lg font-semibold text-indigo-700 dark:text-indigo-400">Cognitive Focus Areas</Label>
                 {[
                   { id: 'attention', label: 'Attention & Focus', desc: 'Sustained concentration and selective attention' },
                   { id: 'memory', label: 'Memory', desc: 'Working memory, recall, and retention' },
@@ -266,9 +303,9 @@ const UserSettings = () => {
                   { id: 'spatial', label: 'Spatial Reasoning', desc: 'Visual-spatial skills and navigation' },
                   { id: 'creativity', label: 'Creativity', desc: 'Creative thinking and mental flexibility' }
                 ].map((area) => (
-                  <div key={area.id} className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                  <div key={area.id} className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-white dark:hover:bg-gray-700 cursor-pointer"
                        onClick={() => toggleArrayItem('cognitiveAreas', area.id)}>
-                    <Checkbox 
+                    <Checkbox
                       id={area.id}
                       checked={formData.cognitiveAreas.includes(area.id)}
                       onChange={() => toggleArrayItem('cognitiveAreas', area.id)}
@@ -286,34 +323,36 @@ const UserSettings = () => {
             </div>
 
             {/* Notification Preferences */}
-            <div className="space-y-4">
+            <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Notification Preferences</h2>
-              <div className="space-y-4">
-                <Label className="text-lg">Daily Reminder Time</Label>
-                <RadioGroup 
-                  value={formData.reminderTime} 
+              
+              {/* Notification Preference */}
+              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-6 space-y-4">
+                <Label className="text-lg font-semibold text-indigo-700 dark:text-indigo-400">Reminder Time Preference</Label>
+                <RadioGroup
+                  value={formData.reminderTime}
                   onValueChange={(value) => updateFormData('reminderTime', value)}
                   className="space-y-4"
                 >
-                  <div className="flex items-center space-x-3 p-4 border rounded-lg">
+                  <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-white dark:hover:bg-gray-700">
                     <RadioGroupItem value="morning" id="rem-morning" />
                     <Label htmlFor="rem-morning" className="text-lg cursor-pointer flex-1">
                       Morning (8-11 AM)
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-3 p-4 border rounded-lg">
+                  <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-white dark:hover:bg-gray-700">
                     <RadioGroupItem value="afternoon" id="rem-afternoon" />
                     <Label htmlFor="rem-afternoon" className="text-lg cursor-pointer flex-1">
                       Afternoon (12-5 PM)
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-3 p-4 border rounded-lg">
+                  <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-white dark:hover:bg-gray-700">
                     <RadioGroupItem value="evening" id="rem-evening" />
                     <Label htmlFor="rem-evening" className="text-lg cursor-pointer flex-1">
                       Evening (6-9 PM)
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-3 p-4 border rounded-lg">
+                  <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-white dark:hover:bg-gray-700">
                     <RadioGroupItem value="no-reminders" id="rem-none" />
                     <Label htmlFor="rem-none" className="text-lg cursor-pointer flex-1">
                       No reminders
@@ -322,32 +361,33 @@ const UserSettings = () => {
                 </RadioGroup>
               </div>
 
-              <div className="space-y-4 mt-6">
-                <Label className="text-lg">Preferred Training Time</Label>
-                <RadioGroup 
-                  value={formData.timePreference} 
+              {/* Training Time Preference */}
+              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-6 space-y-4">
+                <Label className="text-lg font-semibold text-indigo-700 dark:text-indigo-400">Training Time Preference</Label>
+                <RadioGroup
+                  value={formData.timePreference}
                   onValueChange={(value) => updateFormData('timePreference', value)}
                   className="space-y-4"
                 >
-                  <div className="flex items-center space-x-3 p-4 border rounded-lg">
+                  <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-white dark:hover:bg-gray-700">
                     <RadioGroupItem value="morning" id="time-morning" />
                     <Label htmlFor="time-morning" className="text-lg cursor-pointer flex-1">
                       Morning (7-11 AM) - Start the day with mental exercise
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-3 p-4 border rounded-lg">
+                  <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-white dark:hover:bg-gray-700">
                     <RadioGroupItem value="afternoon" id="time-afternoon" />
                     <Label htmlFor="time-afternoon" className="text-lg cursor-pointer flex-1">
                       Afternoon (12-5 PM) - Midday mental break
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-3 p-4 border rounded-lg">
+                  <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-white dark:hover:bg-gray-700">
                     <RadioGroupItem value="evening" id="time-evening" />
                     <Label htmlFor="time-evening" className="text-lg cursor-pointer flex-1">
                       Evening (6-9 PM) - Wind down with brain training
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-3 p-4 border rounded-lg">
+                  <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-white dark:hover:bg-gray-700">
                     <RadioGroupItem value="flexible" id="time-flexible" />
                     <Label htmlFor="time-flexible" className="text-lg cursor-pointer flex-1">
                       Flexible - I'll train when it's convenient
@@ -376,6 +416,7 @@ const UserSettings = () => {
           </CardContent>
         </Card>
       </main>
+      <ScrollIndicator />
     </div>
   );
 };

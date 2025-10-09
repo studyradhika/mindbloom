@@ -1,8 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Zap, Smile, Coffee, Meh, Frown, ArrowLeft, LogOut } from "lucide-react";
+import { Zap, Smile, Coffee, Meh, Frown, ArrowLeft, LogOut, Brain } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ProfileSettingsButton from "@/components/ProfileSettingsButton"; // Import the new component
+import ScrollIndicator from "@/components/ui/scroll-indicator";
 
 interface MoodSelectorProps {
   onMoodSelected: (mood: string) => void;
@@ -13,6 +14,10 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
   const navigate = useNavigate();
 
   const handleSignOut = () => {
+    const userData = localStorage.getItem('mindbloom-user');
+    console.log('🚪 SignOut: User data before sign out:', userData ? JSON.parse(userData) : 'None');
+    
+    // Clear session data but preserve user profile for future sign-ins
     localStorage.removeItem('mindbloom-user');
     localStorage.removeItem('mindbloom-today-mood');
     localStorage.removeItem('mindbloom-last-mood-date');
@@ -21,6 +26,9 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
     localStorage.removeItem('mindbloom-notes');
     localStorage.removeItem('mindbloom-checklists');
     localStorage.removeItem('mindbloom-reminders');
+    
+    // NOTE: We do NOT remove mindbloom-profile-* keys to preserve user profiles
+    console.log('🚪 SignOut: Session data cleared, user profile preserved for future sign-ins');
     navigate('/goodbye');
   };
 
@@ -87,18 +95,22 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
       {/* Header */}
       <header className="container mx-auto px-4 mb-8">
         <div className="flex items-center justify-between">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={handleBack}
             className="px-3 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Button>
+          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-2">
+            <Brain className="h-8 w-8 text-indigo-600" />
+            <h1 className="text-2xl font-bold text-gray-600 dark:text-gray-300">MindBloom</h1>
+          </div>
           <div className="flex items-center space-x-2">
             <ProfileSettingsButton /> {/* Add the settings button here */}
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               onClick={handleSignOut}
               className="px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
             >
@@ -112,19 +124,47 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Welcome back, {userName}! How are you feeling today?
+            <h2 className="text-2xl font-semibold text-gray-600 dark:text-gray-300 mb-2">
+              Hi <span className="text-indigo-600 dark:text-indigo-400">{userName}</span>!
+            </h2>
+            <h1 className="text-xl font-bold text-gray-600 dark:text-gray-300 mb-4">
+              Tell us how you are feeling today
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              Your mood helps us personalize today's brain training session
+              Your mood will help us personalize today's training session for you
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {moods.map((mood) => {
+            {moods.slice(0, 3).map((mood) => {
               const IconComponent = mood.icon;
               return (
-                <Card 
+                <Card
+                  key={mood.id}
+                  className={`cursor-pointer transition-all duration-200 border-2 ${mood.color} hover:shadow-lg`}
+                  onClick={() => handleMoodSelection(mood.id)}
+                >
+                  <CardHeader className="text-center pb-4">
+                    <div className="mx-auto mb-4">
+                      <IconComponent className={`w-12 h-12 ${mood.iconColor}`} />
+                    </div>
+                    <CardTitle className="text-xl">{mood.label}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <CardDescription className="text-base">
+                      {mood.description}
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto mt-6">
+            {moods.slice(3).map((mood) => {
+              const IconComponent = mood.icon;
+              return (
+                <Card
                   key={mood.id}
                   className={`cursor-pointer transition-all duration-200 border-2 ${mood.color} hover:shadow-lg`}
                   onClick={() => handleMoodSelection(mood.id)}
@@ -146,8 +186,8 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
           </div>
 
           <div className="text-center mt-8">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => handleMoodSelection('okay')}
               className="text-lg px-6 py-3 border-blue-200 text-blue-600 hover:bg-blue-50"
             >
@@ -155,6 +195,7 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
             </Button>
           </div>
         </div>
+        <ScrollIndicator />
       </div>
     </div>
   );

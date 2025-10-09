@@ -41,38 +41,46 @@ const MemoryTools = () => {
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Button 
-              variant="outline" 
+          {/* LEFT: Home Button and Back to Dashboard Button */}
+          <div className="flex items-center space-x-3">
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/')}
+              className="px-3 py-2 text-gray-600 hover:text-gray-800"
+            >
+              <Home className="w-4 h-4 mr-1" />
+              Home
+            </Button>
+            <Button
+              variant="outline"
               onClick={() => navigate('/dashboard')}
               className="px-3 py-2"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
+              Back to Dashboard
             </Button>
-            <div className="flex items-center space-x-2">
-              <Brain className="h-8 w-8 text-indigo-600" />
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">MindBloom</h1>
-            </div>
           </div>
+          
+          {/* CENTER: Memory Notebook Title */}
+          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-2">
+            <Brain className="h-8 w-8 text-indigo-600" />
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Memory Notebook</h1>
+          </div>
+          
+          {/* RIGHT: Settings, Sign Out, and User Greeting */}
           <div className="flex items-center space-x-2">
             <ProfileSettingsButton /> {/* Add the settings button here */}
-            <Button 
-              variant="outline" 
-              onClick={() => navigate('/dashboard')}
-              className="text-lg px-4 py-2"
-            >
-              <Home className="w-4 h-4 mr-2" />
-              Dashboard
-            </Button>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               onClick={handleSignOut}
               className="px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
             >
               <LogOut className="w-4 h-4 mr-1" />
               Sign Out
             </Button>
+            <div className="flex items-center justify-center px-3 py-1 bg-gradient-to-r from-blue-600 to-teal-600 text-white text-sm font-medium rounded-full">
+              Hi, {userData.displayName || userData.name}
+            </div>
           </div>
         </div>
       </header>

@@ -19,6 +19,7 @@ const AttentionExercise = ({ onComplete, mood, userPreferences }: AttentionExerc
   const [correctClicks, setCorrectClicks] = useState(0);
   const [totalClicks, setTotalClicks] = useState(0);
   const [gameActive, setGameActive] = useState(false);
+  const [originalTargetCount, setOriginalTargetCount] = useState(0);
 
   // Adjust difficulty based on mood and experience
   const getDifficulty = () => {
@@ -77,6 +78,9 @@ const AttentionExercise = ({ onComplete, mood, userPreferences }: AttentionExerc
     const { targetCount, distractorCount } = getDifficulty();
     const newTargets = [];
     
+    // Store the original target count for score calculation
+    setOriginalTargetCount(targetCount);
+    
     // Add target circles
     for (let i = 0; i < targetCount; i++) {
       newTargets.push({
@@ -130,7 +134,7 @@ const AttentionExercise = ({ onComplete, mood, userPreferences }: AttentionExerc
   const endGame = () => {
     setGameActive(false);
     const accuracy = totalClicks > 0 ? (correctClicks / totalClicks) * 100 : 0;
-    const completionRate = targets.length > 0 ? (correctClicks / targets.filter(t => t.isTarget).length) * 100 : 0;
+    const completionRate = originalTargetCount > 0 ? (correctClicks / originalTargetCount) * 100 : 0;
     const finalScore = (accuracy * 0.6) + (completionRate * 0.4); // Weighted score
     
     setScore(finalScore);
@@ -144,7 +148,8 @@ const AttentionExercise = ({ onComplete, mood, userPreferences }: AttentionExerc
         correctClicks,
         totalClicks,
         accuracy,
-        completionRate
+        completionRate,
+        originalTargetCount
       };
       onComplete(result);
     }, 3000);

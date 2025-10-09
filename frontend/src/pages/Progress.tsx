@@ -167,6 +167,10 @@ const Progress = () => {
     let interval = 1;
     
     switch (selectedTimeView) {
+      case 'day':
+        days = 1;
+        interval = 1;
+        break;
       case 'week':
         days = 7;
         interval = 1;
@@ -182,37 +186,73 @@ const Progress = () => {
     }
 
     // Use actual data where available, simulate realistic data otherwise
-    for (let i = days; i >= 0; i -= interval) {
-      const date = new Date(now);
-      date.setDate(date.getDate() - i);
-      const dateString = date.toDateString();
-      
-      // Check if we have actual data for this date
-      const actualSession = exerciseHistory.find((session: any) => 
-        new Date(session.date).toDateString() === dateString
-      );
-      
-      let score = 0;
-      if (actualSession) {
-        score = Math.round(actualSession.averageScore || 0);
-      } else {
-        // Generate realistic simulated data with gradual improvement
-        const baseScore = 65;
-        const improvement = (days - i) * 0.2;
-        const variation = (Math.random() - 0.5) * 10;
-        score = Math.max(40, Math.min(95, baseScore + improvement + variation));
-        score = Math.round(score);
+    if (selectedTimeView === 'day') {
+      // For day view, generate hourly data points
+      for (let hour = 0; hour <= 23; hour++) {
+        const date = new Date(now);
+        date.setHours(hour, 0, 0, 0);
+        const dateString = date.toDateString();
+        
+        // Check if we have actual data for this date
+        const actualSession = exerciseHistory.find((session: any) =>
+          new Date(session.date).toDateString() === dateString
+        );
+        
+        let score = 0;
+        if (actualSession) {
+          score = Math.round(actualSession.averageScore || 0);
+        } else {
+          // Generate realistic simulated data with time-of-day variation
+          const baseScore = 65;
+          const timeOfDayEffect = Math.sin((hour - 6) * Math.PI / 12) * 10; // Peak around midday
+          const hourlyVariation = (Math.random() - 0.5) * 8;
+          score = Math.max(40, Math.min(95, baseScore + timeOfDayEffect + hourlyVariation));
+          score = Math.round(score);
+        }
+        
+        dataPoints.push({
+          period: date.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            hour12: true
+          }),
+          score,
+          activities: actualSession ? actualSession.exercises.length : Math.floor(Math.random() * 2) + 1
+        });
       }
-      
-      dataPoints.push({
-        period: date.toLocaleDateString('en-US', { 
-          month: 'short', 
-          day: 'numeric',
-          ...(selectedTimeView === 'year' && { year: '2-digit' })
-        }),
-        score,
-        activities: actualSession ? actualSession.exercises.length : Math.floor(Math.random() * 3) + 1
-      });
+    } else {
+      // For other views, generate daily data points
+      for (let i = days; i >= 0; i -= interval) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        const dateString = date.toDateString();
+        
+        // Check if we have actual data for this date
+        const actualSession = exerciseHistory.find((session: any) =>
+          new Date(session.date).toDateString() === dateString
+        );
+        
+        let score = 0;
+        if (actualSession) {
+          score = Math.round(actualSession.averageScore || 0);
+        } else {
+          // Generate realistic simulated data with gradual improvement
+          const baseScore = 65;
+          const improvement = (days - i) * 0.2;
+          const variation = (Math.random() - 0.5) * 10;
+          score = Math.max(40, Math.min(95, baseScore + improvement + variation));
+          score = Math.round(score);
+        }
+        
+        dataPoints.push({
+          period: date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            ...(selectedTimeView === 'year' && { year: '2-digit' })
+          }),
+          score,
+          activities: actualSession ? actualSession.exercises.length : Math.floor(Math.random() * 3) + 1
+        });
+      }
     }
 
     return dataPoints;
@@ -384,40 +424,48 @@ const Progress = () => {
       {/* Header */}
       <header className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Button 
-              variant="outline" 
-              onClick={handleBack}
-              className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-            <div className="flex items-center space-x-3">
-              <Brain className="h-10 w-10 text-indigo-600" />
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-teal-600 bg-clip-text text-transparent">
-                Performance Analytics
-              </h1>
-            </div>
-          </div>
+          {/* LEFT: Home Button and Back to Dashboard Button */}
           <div className="flex items-center space-x-3">
-            <ProfileSettingsButton /> {/* Add the settings button here */}
-            <Button 
-              variant="outline" 
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/')}
+              className="px-3 py-2 text-gray-600 hover:text-gray-800"
+            >
+              <Home className="w-4 h-4 mr-1" />
+              Home
+            </Button>
+            <Button
+              variant="outline"
               onClick={() => navigate('/dashboard')}
               className="px-4 py-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
             >
-              <Home className="w-4 h-4 mr-2" />
-              Dashboard
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
             </Button>
-            <Button 
-              variant="ghost" 
+          </div>
+          
+          {/* CENTER: Performance Analytics Branding */}
+          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-3">
+            <Brain className="h-10 w-10 text-indigo-600" />
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-teal-600 bg-clip-text text-transparent">
+              Performance Analytics
+            </h1>
+          </div>
+          
+          {/* RIGHT: Settings, Sign Out, and User Greeting */}
+          <div className="flex items-center space-x-3">
+            <ProfileSettingsButton /> {/* Add the settings button here */}
+            <Button
+              variant="ghost"
               onClick={handleSignOut}
               className="px-3 py-2 text-gray-600 hover:text-gray-800"
             >
               <LogOut className="w-4 h-4 mr-1" />
               Sign Out
             </Button>
+            <div className="flex items-center justify-center px-3 py-1 bg-gradient-to-r from-blue-600 to-teal-600 text-white text-sm font-medium rounded-full">
+              Hi, {userData.displayName || userData.name}
+            </div>
           </div>
         </div>
       </header>
@@ -494,15 +542,15 @@ const Progress = () => {
                   Performance Trends
                 </CardTitle>
                 <div className="flex space-x-2">
-                  {['week', 'month', 'year'].map((period) => (
+                  {['day', 'week', 'month', 'year'].map((period) => (
                     <Button
                       key={period}
                       variant={selectedTimeView === period ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setSelectedTimeView(period as any)}
                       className={`capitalize ${
-                        selectedTimeView === period 
-                          ? 'bg-indigo-600 text-white' 
+                        selectedTimeView === period
+                          ? 'bg-indigo-600 text-white'
                           : 'border-indigo-200 text-indigo-700 hover:bg-indigo-50'
                       }`}
                     >

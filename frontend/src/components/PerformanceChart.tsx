@@ -9,7 +9,7 @@ interface PerformanceChartProps {
 }
 
 const PerformanceChart = ({ userData }: PerformanceChartProps) => {
-  const [timeView, setTimeView] = useState<'week' | 'month' | 'year'>('week');
+  const [timeView, setTimeView] = useState<'day' | 'week' | 'month' | 'year'>('week');
   const [chartType, setChartType] = useState<'performance' | 'activity'>('performance');
 
   // Cognitive areas mapping
@@ -31,6 +31,10 @@ const PerformanceChart = ({ userData }: PerformanceChartProps) => {
     let interval = 1; // days
     
     switch (timeView) {
+      case 'day':
+        days = 1;
+        interval = 1;
+        break;
       case 'week':
         days = 7;
         interval = 1;
@@ -46,32 +50,63 @@ const PerformanceChart = ({ userData }: PerformanceChartProps) => {
     }
 
     // Generate data points
-    for (let i = days; i >= 0; i -= interval) {
-      const date = new Date(now);
-      date.setDate(date.getDate() - i);
-      
-      const dataPoint: any = {
-        date: date.toLocaleDateString('en-US', { 
-          month: 'short', 
-          day: 'numeric',
-          ...(timeView === 'year' && { year: '2-digit' })
-        }),
-        fullDate: date.toISOString()
-      };
-
-      // Generate realistic performance scores for each area
-      cognitiveAreas.forEach(area => {
-        // Base performance with some improvement over time and daily variation
-        const baseScore = 65;
-        const improvement = (days - i) * 0.3; // Gradual improvement
-        const dailyVariation = (Math.random() - 0.5) * 15; // ±7.5 points variation
-        const score = Math.max(0, Math.min(100, baseScore + improvement + dailyVariation));
+    if (timeView === 'day') {
+      // For day view, generate hourly data points
+      for (let hour = 0; hour <= 23; hour++) {
+        const date = new Date(now);
+        date.setHours(hour, 0, 0, 0);
         
-        dataPoint[area.id] = Math.round(score);
-      });
+        const dataPoint: any = {
+          date: date.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            hour12: true
+          }),
+          fullDate: date.toISOString()
+        };
 
-      dataPoints.push(dataPoint);
+        // Generate realistic performance scores for each area
+        cognitiveAreas.forEach(area => {
+          // Base performance with some variation throughout the day
+          const baseScore = 65;
+          const timeOfDayEffect = Math.sin((hour - 6) * Math.PI / 12) * 10; // Peak around midday
+          const hourlyVariation = (Math.random() - 0.5) * 10; // ±5 points variation
+          const score = Math.max(0, Math.min(100, baseScore + timeOfDayEffect + hourlyVariation));
+          
+          dataPoint[area.id] = Math.round(score);
+        });
+
+        dataPoints.push(dataPoint);
+      }
+    } else {
+      // For other views, generate daily data points
+      for (let i = days; i >= 0; i -= interval) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        
+        const dataPoint: any = {
+          date: date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            ...(timeView === 'year' && { year: '2-digit' })
+          }),
+          fullDate: date.toISOString()
+        };
+
+        // Generate realistic performance scores for each area
+        cognitiveAreas.forEach(area => {
+          // Base performance with some improvement over time and daily variation
+          const baseScore = 65;
+          const improvement = (days - i) * 0.3; // Gradual improvement
+          const dailyVariation = (Math.random() - 0.5) * 15; // ±7.5 points variation
+          const score = Math.max(0, Math.min(100, baseScore + improvement + dailyVariation));
+          
+          dataPoint[area.id] = Math.round(score);
+        });
+
+        dataPoints.push(dataPoint);
+      }
     }
+
 
     return dataPoints;
   };
@@ -238,6 +273,13 @@ const PerformanceChart = ({ userData }: PerformanceChartProps) => {
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
             {/* Time Period Selector */}
             <div className="flex space-x-2">
+              <Button
+                variant={timeView === 'day' ? 'default' : 'outline'}
+                onClick={() => setTimeView('day')}
+                className="text-sm px-3 py-2"
+              >
+                Today
+              </Button>
               <Button
                 variant={timeView === 'week' ? 'default' : 'outline'}
                 onClick={() => setTimeView('week')}

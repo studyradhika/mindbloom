@@ -22,27 +22,43 @@ const SignIn = () => {
 
     // Simulate a successful login for any input for frontend-only demo
     // In a real app, you would validate credentials against a backend
-    const sampleUserData = {
-      name: 'Sarah', // Default name for demo login
-      email: email,
-      ageGroup: '50-59',
-      goals: ['prevention', 'focus', 'memory'],
-      cognitiveAreas: ['memory', 'attention', 'language'],
-      experience: 'some',
-      timePreference: 'morning',
-      onboardingCompleted: true,
-      joinDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days ago
-      streak: 5,
-      totalSessions: 12,
-      lastSessionDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // Yesterday
-      lastSessionScore: 78,
-      lastSessionDuration: 8,
-      exerciseHistory: []
-    };
     
-    localStorage.setItem('mindbloom-user', JSON.stringify(sampleUserData));
+    let userData = null;
+    const storedUserData = localStorage.getItem('mindbloom-user');
+
+    if (storedUserData) {
+      userData = JSON.parse(storedUserData);
+      // If existing user, ensure email matches (for demo purposes, we'll just update it)
+      // In a real app, you'd verify password and email.
+      if (userData.email !== email) {
+        showError("Email does not match existing user. Please register or use the correct email.");
+        return;
+      }
+    } else {
+      // If no existing user, create a new default profile
+      userData = {
+        name: email.split('@')[0] || 'User', // Use part of email as default name
+        email: email,
+        ageGroup: '50-59', // Default values for new user
+        goals: ['prevention', 'focus', 'memory'],
+        cognitiveAreas: ['memory', 'attention', 'language'],
+        experience: 'some',
+        timePreference: 'morning',
+        onboardingCompleted: true,
+        joinDate: new Date().toISOString(),
+        streak: 0,
+        totalSessions: 0,
+        lastSessionDate: null,
+        lastSessionScore: null,
+        lastSessionDuration: null,
+        exerciseHistory: [],
+        exerciseStats: {}
+      };
+    }
     
-    // Clear any existing mood and focus data to force mood check
+    localStorage.setItem('mindbloom-user', JSON.stringify(userData));
+    
+    // Clear any existing mood and focus data to force mood check for the new day
     localStorage.removeItem('mindbloom-today-mood');
     localStorage.removeItem('mindbloom-last-mood-date');
     localStorage.removeItem('mindbloom-today-focus-areas');

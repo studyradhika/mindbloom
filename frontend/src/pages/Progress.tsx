@@ -91,7 +91,7 @@ const Progress = () => {
     );
   }
 
-  // Focus areas mapping with blue/indigo/teal colors
+  // Focus areas mapping with blue/indigo/teal colors - includes all backend focus areas
   const focusAreas = [
     { id: 'memory', name: 'Memory', color: '#3b82f6', icon: '🧠' },
     { id: 'attention', name: 'Attention', color: '#0891b2', icon: '🎯' },
@@ -99,7 +99,9 @@ const Progress = () => {
     { id: 'executive', name: 'Executive Function', color: '#4f46e5', icon: '⚡' },
     { id: 'creativity', name: 'Creativity', color: '#0284c7', icon: '🎨' },
     { id: 'processing', name: 'Processing Speed', color: '#0d9488', icon: '⚡' },
-    { id: 'spatial', name: 'Spatial Reasoning', color: '#1d4ed8', icon: '📐' }
+    { id: 'spatial', name: 'Spatial Reasoning', color: '#1d4ed8', icon: '📐' },
+    { id: 'general', name: 'General Cognitive', color: '#6366f1', icon: '🧩' },
+    { id: 'perception', name: 'Perception', color: '#8b5cf6', icon: '👁️' }
   ];
 
   // Helper function to determine improvement status
@@ -466,15 +468,20 @@ const Progress = () => {
                   {/* Area Performance */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {Object.entries(todaysPerformance.areas).map(([areaId, data]: [string, { scores: number[]; average: number }]) => {
-                      const area = focusAreas.find(a => a.id === areaId);
+                      const area = focusAreas.find(a => a.id === areaId) || {
+                        id: areaId,
+                        name: areaId.charAt(0).toUpperCase() + areaId.slice(1),
+                        color: '#6b7280',
+                        icon: '🧠'
+                      };
                       return (
-                        <div key={areaId} className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border-l-4" style={{ borderColor: area?.color }}>
+                        <div key={areaId} className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border-l-4" style={{ borderColor: area.color }}>
                           <div className="flex items-center justify-between">
                             <div>
-                              <h3 className="font-semibold text-gray-900">{area?.name}</h3>
-                              <p className="text-2xl font-bold" style={{ color: area?.color }}>{data.average}%</p>
+                              <h3 className="font-semibold text-gray-900">{area.name}</h3>
+                              <p className="text-2xl font-bold" style={{ color: area.color }}>{data.average}%</p>
                             </div>
-                            <div className="text-2xl">{area?.icon}</div>
+                            <div className="text-2xl">{area.icon}</div>
                           </div>
                           <p className="text-sm text-gray-600">{data.scores.length} exercise{data.scores.length !== 1 ? 's' : ''}</p>
                         </div>

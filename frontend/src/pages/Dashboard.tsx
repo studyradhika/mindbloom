@@ -7,48 +7,84 @@ import { useNavigate } from "react-router-dom";
 import { theme, getAreaColor } from "@/lib/theme";
 import { getPreviousPage } from "@/lib/navigation";
 import MoodSelector from "@/components/MoodSelector";
-import ProfileSettingsButton from "@/components/ProfileSettingsButton"; // Import the new component
+import ProfileSettingsButton from "@/components/ProfileSettingsButton";
+import { dataAPI, User, handleAuthError } from '@/lib/api';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<{
+    user: User;
+    exerciseHistory: Array<{
+      date: string;
+      averageScore?: number;
+      duration?: number;
+      mood?: string;
+      exercises: Array<{
+        exerciseId: string;
+        score?: number;
+        skipped: boolean;
+      }>;
+    }>;
+  } | null>(null);
   const [todaysMood, setTodaysMood] = useState<string>('');
   const [todaysFocusAreas, setTodaysFocusAreas] = useState<string[]>([]);
   const [showMoodSelector, setShowMoodSelector] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedData = localStorage.getItem('mindbloom-user');
-    if (storedData) {
-      const data = JSON.parse(storedData);
-      setUserData(data);
-      
-      const today = new Date().toDateString();
-      const lastMoodDate = localStorage.getItem('mindbloom-last-mood-date');
-      const lastFocusDate = localStorage.getItem('mindbloom-last-focus-date');
-      const storedMood = localStorage.getItem('mindbloom-today-mood');
-      const storedFocusAreas = localStorage.getItem('mindbloom-today-focus-areas');
-      
-      // Check if we need to show mood selector
-      if (lastMoodDate !== today || !storedMood) {
-        setShowMoodSelector(true);
-        return;
+    const initializeDashboard = async () => {
+      try {
+        setLoading(true);
+        
+        // Get user data from API
+        const data = await dataAPI.getUserDataWithHistory();
+        setUserData(data);
+        
+        // Check if user has already completed today's mood and focus selection
+        const today = new Date().toDateString();
+        const storedMood = localStorage.getItem('mindbloom-today-mood');
+        const lastMoodDate = localStorage.getItem('mindbloom-last-mood-date');
+        const storedFocusAreas = localStorage.getItem('mindbloom-today-focus-areas');
+        const lastFocusDate = localStorage.getItem('mindbloom-last-focus-date');
+        
+        console.log('📊 Dashboard: Checking daily selections - Mood:', storedMood, 'MoodDate:', lastMoodDate, 'Focus:', storedFocusAreas, 'FocusDate:', lastFocusDate);
+        
+        // If mood is set and it's from today
+        if (storedMood && lastMoodDate === today) {
+          setTodaysMood(storedMood);
+          console.log('📊 Dashboard: Found today\'s mood:', storedMood);
+          
+          // If focus areas are also set and from today, show activity dashboard
+          if (storedFocusAreas && lastFocusDate === today) {
+            const focusAreas = JSON.parse(storedFocusAreas);
+            setTodaysFocusAreas(focusAreas);
+            console.log('📊 Dashboard: Found today\'s focus areas:', focusAreas);
+            console.log('📊 Dashboard: All selections complete - showing activity dashboard');
+            setShowMoodSelector(false);
+          } else {
+            // Mood is set but no focus areas - redirect to focus selection
+            console.log('📊 Dashboard: Mood set but no focus areas - redirecting to focus selection');
+            navigate('/focus-selection');
+            return;
+          }
+        } else {
+          // No mood set for today - show mood selector
+          console.log('📊 Dashboard: No mood set for today - showing mood selector');
+          setShowMoodSelector(true);
+        }
+      } catch (error) {
+        console.error('Error initializing dashboard:', error);
+        handleAuthError(error);
+      } finally {
+        setLoading(false);
       }
-      
-      // Check if we need to redirect to focus selection
-      if (lastFocusDate !== today || !storedFocusAreas) {
-        navigate('/focus-selection');
-        return;
-      }
-      
-      // Both mood and focus areas are set for today
-      setTodaysMood(storedMood);
-      setTodaysFocusAreas(JSON.parse(storedFocusAreas));
-    } else {
-      navigate('/onboarding');
-    }
+    };
+
+    initializeDashboard();
   }, [navigate]);
 
   const handleMoodSelected = (mood: string) => {
+    console.log('📊 Dashboard: Mood selected:', mood);
     setTodaysMood(mood);
     setShowMoodSelector(false);
     
@@ -57,6 +93,7 @@ const Dashboard = () => {
     localStorage.setItem('mindbloom-last-mood-date', today);
     
     // After mood is selected, go to focus selection
+    console.log('📊 Dashboard: Navigating to focus-selection after mood selection');
     navigate('/focus-selection');
   };
 
@@ -69,6 +106,7 @@ const Dashboard = () => {
     localStorage.removeItem('mindbloom-notes');
     localStorage.removeItem('mindbloom-checklists');
     localStorage.removeItem('mindbloom-reminders');
+    // Note: NOT clearing pending areas - they should persist across sign-out/sign-in
     
     navigate('/goodbye');
   };
@@ -117,16 +155,18 @@ const Dashboard = () => {
   };
 
   const getTodaysProgress = () => {
+    if (!userData) return '0/3';
+    
     const exerciseHistory = userData.exerciseHistory || [];
     const today = new Date().toDateString();
     
-    const todaySession = exerciseHistory.find((session: any) => {
+    const todaySession = exerciseHistory.find((session) => {
       const sessionDate = new Date(session.date).toDateString();
       return sessionDate === today;
     });
     
     if (todaySession && todaySession.exercises) {
-      const completedCount = todaySession.exercises.filter((ex: any) => !ex.skipped && ex.score !== undefined).length;
+      const completedCount = todaySession.exercises.filter((ex) => !ex.skipped && ex.score !== undefined).length;
       const totalCount = todaySession.exercises.length;
       return `${completedCount}/${totalCount}`;
     }
@@ -134,7 +174,7 @@ const Dashboard = () => {
     return `0/3`;
   };
 
-  if (!userData) {
+  if (loading || !userData) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50 flex items-center justify-center">
         <Card className="max-w-md mx-auto">
@@ -149,7 +189,7 @@ const Dashboard = () => {
 
   // Show mood selector if needed
   if (showMoodSelector) {
-    return <MoodSelector onMoodSelected={handleMoodSelected} userName={userData.displayName || userData.name} />;
+    return <MoodSelector onMoodSelected={handleMoodSelected} userName={userData.user.name} />;
   }
 
   // If we don't have mood or focus areas, we're in the wrong state
@@ -211,7 +251,7 @@ const Dashboard = () => {
               Sign Out
             </Button>
             <div className="flex items-center justify-center px-3 py-1 bg-gradient-to-r from-blue-600 to-teal-600 text-white text-sm font-medium rounded-full">
-              Hi, {userData.displayName || userData.name}
+              Hi, {userData.user.name}
             </div>
           </div>
         </div>
@@ -228,7 +268,7 @@ const Dashboard = () => {
                 Let's begin your training session
               </CardTitle>
               <CardDescription className="text-xl text-blue-700">
-                3 adaptive exercises • Personalized for your goals • ~10 minutes
+                Adaptive exercises personalized for your goals • ~10 minutes
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-8 pb-8">
@@ -279,7 +319,7 @@ const Dashboard = () => {
               <div className="grid grid-cols-3 divide-x divide-gray-200">
                 <div className="text-center px-3">
                   <div className="text-xl font-semibold text-gray-700 mb-1">
-                    {userData.totalSessions || 0}
+                    {userData.user.totalSessions || 0}
                   </div>
                   <div className="text-xs text-gray-500 font-medium">
                     Total Sessions
@@ -288,7 +328,7 @@ const Dashboard = () => {
                 
                 <div className="text-center px-3">
                   <div className="text-xl font-semibold text-gray-700 mb-1">
-                    {userData.streak || 0}
+                    {userData.user.streak || 0}
                   </div>
                   <div className="text-xs text-gray-500 font-medium">
                     Day Streak

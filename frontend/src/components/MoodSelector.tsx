@@ -83,10 +83,16 @@ const MoodSelector = ({ onMoodSelected, userName }: MoodSelectorProps) => {
   const handleMoodSelection = (mood: string) => {
     // Store mood for today
     const today = new Date().toDateString();
+    console.log('😊 MoodSelector: Storing mood:', mood, 'for date:', today);
     localStorage.setItem('mindbloom-today-mood', mood);
     localStorage.setItem('mindbloom-last-mood-date', today);
     
+    // Verify storage
+    const storedMood = localStorage.getItem('mindbloom-today-mood');
+    console.log('😊 MoodSelector: Verified stored mood:', storedMood);
+    
     // Navigate to focus selection (next step in workflow)
+    console.log('😊 MoodSelector: Navigating to focus-selection');
     navigate('/focus-selection');
   };
 

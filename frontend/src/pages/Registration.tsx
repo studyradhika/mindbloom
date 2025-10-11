@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Brain, ArrowRight, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { showSuccess } from "@/utils/toast";
+import { showSuccess, showError } from "@/utils/toast";
 import ScrollIndicator from "@/components/ui/scroll-indicator";
 
 const Registration = () => {
@@ -35,6 +35,7 @@ const Registration = () => {
     email: '',
     displayName: '',
     ageGroup: '',
+    workoutGoals: [] as string[],
     cognitiveConditions: [] as string[],
     otherCondition: '',
     cognitiveAreas: [] as string[],
@@ -42,7 +43,7 @@ const Registration = () => {
     startToday: ''
   });
 
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
@@ -58,39 +59,92 @@ const Registration = () => {
     }
   };
 
-  const completeRegistration = () => {
-    // Create user data
-    const userData = {
-      ...formData,
-      onboardingCompleted: true,
-      joinDate: new Date().toISOString(),
-      streak: 0,
-      totalSessions: 0,
-      lastSessionDate: null,
-      lastSessionScore: null,
-      lastSessionDuration: null,
-      exerciseHistory: [],
-      exerciseStats: {},
-      goals: ['prevention'], // Default goal
-      cognitiveAreas: ['memory', 'attention'], // Default areas
-      experience: 'beginner' // Default experience
-    };
-    
-    // Save to both session and persistent storage
-    localStorage.setItem('mindbloom-user', JSON.stringify(userData));
-    const userProfileKey = `mindbloom-profile-${formData.email.toLowerCase()}`;
-    localStorage.setItem(userProfileKey, JSON.stringify(userData));
-    
-    // Clean up temporary registration data
-    localStorage.removeItem('mindbloom-registration-temp');
-    
-    showSuccess("Welcome to MindBloom! Your account has been created.");
-    
-    // Navigate based on user choice
-    if (formData.startToday === 'yes') {
-      navigate('/dashboard');
-    } else {
-      navigate('/see-you-tomorrow');
+  const completeRegistration = async () => {
+    try {
+      console.log('📝 Registration: Starting backend registration process');
+      
+      // Get password from temporary registration data
+      const tempData = localStorage.getItem('mindbloom-registration-temp');
+      if (!tempData) {
+        showError("Registration data not found. Please start over.");
+        navigate('/auth');
+        return;
+      }
+      
+      const { password } = JSON.parse(tempData);
+      
+      // Prepare user data for backend
+      const userCreateData = {
+        name: formData.name,
+        email: formData.email,
+        password: password,
+        ageGroup: formData.ageGroup,
+        cognitiveConditions: formData.cognitiveConditions,
+        otherCondition: formData.otherCondition,
+        reminderTime: formData.reminderTime,
+        timePreference: formData.reminderTime, // Map reminderTime to timePreference
+        goals: ['prevention'], // Default goal
+        cognitiveAreas: ['memory', 'attention'] // Default areas
+      };
+
+      console.log('📝 Registration: Sending user data to backend');
+
+      // Call backend signup endpoint
+      const response = await fetch('http://localhost:8000/api/v1/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userCreateData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.log('📝 Registration: Backend registration failed:', errorData);
+        showError(errorData.detail || "Registration failed. Please try again.");
+        return;
+      }
+
+      const tokenData = await response.json();
+      console.log('📝 Registration: Registration successful, received token');
+
+      // Get user information using the token
+      const userResponse = await fetch('http://localhost:8000/api/v1/auth/me', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${tokenData.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!userResponse.ok) {
+        console.log('📝 Registration: Failed to get user info');
+        showError("Registration completed but failed to get user information.");
+        return;
+      }
+
+      const userData = await userResponse.json();
+      console.log('📝 Registration: User data received:', userData);
+
+      // Store token and user data in localStorage
+      localStorage.setItem('mindbloom-token', tokenData.access_token);
+      localStorage.setItem('mindbloom-user', JSON.stringify(userData));
+      
+      // Clean up temporary registration data
+      localStorage.removeItem('mindbloom-registration-temp');
+      
+      showSuccess("Welcome to MindBloom! Your account has been created.");
+      
+      // Navigate based on user choice
+      if (formData.startToday === 'yes') {
+        navigate('/dashboard');
+      } else {
+        navigate('/see-you-tomorrow');
+      }
+
+    } catch (error) {
+      console.error('📝 Registration: Network error:', error);
+      showError("Network error. Please check your connection and try again.");
     }
   };
 
@@ -101,9 +155,18 @@ const Registration = () => {
   const toggleCondition = (condition: string) => {
     setFormData(prev => ({
       ...prev,
-      cognitiveConditions: prev.cognitiveConditions.includes(condition) 
+      cognitiveConditions: prev.cognitiveConditions.includes(condition)
         ? prev.cognitiveConditions.filter(c => c !== condition)
         : [...prev.cognitiveConditions, condition]
+    }));
+  };
+
+  const toggleWorkoutGoal = (goal: string) => {
+    setFormData(prev => ({
+      ...prev,
+      workoutGoals: prev.workoutGoals.includes(goal)
+        ? prev.workoutGoals.filter(g => g !== goal)
+        : [...prev.workoutGoals, goal]
     }));
   };
 
@@ -112,10 +175,12 @@ const Registration = () => {
       case 1:
         return formData.displayName.trim() && formData.ageGroup;
       case 2:
-        return true; // Optional step
+        return formData.workoutGoals.length > 0;
       case 3:
-        return formData.reminderTime;
+        return true; // Optional step
       case 4:
+        return formData.reminderTime;
+      case 5:
         return formData.startToday;
       default:
         return false;
@@ -202,6 +267,44 @@ const Registration = () => {
         return (
           <Card className="w-full max-w-2xl mx-auto">
             <CardHeader className="text-center">
+              <CardTitle className="text-2xl text-indigo-600">Workout Goals</CardTitle>
+              <CardDescription className="text-lg">
+                Select all that apply to help us personalize your experience
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {[
+                { id: 'prevent', label: 'Prevent cognitive decline', desc: 'Stay mentally sharp as I age' },
+                { id: 'recovery', label: 'Cognitive recovery', desc: 'Recover from injury, surgery, or trauma' },
+                { id: 'focus', label: 'Improve focus & concentration', desc: 'Better attention and mental clarity' },
+                { id: 'memory', label: 'Enhance memory', desc: 'Remember names, dates, and details better' },
+                { id: 'stress', label: 'Manage stress & brain fog', desc: 'Reduce mental fatigue and overwhelm' },
+                { id: 'professional', label: 'Maintain professional edge', desc: 'Stay sharp for demanding work' }
+              ].map((goal) => (
+                <div key={goal.id} className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                     onClick={() => toggleWorkoutGoal(goal.id)}>
+                  <Checkbox
+                    id={goal.id}
+                    checked={formData.workoutGoals.includes(goal.id)}
+                    onChange={() => toggleWorkoutGoal(goal.id)}
+                    className="mt-1"
+                  />
+                  <div className="flex-1">
+                    <Label htmlFor={goal.id} className="text-lg font-medium cursor-pointer">
+                      {goal.label}
+                    </Label>
+                    <p className="text-gray-600 dark:text-gray-400 mt-1">{goal.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        );
+
+      case 3:
+        return (
+          <Card className="w-full max-w-2xl mx-auto">
+            <CardHeader className="text-center">
               <CardTitle className="text-2xl">Baseline Cognitive Health (Optional)</CardTitle>
               <CardDescription className="text-lg">
                 This helps us personalize your experience. You can skip this step if you prefer.
@@ -226,7 +329,7 @@ const Registration = () => {
               ].map((condition) => (
                 <div key={condition.id} className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
                      onClick={() => toggleCondition(condition.id)}>
-                  <Checkbox 
+                  <Checkbox
                     id={condition.id}
                     checked={formData.cognitiveConditions.includes(condition.id)}
                     onChange={() => toggleCondition(condition.id)}
@@ -257,7 +360,7 @@ const Registration = () => {
           </Card>
         );
 
-      case 3:
+      case 4:
         return (
           <Card className="w-full max-w-2xl mx-auto">
             <CardHeader className="text-center">
@@ -304,7 +407,7 @@ const Registration = () => {
           </Card>
         );
 
-      case 4:
+      case 5:
         return (
           <Card className="w-full max-w-2xl mx-auto">
             <CardHeader className="text-center">

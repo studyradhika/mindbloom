@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Brain, Target, Eye, MessageSquare, Zap, Puzzle, Gauge, Lightbulb, Grid3X3, ArrowLeft, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { showSuccess, showError } from "@/utils/toast";
-import ProfileSettingsButton from "@/components/ProfileSettingsButton"; // Import the new component
+import ProfileSettingsButton from "@/components/ProfileSettingsButton";
+import { TrainingSessionManager } from "@/lib/trainingSessionManager";
 
 interface FocusSelectionProps {
   userName: string;
@@ -26,6 +27,7 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
     localStorage.removeItem('mindbloom-notes');
     localStorage.removeItem('mindbloom-checklists');
     localStorage.removeItem('mindbloom-reminders');
+    // Note: NOT clearing pending areas - they should persist across sign-out/sign-in
     navigate('/goodbye');
   };
 
@@ -124,28 +126,65 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
     localStorage.setItem('mindbloom-today-focus-areas', JSON.stringify(selectedAreas));
     localStorage.setItem('mindbloom-last-focus-date', today);
     
+    // Clear any completed areas from pending sessions
+    // This will remove areas that the user has now selected for the current session
+    TrainingSessionManager.clearCompletedAreasFromPending(selectedAreas);
+    
     showSuccess(`Great! Your ${selectedAreas.length} focus areas are set for today.`);
     
     // Navigate to Activity Dashboard (main dashboard)
     navigate('/dashboard');
   };
 
+  // Get all pending areas from all sessions for this user
+  const getAllPendingAreas = (): string[] => {
+    const pendingSessions: { [date: string]: string[] } = TrainingSessionManager.getAllPendingAreasForUser();
+    const allPendingAreas: string[] = [];
+    
+    // Flatten all pending areas from all sessions
+    Object.values(pendingSessions).forEach((areas: string[]) => {
+      areas.forEach((area: string) => {
+        if (!allPendingAreas.includes(area)) {
+          allPendingAreas.push(area);
+        }
+      });
+    });
+    
+    return allPendingAreas;
+  };
+
   const getMoodBasedRecommendations = () => {
+    // Get mood-based recommendations
+    let moodRecommendations: string[];
     switch (todaysMood) {
       case 'motivated':
-        return ['executive', 'processing', 'creativity'];
+        moodRecommendations = ['executive', 'processing', 'creativity'];
+        break;
       case 'foggy':
-        return ['general', 'attention', 'memory'];
+        moodRecommendations = ['general', 'attention', 'memory'];
+        break;
       case 'tired':
-        return ['general', 'memory', 'attention'];
+        moodRecommendations = ['general', 'memory', 'attention'];
+        break;
       case 'stressed':
-        return ['general', 'attention', 'memory'];
+        moodRecommendations = ['general', 'attention', 'memory'];
+        break;
       default:
-        return ['general', 'memory', 'attention'];
+        moodRecommendations = ['general', 'memory', 'attention'];
     }
+
+    // Get all pending areas from all sessions for this user
+    const allPendingAreas = getAllPendingAreas();
+
+    // Combine pending areas (priority) with mood-based recommendations
+    // Remove duplicates and prioritize pending areas
+    const combinedRecommendations = [...new Set([...allPendingAreas, ...moodRecommendations])];
+    
+    return combinedRecommendations;
   };
 
   const recommendations = getMoodBasedRecommendations();
+  const pendingAreas = getAllPendingAreas();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50 dark:from-gray-900 dark:to-gray-800 py-4">
@@ -192,50 +231,86 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
             </p>
           </div>
 
-          {/* Mood-based recommendations - Updated to blue theme */}
-          <Card className="mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200">
-            <CardContent className="pt-4">
-              <div className="flex items-center flex-wrap gap-2">
-                <div className="flex items-center">
-                  <Lightbulb className="w-4 h-4 mr-2 text-blue-600" />
-                  <span className="text-base font-medium">Your profile and mood based recommendations:</span>
+          {/* Recommendations section */}
+          <div className="mb-4 space-y-3">
+            {/* Pending areas from previous session */}
+            {pendingAreas.length > 0 && (
+              <Card className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 border-indigo-200">
+                <CardContent className="pt-4">
+                  <div className="flex items-center flex-wrap gap-2">
+                    <div className="flex items-center">
+                      <Target className="w-4 h-4 mr-2 text-indigo-600" />
+                      <span className="text-base font-medium text-indigo-800">Continue from your last session:</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {pendingAreas.map(areaId => {
+                        const area = focusAreas.find(a => a.id === areaId);
+                        return area ? (
+                          <Button
+                            key={areaId}
+                            variant="outline"
+                            size="sm"
+                            onClick={() => toggleArea(areaId)}
+                            className={`border-indigo-200 text-indigo-700 hover:bg-indigo-100 text-sm py-1 px-2 h-auto ${selectedAreas.includes(areaId) ? 'bg-indigo-100 border-indigo-300' : ''}`}
+                          >
+                            {area.label}
+                          </Button>
+                        ) : null;
+                      })}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Mood-based recommendations */}
+            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200">
+              <CardContent className="pt-4">
+                <div className="flex items-center flex-wrap gap-2">
+                  <div className="flex items-center">
+                    <Lightbulb className="w-4 h-4 mr-2 text-blue-600" />
+                    <span className="text-base font-medium">Based on your mood and profile:</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {recommendations.filter(areaId => !pendingAreas.includes(areaId)).map(areaId => {
+                      const area = focusAreas.find(a => a.id === areaId);
+                      return area ? (
+                        <Button
+                          key={areaId}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => toggleArea(areaId)}
+                          className={`border-blue-200 text-blue-700 hover:bg-blue-100 text-sm py-1 px-2 h-auto ${selectedAreas.includes(areaId) ? 'bg-blue-100 border-blue-300' : ''}`}
+                        >
+                          {area.label}
+                        </Button>
+                      ) : null;
+                    })}
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {recommendations.map(areaId => {
-                    const area = focusAreas.find(a => a.id === areaId);
-                    return area ? (
-                      <Button
-                        key={areaId}
-                        variant="outline"
-                        size="sm"
-                        onClick={() => toggleArea(areaId)}
-                        className={`border-blue-200 text-blue-700 hover:bg-blue-100 text-sm py-1 px-2 h-auto ${selectedAreas.includes(areaId) ? 'bg-blue-100 border-blue-300' : ''}`}
-                      >
-                        {area.label}
-                      </Button>
-                    ) : null;
-                  })}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Focus area grid - More compact */}
           <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-3 mb-4">
             {focusAreas.map((area) => {
               const IconComponent = area.icon;
               const isSelected = selectedAreas.includes(area.id);
+              const isPending = pendingAreas.includes(area.id);
               const isRecommended = recommendations.includes(area.id);
               
               return (
-                <Card 
+                <Card
                   key={area.id}
                   className={`cursor-pointer transition-all duration-200 border-2 hover:shadow-md ${
-                    isSelected 
-                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-                      : isRecommended
+                    isSelected
+                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                      : isPending
                         ? 'border-indigo-300 bg-indigo-50 dark:bg-indigo-900/20 hover:border-indigo-400'
-                        : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/10'
+                        : isRecommended
+                          ? 'border-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:border-blue-400'
+                          : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/10'
                   }`}
                   onClick={() => toggleArea(area.id)}
                 >
@@ -258,11 +333,18 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
                     <CardDescription className="text-sm">
                       {area.description}
                     </CardDescription>
-                    {isRecommended && (
-                      <Badge variant="outline" className="mt-2 text-xs bg-indigo-100 text-indigo-800 border-indigo-300">
-                        Recommended
-                      </Badge>
-                    )}
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {isPending && (
+                        <Badge variant="outline" className="text-xs bg-indigo-100 text-indigo-800 border-indigo-300">
+                          Continue from last session
+                        </Badge>
+                      )}
+                      {isRecommended && (
+                        <Badge variant="outline" className="text-xs bg-blue-100 text-blue-800 border-blue-300">
+                          Recommended
+                        </Badge>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               );

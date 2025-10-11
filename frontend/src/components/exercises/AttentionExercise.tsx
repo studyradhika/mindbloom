@@ -133,26 +133,45 @@ const AttentionExercise = ({ onComplete, mood, userPreferences }: AttentionExerc
 
   const endGame = () => {
     setGameActive(false);
-    const accuracy = totalClicks > 0 ? (correctClicks / totalClicks) * 100 : 0;
-    const completionRate = originalTargetCount > 0 ? (correctClicks / originalTargetCount) * 100 : 0;
-    const finalScore = (accuracy * 0.6) + (completionRate * 0.4); // Weighted score
     
-    setScore(finalScore);
-    setPhase('feedback');
-    
-    setTimeout(() => {
-      const result = {
-        exerciseId: 'attention',
-        score: finalScore,
-        timeSpent: Math.round((Date.now() - startTime) / 1000),
-        correctClicks,
-        totalClicks,
-        accuracy,
-        completionRate,
-        originalTargetCount
-      };
-      onComplete(result);
-    }, 3000);
+    // Use functional state updates to get the most current values
+    setTotalClicks(currentTotalClicks => {
+      setCorrectClicks(currentCorrectClicks => {
+        console.log("--- AttentionExercise Debug ---");
+        console.log("Current Total Clicks:", currentTotalClicks);
+        console.log("Current Correct Clicks:", currentCorrectClicks);
+        console.log("Original Target Count:", originalTargetCount);
+        
+        const accuracy = currentTotalClicks > 0 ? (currentCorrectClicks / currentTotalClicks) * 100 : 0;
+        const completionRate = originalTargetCount > 0 ? (currentCorrectClicks / originalTargetCount) * 100 : 0;
+        const finalScore = (accuracy * 0.6) + (completionRate * 0.4); // Weighted score
+        
+        console.log("Calculated Accuracy:", accuracy);
+        console.log("Calculated Completion Rate:", completionRate);
+        console.log("Final Score:", finalScore);
+        console.log("--------------------------------");
+        
+        setScore(finalScore);
+        setPhase('feedback');
+        
+        setTimeout(() => {
+          const result = {
+            exerciseId: 'attention',
+            score: finalScore,
+            timeSpent: Math.round((Date.now() - startTime) / 1000),
+            correctClicks: currentCorrectClicks,
+            totalClicks: currentTotalClicks,
+            accuracy,
+            completionRate,
+            originalTargetCount
+          };
+          onComplete(result);
+        }, 3000);
+        
+        return currentCorrectClicks;
+      });
+      return currentTotalClicks;
+    });
   };
 
   const renderShape = (target: any) => {

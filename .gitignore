@@ -1,0 +1,5 @@
+
+# Temporary files
+*.txt
+backend/__pycache__/
+test_date_fix.js

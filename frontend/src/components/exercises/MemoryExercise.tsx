@@ -91,12 +91,30 @@ const MemoryExercise = ({ onComplete, mood, userPreferences }: MemoryExercisePro
   };
 
   const calculateScore = (userSeq: number[]) => {
-    let correct = 0;
+    // Position-based scoring (exact sequence match)
+    let positionCorrect = 0;
     for (let i = 0; i < sequence.length; i++) {
-      if (sequence[i] === userSeq[i]) correct++;
+      if (sequence[i] === userSeq[i]) positionCorrect++;
     }
     
-    const percentage = (correct / sequence.length) * 100;
+    // Content-based scoring (right colors, any position)
+    let contentCorrect = 0;
+    const sequenceCopy = [...sequence];
+    const userSeqCopy = [...userSeq];
+    
+    for (let i = 0; i < userSeqCopy.length; i++) {
+      const colorIndex = sequenceCopy.indexOf(userSeqCopy[i]);
+      if (colorIndex !== -1) {
+        contentCorrect++;
+        sequenceCopy.splice(colorIndex, 1); // Remove to avoid double counting
+      }
+    }
+    
+    // Weighted scoring: 70% for position accuracy, 30% for content accuracy
+    const positionScore = (positionCorrect / sequence.length) * 70;
+    const contentScore = (contentCorrect / sequence.length) * 30;
+    const percentage = Math.round(positionScore + contentScore);
+    
     setScore(percentage);
     setPhase('feedback');
     
@@ -106,8 +124,10 @@ const MemoryExercise = ({ onComplete, mood, userPreferences }: MemoryExercisePro
         score: percentage,
         timeSpent: Math.round((Date.now() - startTime) / 1000),
         difficulty: userPreferences.difficulty, // Use adaptive difficulty
-        correct,
-        total: sequence.length
+        correct: positionCorrect,
+        total: sequence.length,
+        positionCorrect,
+        contentCorrect
       };
       onComplete(result);
     }, 3000);
@@ -247,72 +267,114 @@ const MemoryExercise = ({ onComplete, mood, userPreferences }: MemoryExercisePro
     </Card>
   );
 
-  const renderFeedback = () => (
-    <Card className="max-w-2xl mx-auto">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl">
-          {score >= 80 ? 'Excellent!' : score >= 60 ? 'Good job!' : 'Nice try!'}
-        </CardTitle>
-        <CardDescription className="text-lg">
-          You got {Math.round((score / 100) * sequence.length)} out of {sequence.length} colors correct
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="text-center">
-          <div className="text-4xl font-bold text-indigo-600 mb-2">
-            {Math.round(score)}%
-          </div>
-          <Badge 
-            variant={score >= 80 ? "default" : score >= 60 ? "secondary" : "outline"}
-            className="text-lg px-4 py-2"
-          >
-            {score >= 80 ? 'Outstanding' : score >= 60 ? 'Well Done' : 'Keep Practicing'}
-          </Badge>
-        </div>
-        
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-          <h3 className="font-semibold mb-2">Sequence Comparison:</h3>
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium w-16">Correct:</span>
-              <div className="flex space-x-1">
-                {sequence.map((colorId, index) => {
-                  const color = colors.find(c => c.id === colorId);
-                  return (
-                    <div
-                      key={index}
-                      className={`w-6 h-6 rounded ${color?.bg} border border-gray-300`}
-                    />
-                  );
-                })}
-              </div>
+  const renderFeedback = () => {
+    // Calculate scoring breakdown for display
+    let positionCorrect = 0;
+    for (let i = 0; i < sequence.length; i++) {
+      if (sequence[i] === userSequence[i]) positionCorrect++;
+    }
+    
+    let contentCorrect = 0;
+    const sequenceCopy = [...sequence];
+    const userSeqCopy = [...userSequence];
+    
+    for (let i = 0; i < userSeqCopy.length; i++) {
+      const colorIndex = sequenceCopy.indexOf(userSeqCopy[i]);
+      if (colorIndex !== -1) {
+        contentCorrect++;
+        sequenceCopy.splice(colorIndex, 1);
+      }
+    }
+
+    return (
+      <Card className="max-w-2xl mx-auto">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl">
+            {score >= 80 ? 'Excellent!' : score >= 60 ? 'Good job!' : 'Nice try!'}
+          </CardTitle>
+          <CardDescription className="text-lg">
+            Your memory performance with improved scoring
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="text-center">
+            <div className="text-4xl font-bold text-indigo-600 mb-2">
+              {Math.round(score)}%
             </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium w-16">Your try:</span>
-              <div className="flex space-x-1">
-                {userSequence.map((colorId, index) => {
-                  const color = colors.find(c => c.id === colorId);
-                  const isCorrect = sequence[index] === colorId;
-                  return (
-                    <div
-                      key={index}
-                      className={`w-6 h-6 rounded ${color?.bg} border-2 ${
-                        isCorrect ? 'border-green-500' : 'border-red-500'
-                      }`}
-                    />
-                  );
-                })}
-              </div>
+            <Badge
+              variant={score >= 80 ? "default" : score >= 60 ? "secondary" : "outline"}
+              className="text-lg px-4 py-2"
+            >
+              {score >= 80 ? 'Outstanding' : score >= 60 ? 'Well Done' : 'Keep Practicing'}
+            </Badge>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 text-center border border-green-200">
+              <div className="text-2xl font-bold text-green-600">{positionCorrect}/{sequence.length}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Perfect Position</div>
+              <div className="text-xs text-gray-500">Right color, right order</div>
+            </div>
+            
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 text-center border border-blue-200">
+              <div className="text-2xl font-bold text-blue-600">{contentCorrect}/{sequence.length}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Colors Remembered</div>
+              <div className="text-xs text-gray-500">Right colors selected</div>
             </div>
           </div>
-        </div>
-        
-        <div className="text-center text-gray-600 dark:text-gray-400">
-          <p>Moving to next exercise in 3 seconds...</p>
-        </div>
-      </CardContent>
-    </Card>
-  );
+          
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+            <h3 className="font-semibold mb-2">Sequence Comparison:</h3>
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-medium w-16">Correct:</span>
+                <div className="flex space-x-1">
+                  {sequence.map((colorId, index) => {
+                    const color = colors.find(c => c.id === colorId);
+                    return (
+                      <div
+                        key={index}
+                        className={`w-6 h-6 rounded ${color?.bg} border border-gray-300`}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-medium w-16">Your try:</span>
+                <div className="flex space-x-1">
+                  {userSequence.map((colorId, index) => {
+                    const color = colors.find(c => c.id === colorId);
+                    const isCorrect = sequence[index] === colorId;
+                    return (
+                      <div
+                        key={index}
+                        className={`w-6 h-6 rounded ${color?.bg} border-2 ${
+                          isCorrect ? 'border-green-500' : 'border-red-500'
+                        }`}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200">
+            <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">Improved Scoring:</h3>
+            <p className="text-blue-700 dark:text-blue-300 text-sm">
+              Your score combines position accuracy (70%) and color memory (30%).
+              Even if you get the order mixed up, you still get credit for remembering the right colors!
+            </p>
+          </div>
+          
+          <div className="text-center text-gray-600 dark:text-gray-400">
+            <p>Moving to next exercise in 3 seconds...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   switch (phase) {
     case 'instructions':

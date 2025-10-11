@@ -7,20 +7,48 @@ import { Brain, Home, Calendar, TrendingUp, TrendingDown, Trophy, Target, LogOut
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from "recharts";
 import { theme, getAreaColor, getStatusColor } from "@/lib/theme";
 import { getPreviousPage } from "@/lib/navigation";
-import ProfileSettingsButton from "@/components/ProfileSettingsButton"; // Import the new component
+import ProfileSettingsButton from "@/components/ProfileSettingsButton";
+import { dataAPI, User, handleAuthError } from '@/lib/api';
 
 const Progress = () => {
   const navigate = useNavigate();
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<{
+    user: User;
+    exerciseHistory: Array<{
+      date: string;
+      averageScore?: number;
+      duration?: number;
+      mood?: string;
+      exercises: Array<{
+        exerciseId: string;
+        score?: number;
+        skipped: boolean;
+      }>;
+    }>;
+  } | null>(null);
   const [selectedTimeView, setSelectedTimeView] = useState<'day' | 'week' | 'month' | 'year'>('week');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedData = localStorage.getItem('mindbloom-user');
-    if (storedData) {
-      setUserData(JSON.parse(storedData));
-    } else {
-      navigate('/onboarding');
-    }
+    const fetchUserData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await dataAPI.getUserDataWithHistory();
+        console.log('📊 Progress: Received user data:', data);
+        console.log('📊 Progress: Exercise history:', data.exerciseHistory);
+        setUserData(data);
+      } catch (err) {
+        console.error('Error fetching user data:', err);
+        setError('Failed to load user data');
+        handleAuthError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
   }, [navigate]);
 
   const handleSignOut = () => {
@@ -40,13 +68,27 @@ const Progress = () => {
     navigate(previousPage);
   };
 
-  if (!userData) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50 flex items-center justify-center">
         <Card className="max-w-md mx-auto">
           <CardContent className="pt-6 text-center">
             <Brain className="w-16 h-16 text-indigo-600 mx-auto mb-4 animate-pulse" />
             <p className="text-xl text-gray-700">Loading your progress...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error || !userData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50 flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardContent className="pt-6 text-center">
+            <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <p className="text-xl text-gray-700 mb-4">{error || 'Failed to load progress data'}</p>
+            <Button onClick={() => navigate('/dashboard')}>Return to Dashboard</Button>
           </CardContent>
         </Card>
       </div>
@@ -78,20 +120,34 @@ const Progress = () => {
     }
   };
 
-  // 1. TODAY'S PERFORMANCE - Accurate calculation
+  // 1. TODAY'S PERFORMANCE - Accurate calculation with timezone handling
   const getTodaysPerformance = () => {
-    const exerciseHistory = userData.exerciseHistory || [];
-    const today = new Date().toDateString();
+    const exerciseHistory = userData?.exerciseHistory || [];
+    const now = new Date();
     
-    const todaySession = exerciseHistory.find((session: any) => {
-      const sessionDate = new Date(session.date).toDateString();
-      return sessionDate === today;
+    console.log('📊 Progress: getTodaysPerformance - Current time:', now.toISOString());
+    console.log('📊 Progress: getTodaysPerformance - Exercise history:', exerciseHistory);
+    
+    const todaySession = exerciseHistory.find((session) => {
+      const sessionDate = new Date(session.date);
+      
+      // Check if the session was completed within the last 24 hours
+      const timeDiff = now.getTime() - sessionDate.getTime();
+      const hoursDiff = timeDiff / (1000 * 60 * 60);
+      
+      console.log(`📊 Progress: Session ${session.date} was ${hoursDiff.toFixed(2)} hours ago`);
+      
+      // Consider it "today" if it was within the last 24 hours
+      // This handles timezone differences better than date comparison
+      return hoursDiff >= 0 && hoursDiff <= 24;
     });
+    
+    console.log('📊 Progress: Found today session:', todaySession);
 
     if (todaySession && todaySession.exercises) {
       const areaPerformance: { [key: string]: { scores: number[], average: number, count: number } } = {};
       
-      todaySession.exercises.forEach((exercise: any) => {
+      todaySession.exercises.forEach((exercise) => {
         let areaId = 'general'; // Default to general if not mapped
         
         switch (exercise.exerciseId) {
@@ -148,7 +204,7 @@ const Progress = () => {
         hasData: true,
         areas: areaPerformance,
         totalExercises: todaySession.exercises.length,
-        completedExercises: todaySession.exercises.filter((ex: any) => !ex.skipped).length,
+        completedExercises: todaySession.exercises.filter((ex) => !ex.skipped).length,
         averageScore: Math.round(todaySession.averageScore || 0),
         duration: todaySession.duration || 0,
         mood: todaySession.mood || 'okay'
@@ -160,9 +216,21 @@ const Progress = () => {
 
   // 2. HISTORICAL PERFORMANCE DATA - More realistic
   const generateHistoricalData = () => {
-    const exerciseHistory = userData.exerciseHistory || [];
+    const exerciseHistory = userData?.exerciseHistory || [];
     const now = new Date();
-    let dataPoints: any[] = [];
+    const dataPoints: Array<{
+      date: string;
+      period?: string;
+      score?: number;
+      activities?: number;
+      memory?: number;
+      attention?: number;
+      language?: number;
+      executive?: number;
+      creativity?: number;
+      processing?: number;
+      spatial?: number;
+    }> = [];
     let days = 7;
     let interval = 1;
     
@@ -191,67 +259,100 @@ const Progress = () => {
       for (let hour = 0; hour <= 23; hour++) {
         const date = new Date(now);
         date.setHours(hour, 0, 0, 0);
-        const dateString = date.toDateString();
+        const targetDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
         
         // Check if we have actual data for this date
-        const actualSession = exerciseHistory.find((session: any) =>
-          new Date(session.date).toDateString() === dateString
-        );
+        const actualSession = exerciseHistory.find((session) => {
+          const sessionDate = new Date(session.date);
+          const sessionDay = new Date(sessionDate.getFullYear(), sessionDate.getMonth(), sessionDate.getDate());
+          return sessionDay.getTime() === targetDay.getTime();
+        });
         
         let score = 0;
         if (actualSession) {
-          score = Math.round(actualSession.averageScore || 0);
+          // Use actual session data - prioritize real scores
+          if (actualSession.averageScore !== undefined && actualSession.averageScore > 0) {
+            score = Math.round(actualSession.averageScore);
+          } else if (actualSession.exercises && actualSession.exercises.length > 0) {
+            // Calculate from individual exercise scores if averageScore is missing
+            const validScores = actualSession.exercises
+              .filter((ex) => ex.score !== undefined && !ex.skipped)
+              .map((ex) => ex.score!);
+            if (validScores.length > 0) {
+              score = Math.round(validScores.reduce((sum: number, s: number) => sum + s, 0) / validScores.length);
+            }
+          }
         } else {
-          // Generate realistic simulated data with time-of-day variation
-          const baseScore = 65;
-          const timeOfDayEffect = Math.sin((hour - 6) * Math.PI / 12) * 10; // Peak around midday
-          const hourlyVariation = (Math.random() - 0.5) * 8;
-          score = Math.max(40, Math.min(95, baseScore + timeOfDayEffect + hourlyVariation));
-          score = Math.round(score);
+          // No data available for this hour - skip this data point
+          score = 0;
         }
         
-        dataPoints.push({
-          period: date.toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            hour12: true
-          }),
-          score,
-          activities: actualSession ? actualSession.exercises.length : Math.floor(Math.random() * 2) + 1
-        });
+        // Only add data points where we have actual data
+        if (score > 0) {
+          dataPoints.push({
+            date: date.toLocaleTimeString('en-US', {
+              hour: 'numeric',
+              hour12: true
+            }),
+            period: date.toLocaleTimeString('en-US', {
+              hour: 'numeric',
+              hour12: true
+            }),
+            score,
+            activities: actualSession ? actualSession.exercises.length : 0
+          });
+        }
       }
     } else {
       // For other views, generate daily data points
       for (let i = days; i >= 0; i -= interval) {
         const date = new Date(now);
         date.setDate(date.getDate() - i);
-        const dateString = date.toDateString();
+        const targetDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
         
         // Check if we have actual data for this date
-        const actualSession = exerciseHistory.find((session: any) =>
-          new Date(session.date).toDateString() === dateString
-        );
+        const actualSession = exerciseHistory.find((session) => {
+          const sessionDate = new Date(session.date);
+          const sessionDay = new Date(sessionDate.getFullYear(), sessionDate.getMonth(), sessionDate.getDate());
+          return sessionDay.getTime() === targetDay.getTime();
+        });
         
         let score = 0;
         if (actualSession) {
-          score = Math.round(actualSession.averageScore || 0);
+          // Use actual session data - prioritize real scores
+          if (actualSession.averageScore !== undefined && actualSession.averageScore > 0) {
+            score = Math.round(actualSession.averageScore);
+          } else if (actualSession.exercises && actualSession.exercises.length > 0) {
+            // Calculate from individual exercise scores if averageScore is missing
+            const validScores = actualSession.exercises
+              .filter((ex) => ex.score !== undefined && !ex.skipped)
+              .map((ex) => ex.score!);
+            if (validScores.length > 0) {
+              score = Math.round(validScores.reduce((sum: number, s: number) => sum + s, 0) / validScores.length);
+            }
+          }
         } else {
-          // Generate realistic simulated data with gradual improvement
-          const baseScore = 65;
-          const improvement = (days - i) * 0.2;
-          const variation = (Math.random() - 0.5) * 10;
-          score = Math.max(40, Math.min(95, baseScore + improvement + variation));
-          score = Math.round(score);
+          // No data available for this date - skip this data point
+          score = 0;
         }
         
-        dataPoints.push({
-          period: date.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            ...(selectedTimeView === 'year' && { year: '2-digit' })
-          }),
-          score,
-          activities: actualSession ? actualSession.exercises.length : Math.floor(Math.random() * 3) + 1
-        });
+        // Only add data points where we have actual data
+        if (score > 0) {
+          dataPoints.push({
+            date: date.toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              ...(selectedTimeView === 'year' && { year: '2-digit' })
+            }),
+            period: date.toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              ...(selectedTimeView === 'year' && { year: '2-digit' })
+            }),
+            score,
+            activities: actualSession ? actualSession.exercises.length : 0
+          });
+        }
       }
     }
 
@@ -261,7 +362,7 @@ const Progress = () => {
   // 3. FOCUS AREA ANALYTICS - Based on actual exercise stats
   const getFocusAreaAnalytics = () => {
     return focusAreas.map(area => {
-      const exerciseStats = userData.exerciseStats || {};
+      const exerciseStats = {}; // Exercise stats not currently available from backend
       
       // Get relevant exercises for this area
       const areaExercises = Object.keys(exerciseStats).filter(exerciseId => {
@@ -292,11 +393,36 @@ const Progress = () => {
         currentScore = Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length);
       }
 
-      // Simulate historical scores for comparison
-      const lastWeekScore = Math.round(currentScore + (Math.random() - 0.5) * 10);
-      const lastMonthScore = Math.round(currentScore + (Math.random() - 0.5) * 15);
-      const yearStartScore = Math.round(currentScore - 10 + Math.random() * 5);
-      const startingScore = Math.round(currentScore - 15 + Math.random() * 5);
+      // Calculate historical scores from actual data
+      const exerciseHistory = userData?.exerciseHistory || [];
+      const now = new Date();
+      
+      // Get actual historical scores
+      const lastWeekDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const lastMonthDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      const yearStartDate = new Date(now.getFullYear(), 0, 1);
+      
+      const lastWeekSession = exerciseHistory.find((session) => {
+        const sessionDate = new Date(session.date);
+        return sessionDate >= lastWeekDate && sessionDate < now;
+      });
+      
+      const lastMonthSession = exerciseHistory.find((session) => {
+        const sessionDate = new Date(session.date);
+        return sessionDate >= lastMonthDate && sessionDate < now;
+      });
+      
+      const yearStartSession = exerciseHistory.find((session) => {
+        const sessionDate = new Date(session.date);
+        return sessionDate >= yearStartDate;
+      });
+      
+      const firstSession = exerciseHistory.length > 0 ? exerciseHistory[0] : null;
+      
+      const lastWeekScore = lastWeekSession ? Math.round(lastWeekSession.averageScore || currentScore) : currentScore;
+      const lastMonthScore = lastMonthSession ? Math.round(lastMonthSession.averageScore || currentScore) : currentScore;
+      const yearStartScore = yearStartSession ? Math.round(yearStartSession.averageScore || currentScore) : currentScore;
+      const startingScore = firstSession ? Math.round(firstSession.averageScore || currentScore) : currentScore;
 
       return {
         ...area,
@@ -362,7 +488,7 @@ const Progress = () => {
     }
 
     // Check consistency issues
-    if ((userData.streak || 0) < 3) {
+    if ((userData?.user.streak || 0) < 3) {
       performanceAlerts.push({
         title: 'Consistency Gap',
         description: 'Training sessions have been irregular recently',
@@ -403,10 +529,10 @@ const Progress = () => {
     }
 
     // Consistency achievement
-    if ((userData.streak || 0) >= 7) {
+    if ((userData?.user.streak || 0) >= 7) {
       areasOfExcellence.push({
         title: 'Excellent Training Consistency',
-        description: `${userData.streak} day training streak demonstrates strong commitment`,
+        description: `${userData.user.streak} day training streak demonstrates strong commitment`,
         action: 'Your consistent practice is the foundation of cognitive improvement - maintain this excellent habit'
       });
     }
@@ -464,7 +590,7 @@ const Progress = () => {
               Sign Out
             </Button>
             <div className="flex items-center justify-center px-3 py-1 bg-gradient-to-r from-blue-600 to-teal-600 text-white text-sm font-medium rounded-full">
-              Hi, {userData.displayName || userData.name}
+              Hi, {userData.user.name}
             </div>
           </div>
         </div>
@@ -506,7 +632,7 @@ const Progress = () => {
 
                   {/* Area Performance */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {Object.entries(todaysPerformance.areas).map(([areaId, data]: [string, any]) => {
+                    {Object.entries(todaysPerformance.areas).map(([areaId, data]: [string, { scores: number[]; average: number }]) => {
                       const area = focusAreas.find(a => a.id === areaId);
                       return (
                         <div key={areaId} className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border-l-4" style={{ borderColor: area?.color }}>
@@ -517,7 +643,7 @@ const Progress = () => {
                             </div>
                             <div className="text-2xl">{area?.icon}</div>
                           </div>
-                          <p className="text-sm text-gray-600">{data.count} exercise{data.count !== 1 ? 's' : ''}</p>
+                          <p className="text-sm text-gray-600">{data.scores.length} exercise{data.scores.length !== 1 ? 's' : ''}</p>
                         </div>
                       );
                     })}
@@ -547,7 +673,7 @@ const Progress = () => {
                       key={period}
                       variant={selectedTimeView === period ? 'default' : 'outline'}
                       size="sm"
-                      onClick={() => setSelectedTimeView(period as any)}
+                      onClick={() => setSelectedTimeView(period as 'week' | 'month' | 'year')}
                       className={`capitalize ${
                         selectedTimeView === period
                           ? 'bg-indigo-600 text-white'

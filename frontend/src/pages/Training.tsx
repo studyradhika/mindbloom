@@ -8,25 +8,33 @@ import { useNavigate } from "react-router-dom";
 import { showSuccess } from "@/utils/toast";
 import { theme, getAreaColor } from "@/lib/theme";
 import { selectExercises, calculateDifficulty, updateExerciseStats, adjustForMood } from "@/lib/adaptiveTraining";
+import { TrainingSessionManager, ExerciseResult, SessionCompletionData } from "@/lib/trainingSessionManager";
+import { trainingAPI, userAPI, handleAuthError } from "@/lib/api";
+import SessionContinuePrompt from "@/components/SessionContinuePrompt";
 import MemoryExercise from "@/components/exercises/MemoryExercise";
 import AttentionExercise from "@/components/exercises/AttentionExercise";
 import LanguageExercise from "@/components/exercises/LanguageExercise";
 import SequencingExercise from "@/components/exercises/SequencingExercise";
 import MindfulMemoryExercise from "@/components/exercises/MindfulMemoryExercise";
 import ConversationExercise from "@/components/exercises/ConversationExercise";
-import VisualRecallExercise from "@/components/exercises/VisualRecallExercise"; // Import new exercise
-import ProfileSettingsButton from "@/components/ProfileSettingsButton"; // Import the new component
+import VisualRecallExercise from "@/components/exercises/VisualRecallExercise";
+import ProfileSettingsButton from "@/components/ProfileSettingsButton";
 import ScrollIndicator from "@/components/ui/scroll-indicator";
 
 const Training = () => {
   const navigate = useNavigate();
   const [currentExercise, setCurrentExercise] = useState(0);
   const [sessionStartTime] = useState(Date.now());
-  const [exerciseResults, setExerciseResults] = useState<any[]>([]);
+  const [exerciseResults, setExerciseResults] = useState<ExerciseResult[]>([]);
   const [userData, setUserData] = useState<any>(null);
   const [todaysMood, setTodaysMood] = useState<string>('okay');
   const [todaysFocusAreas, setTodaysFocusAreas] = useState<string[]>([]);
   const [exercises, setExercises] = useState<any[]>([]);
+  const [sessionManager, setSessionManager] = useState<TrainingSessionManager | null>(null);
+  const [showContinuePrompt, setShowContinuePrompt] = useState(false);
+  const [sessionState, setSessionState] = useState<'training' | 'continue-prompt' | 'completed'>('training');
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // Exercise mapping with adaptive difficulty
   const getExerciseSet = () => {
@@ -145,20 +153,165 @@ const Training = () => {
     return selectedExerciseIds.map(id => exerciseComponents[id]).filter(Boolean);
   };
 
+  // Function to convert backend exercise data to frontend format
+  const convertBackendExercisesToFrontend = (backendExercises: any[]) => {
+    const exerciseComponentMap: { [key: string]: any } = {
+      // Memory exercises
+      'memory_sequence': {
+        component: MemoryExercise,
+        area: 'Memory',
+        areaId: 'memory'
+      },
+      'word_pairs': {
+        component: MemoryExercise,
+        area: 'Memory',
+        areaId: 'memory'
+      },
+      'visual_recall': {
+        component: VisualRecallExercise,
+        area: 'Memory & Spatial',
+        areaId: 'memory'
+      },
+      // Attention exercises
+      'focused_attention': {
+        component: AttentionExercise,
+        area: 'Attention',
+        areaId: 'attention'
+      },
+      'divided_attention': {
+        component: AttentionExercise,
+        area: 'Attention',
+        areaId: 'attention'
+      },
+      'sustained_attention': {
+        component: AttentionExercise,
+        area: 'Attention',
+        areaId: 'attention'
+      },
+      // Language exercises
+      'word_finding': {
+        component: LanguageExercise,
+        area: 'Language',
+        areaId: 'language'
+      },
+      'sentence_completion': {
+        component: LanguageExercise,
+        area: 'Language',
+        areaId: 'language'
+      },
+      'verbal_fluency': {
+        component: LanguageExercise,
+        area: 'Language',
+        areaId: 'language'
+      },
+      // Executive exercises
+      'planning_task': {
+        component: SequencingExercise,
+        area: 'Executive Function',
+        areaId: 'executive'
+      },
+      'cognitive_flexibility': {
+        component: SequencingExercise,
+        area: 'Executive Function',
+        areaId: 'executive'
+      },
+      'inhibition_control': {
+        component: SequencingExercise,
+        area: 'Executive Function',
+        areaId: 'executive'
+      },
+      // Processing exercises
+      'speed_processing': {
+        component: AttentionExercise,
+        area: 'Processing Speed',
+        areaId: 'processing'
+      },
+      'pattern_recognition': {
+        component: AttentionExercise,
+        area: 'Processing Speed',
+        areaId: 'processing'
+      }
+    };
+
+    return backendExercises.map(backendEx => {
+      const mapping = exerciseComponentMap[backendEx.id];
+      if (!mapping) {
+        console.warn(`No component mapping found for exercise: ${backendEx.id}`);
+        // Fallback to a default exercise
+        return {
+          id: backendEx.id,
+          title: backendEx.name || 'Unknown Exercise',
+          description: backendEx.description || 'Exercise description',
+          component: MemoryExercise, // Default fallback
+          area: 'General',
+          areaId: 'general'
+        };
+      }
+
+      return {
+        id: backendEx.id,
+        title: backendEx.name || 'Exercise',
+        description: backendEx.description || 'Exercise description',
+        component: mapping.component,
+        area: mapping.area,
+        areaId: mapping.areaId
+      };
+    });
+  };
+
   useEffect(() => {
-    const storedData = localStorage.getItem('mindbloom-user');
-    if (storedData) {
-      setUserData(JSON.parse(storedData));
-    }
-    
-    const mood = localStorage.getItem('mindbloom-today-mood') || 'okay';
-    const focusAreas = localStorage.getItem('mindbloom-today-focus-areas');
-    
-    setTodaysMood(mood);
-    if (focusAreas) {
-      setTodaysFocusAreas(JSON.parse(focusAreas));
-    }
-  }, []);
+    const initializeSession = async () => {
+      try {
+        setLoading(true);
+        
+        // Get user data from API
+        const user = await userAPI.getCurrentUser();
+        setUserData(user);
+        
+        // Get mood and focus areas from localStorage (set during onboarding)
+        const mood = localStorage.getItem('mindbloom-today-mood');
+        const focusAreas = localStorage.getItem('mindbloom-today-focus-areas');
+        
+        // Check if user has completed the required setup flow
+        if (!mood || !focusAreas) {
+          console.log('🏃‍♂️ Training: Missing mood or focus areas, redirecting to dashboard');
+          navigate('/dashboard');
+          return;
+        }
+        
+        setTodaysMood(mood);
+        const parsedFocusAreas = JSON.parse(focusAreas);
+        setTodaysFocusAreas(parsedFocusAreas);
+        
+        // Start training session via API
+        const sessionResponse = await trainingAPI.startSession({
+          mood,
+          focusAreas: parsedFocusAreas
+        });
+        
+        setCurrentSessionId(sessionResponse.sessionId);
+        
+        // Convert backend exercises to frontend format
+        if (sessionResponse.exercises && sessionResponse.exercises.length > 0) {
+          const frontendExercises = convertBackendExercisesToFrontend(sessionResponse.exercises);
+          console.log('🏃‍♂️ Training: Converted exercises:', frontendExercises);
+          setExercises(frontendExercises);
+        } else {
+          // Fallback to local exercise generation if backend doesn't return exercises
+          console.log('🏃‍♂️ Training: No exercises from backend, using local generation');
+          const localExercises = getExerciseSet();
+          setExercises(localExercises);
+        }
+      } catch (error) {
+        console.error('Error initializing training session:', error);
+        handleAuthError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeSession();
+  }, [navigate]);
 
   useEffect(() => {
     if (userData && todaysFocusAreas.length > 0) {
@@ -166,12 +319,49 @@ const Training = () => {
     }
   }, [userData, todaysFocusAreas, todaysMood]);
 
-  const handleExerciseComplete = (result: any) => {
+  const handleExerciseComplete = (result: ExerciseResult) => {
+    if (!sessionManager) {
+      // Fallback to old behavior if session manager not initialized
+      handleExerciseCompleteOld(result);
+      return;
+    }
+
     // Calculate adaptive difficulty for this exercise
     const baseDifficulty = calculateDifficulty(result.exerciseId, userData);
     const adjustedDifficulty = adjustForMood(baseDifficulty, todaysMood);
     
-    const enhancedResult = {
+    const enhancedResult: ExerciseResult = {
+      ...result,
+      difficulty: adjustedDifficulty,
+      date: new Date().toISOString()
+    };
+    
+    const newResults = [...exerciseResults, enhancedResult];
+    setExerciseResults(newResults);
+
+    // Use session manager to determine next action
+    const sessionResult = sessionManager.onActivityCompleted(enhancedResult);
+    
+    if (sessionResult.shouldComplete && sessionResult.completionData) {
+      completeSessionWithData(sessionResult.completionData, newResults);
+    } else if (sessionResult.shouldPromptContinue) {
+      setSessionState('continue-prompt');
+    } else if (sessionResult.shouldContinue) {
+      if (currentExercise < exercises.length - 1) {
+        setCurrentExercise(currentExercise + 1);
+      } else {
+        // This shouldn't happen with the new algorithm, but fallback
+        completeSession(newResults);
+      }
+    }
+  };
+
+  // Fallback method for old behavior
+  const handleExerciseCompleteOld = (result: ExerciseResult) => {
+    const baseDifficulty = calculateDifficulty(result.exerciseId, userData);
+    const adjustedDifficulty = adjustForMood(baseDifficulty, todaysMood);
+    
+    const enhancedResult: ExerciseResult = {
       ...result,
       difficulty: adjustedDifficulty,
       date: new Date().toISOString()
@@ -187,15 +377,132 @@ const Training = () => {
     }
   };
 
-  const completeSession = (results: any[]) => {
-    const sessionDuration = Math.round((Date.now() - sessionStartTime) / 1000 / 60);
-    const averageScore = results.reduce((sum, r) => sum + (r.score || 0), 0) / results.length;
-    
+  const completeSession = async (results: ExerciseResult[]) => {
+    if (!currentSessionId) {
+      console.error('No session ID available for completion');
+      return;
+    }
+
+    try {
+      const sessionDuration = Math.round((Date.now() - sessionStartTime) / 1000 / 60);
+      
+      // Only include exercises that weren't skipped in the average calculation
+      const completedExercises = results.filter(r => !r.skipped && r.score !== undefined);
+      
+      // Prepare exercise results for API
+      const exerciseResults = completedExercises.map(result => ({
+        exerciseId: result.exerciseId,
+        score: result.score || 0,
+        timeSpent: result.timeSpent || 0
+      }));
+
+      // Complete session via API
+      const completionResponse = await trainingAPI.completeSession(currentSessionId, {
+        exerciseResults
+      });
+
+      showSuccess(`Great job! Session completed in ${sessionDuration} minutes.`);
+      navigate('/session-complete', {
+        state: {
+          results,
+          duration: sessionDuration,
+          averageScore: completionResponse.averageScore,
+          newStreak: completionResponse.newStreak,
+          totalSessions: completionResponse.totalSessions
+        }
+      });
+    } catch (error) {
+      console.error('Error completing session:', error);
+      // Fallback to local completion if API fails
+      const sessionDuration = Math.round((Date.now() - sessionStartTime) / 1000 / 60);
+      const completedExercises = results.filter(r => !r.skipped && r.score !== undefined);
+      const averageScore = completedExercises.length > 0
+        ? completedExercises.reduce((sum, r) => sum + (r.score || 0), 0) / completedExercises.length
+        : 0;
+      
+      navigate('/session-complete', {
+        state: {
+          results,
+          duration: sessionDuration,
+          averageScore: Math.round(averageScore)
+        }
+      });
+    }
+  };
+
+  const completeSessionWithData = async (completionData: SessionCompletionData, results: ExerciseResult[]) => {
+    if (!currentSessionId) {
+      console.error('No session ID available for completion');
+      return;
+    }
+
+    try {
+      // Only include exercises that weren't skipped in the average calculation
+      const completedExercises = results.filter(r => !r.skipped && r.score !== undefined);
+      
+      // Prepare exercise results for API
+      const exerciseResults = completedExercises.map(result => ({
+        exerciseId: result.exerciseId,
+        score: result.score || 0,
+        timeSpent: result.timeSpent || 0
+      }));
+
+      // Complete session via API
+      const completionResponse = await trainingAPI.completeSession(currentSessionId, {
+        exerciseResults
+      });
+
+      const successMessage = completionData.type === 'success'
+        ? 'Amazing! You completed all focus areas!'
+        : completionData.type === 'timeout'
+        ? 'Great 10-minute session completed!'
+        : 'Excellent progress made today!';
+      
+      showSuccess(successMessage);
+      navigate('/session-complete', {
+        state: {
+          completionData,
+          results,
+          duration: completionData.duration,
+          averageScore: completionResponse.averageScore,
+          newStreak: completionResponse.newStreak,
+          totalSessions: completionResponse.totalSessions
+        }
+      });
+    } catch (error) {
+      console.error('Error completing session with data:', error);
+      // Fallback to local completion
+      const successMessage = completionData.type === 'success'
+        ? 'Amazing! You completed all focus areas!'
+        : completionData.type === 'timeout'
+        ? 'Great 10-minute session completed!'
+        : 'Excellent progress made today!';
+      
+      showSuccess(successMessage);
+      navigate('/session-complete', {
+        state: {
+          completionData,
+          results,
+          duration: completionData.duration,
+          averageScore: completionData.averageScore
+        }
+      });
+    }
+  };
+
+  const updateUserData = (results: ExerciseResult[], sessionDuration: number, averageScore: number) => {
     if (userData) {
       // Update exercise statistics with adaptive learning
       let updatedUserData = { ...userData };
       results.forEach(result => {
-        updatedUserData = updateExerciseStats(updatedUserData, result);
+        // Convert to the format expected by updateExerciseStats
+        const adaptiveResult = {
+          ...result,
+          score: result.score || 0, // Ensure score is always a number
+          timeSpent: result.timeSpent || 0, // Ensure timeSpent is always a number
+          difficulty: result.difficulty || 1 // Ensure difficulty is always a number
+        };
+        updatedUserData = updateExerciseStats(updatedUserData, adaptiveResult);
       });
       
       // Update session data
@@ -235,19 +542,10 @@ const Training = () => {
       
       localStorage.setItem('mindbloom-user', JSON.stringify(updatedUserData));
     }
-
-    showSuccess(`Great job! Session completed in ${sessionDuration} minutes.`);
-    navigate('/session-complete', { 
-      state: { 
-        results, 
-        duration: sessionDuration, 
-        averageScore: Math.round(averageScore) 
-      } 
-    });
   };
 
   const skipExercise = () => {
-    const skippedResult = {
+    const skippedResult: ExerciseResult = {
       exerciseId: exercises[currentExercise].id,
       skipped: true,
       score: 0,
@@ -284,22 +582,102 @@ const Training = () => {
     navigate('/dashboard');
   };
 
-  if (!userData || exercises.length === 0) {
+  // Initialize session manager when data is ready
+  useEffect(() => {
+    if (userData && todaysFocusAreas.length > 0 && exercises.length > 0 && !sessionManager) {
+      const availableActivities = exercises.map(ex => ({
+        id: ex.id,
+        title: ex.title,
+        description: ex.description,
+        component: ex.component,
+        area: ex.area,
+        areaId: ex.areaId
+      }));
+
+      const manager = new TrainingSessionManager(availableActivities);
+      const initialActivities = manager.beginTraining(todaysFocusAreas);
+      
+      // Update exercises to match the session manager's selection
+      if (initialActivities.length > 0) {
+        setExercises(initialActivities);
+        setCurrentExercise(0);
+      }
+      
+      setSessionManager(manager);
+    }
+  }, [userData, todaysFocusAreas, exercises.length, sessionManager]);
+
+  // Handle continue session
+  const handleContinueSession = () => {
+    if (sessionManager) {
+      const continueData = sessionManager.getContinuePromptData();
+      const newActivities = continueData.onContinue();
+      
+      if (newActivities.length > 0) {
+        setExercises(newActivities);
+        setCurrentExercise(0);
+        setSessionState('training');
+      }
+    }
+  };
+
+  // Handle complete session from continue prompt - go to session completion page
+  const handleCompleteFromPrompt = () => {
+    if (sessionManager) {
+      const continueData = sessionManager.getContinuePromptData();
+      const completionData = continueData.onComplete();
+      completeSessionWithData(completionData, exerciseResults);
+    }
+  };
+
+  // Show continue prompt
+  if (sessionState === 'continue-prompt' && sessionManager) {
+    const progress = sessionManager.getSessionProgress();
+    return (
+      <SessionContinuePrompt
+        pendingAreas={progress.pendingAreas}
+        completedAreas={progress.completedAreas}
+        sessionDuration={progress.sessionDuration}
+        currentRound={progress.currentRound}
+        onContinue={handleContinueSession}
+        onComplete={handleCompleteFromPrompt}
+      />
+    );
+  }
+
+  if (loading || !userData || exercises.length === 0 || !exercises[currentExercise]) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50 flex items-center justify-center">
         <Card className="max-w-md mx-auto">
           <CardContent className="pt-6 text-center">
             <Brain className="w-16 h-16 text-indigo-600 mx-auto mb-4 animate-pulse" />
-            <p className="text-xl text-gray-700">Preparing your personalized session...</p>
+            <p className="text-xl text-gray-700">
+              {loading ? 'Starting your training session...' : 'Preparing your personalized session...'}
+            </p>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  const CurrentExerciseComponent = exercises[currentExercise].component;
-  const progress = ((currentExercise) / exercises.length) * 100;
   const currentExerciseData = exercises[currentExercise];
+  const CurrentExerciseComponent = currentExerciseData?.component;
+  
+  // Additional safety check
+  if (!CurrentExerciseComponent) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50 flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardContent className="pt-6 text-center">
+            <Brain className="w-16 h-16 text-indigo-600 mx-auto mb-4 animate-pulse" />
+            <p className="text-xl text-gray-700">Loading exercise component...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const progress = ((currentExercise) / exercises.length) * 100;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50">

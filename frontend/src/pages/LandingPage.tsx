@@ -21,23 +21,28 @@ const LandingPage = () => {
 
   const handleStartJourney = () => {
     if (loggedInUser) {
-      // If user is logged in, clear mood data to force mood selector, then go to dashboard
+      // Case 5: Existing users who are logged in -> mood page
       localStorage.removeItem('mindbloom-today-mood');
       localStorage.removeItem('mindbloom-last-mood-date');
       localStorage.removeItem('mindbloom-today-focus-areas');
       localStorage.removeItem('mindbloom-last-focus-date');
       navigate('/dashboard');
     } else {
-      // If user is not logged in, take them directly to registration
+      // Case 1: New users -> Create account page -> onboarding
+      // Case 4: Existing users not logged in -> Sign in page -> mood page
+      // For simplicity, direct new users to registration, existing users can use sign in
       navigate('/auth?mode=register');
     }
   };
 
   const handleSignIn = () => {
+    // Case 2: New users selecting "Sign-in" -> handled in SignIn page
+    // Case 3: Existing users not logged in selecting "sign in" -> sign in page
     navigate('/signin');
   };
 
   const handleGetStarted = () => {
+    // Case 1: New users -> Create account page -> onboarding
     navigate('/auth?mode=register');
   };
 

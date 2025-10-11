@@ -14,70 +14,117 @@ const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSignInSubmit = () => {
+  const handleSignInSubmit = async () => {
     if (!email.trim() || !password.trim()) {
       showError("Please enter both email and password.");
       return;
     }
 
-    // Simulate a successful login for any input for frontend-only demo
-    // In a real app, you would validate credentials against a backend
-    
-    let userData = null;
-    
-    // Check for existing user profile using a persistent key based on email
-    const userProfileKey = `mindbloom-profile-${email.toLowerCase()}`;
-    const storedUserProfile = localStorage.getItem(userProfileKey);
-    
-    console.log('🔐 SignIn: Attempting sign in with email:', email);
-    console.log('🔐 SignIn: Looking for profile with key:', userProfileKey);
-    console.log('🔐 SignIn: Existing stored user profile:', storedUserProfile ? JSON.parse(storedUserProfile) : 'None');
-
-    if (storedUserProfile) {
-      userData = JSON.parse(storedUserProfile);
-      console.log('🔐 SignIn: Found existing user profile, restoring data');
-    } else {
-      console.log('🔐 SignIn: No existing user profile found, creating new profile');
-      // If no existing user, create a new default profile
-      userData = {
-        name: email.split('@')[0] || 'User', // Use part of email as default name
-        email: email,
-        ageGroup: '50-59', // Default values for new user
-        goals: ['prevention', 'focus', 'memory'],
-        cognitiveAreas: ['memory', 'attention', 'language'],
-        experience: 'some',
-        timePreference: 'morning',
-        onboardingCompleted: true,
-        joinDate: new Date().toISOString(),
-        streak: 0,
-        totalSessions: 0,
-        lastSessionDate: null,
-        lastSessionScore: null,
-        lastSessionDuration: null,
-        exerciseHistory: [],
-        exerciseStats: {}
-      };
+    try {
+      console.log('🔐 SignIn: Attempting backend authentication for:', email);
       
-      // Save the new profile persistently
-      localStorage.setItem(userProfileKey, JSON.stringify(userData));
-      console.log('🔐 SignIn: New profile saved with key:', userProfileKey);
-    }
-    
-    console.log('🔐 SignIn: Final user data to save:', userData);
-    localStorage.setItem('mindbloom-user', JSON.stringify(userData));
-    
-    // Verify the data was saved
-    const savedData = localStorage.getItem('mindbloom-user');
-    console.log('🔐 SignIn: Data saved to localStorage:', JSON.parse(savedData || '{}'));
-    
-    // Clear any existing mood and focus data to force mood check for the new day
-    localStorage.removeItem('mindbloom-today-mood');
-    localStorage.removeItem('mindbloom-last-mood-date');
-    localStorage.removeItem('mindbloom-today-focus-areas');
-    localStorage.removeItem('mindbloom-last-focus-date');
+      // Create form data for OAuth2PasswordRequestForm
+      const formData = new FormData();
+      formData.append('username', email); // OAuth2 uses 'username' field for email
+      formData.append('password', password);
 
-    showSuccess("Signed in successfully! Welcome back.");
-    navigate('/dashboard');
+      // Call backend authentication endpoint
+      const response = await fetch('http://localhost:8000/api/v1/auth/login', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        console.log('🔐 SignIn: Response not OK, status:', response.status, response.statusText);
+        
+        if (response.status === 401) {
+          // Check if user exists in database first
+          console.log('🔐 SignIn: 401 Unauthorized - checking if user exists');
+          try {
+            const checkResponse = await fetch(`http://localhost:8000/api/v1/check-user/${encodeURIComponent(email)}`);
+            if (checkResponse.ok) {
+              const checkData = await checkResponse.json();
+              if (!checkData.exists) {
+                // Case 2: New user trying to sign in -> redirect to create account
+                console.log('🔐 SignIn: User does not exist - redirecting to registration');
+                showError("Account not found. Let's create a new account for you.");
+                setTimeout(() => {
+                  navigate('/auth?mode=register');
+                }, 2000);
+                return;
+              }
+            }
+          } catch (checkError) {
+            console.log('🔐 SignIn: Error checking user existence:', checkError);
+          }
+          
+          // User exists but wrong password
+          console.log('🔐 SignIn: User exists but wrong password');
+          showError("Invalid email or password. Please check your credentials.");
+          return;
+        }
+        
+        try {
+          const errorData = await response.json();
+          console.log('🔐 SignIn: Authentication failed:', errorData);
+          
+          // Handle specific error messages from backend
+          if (errorData.detail) {
+            if (errorData.detail.includes('not found') || errorData.detail.includes('does not exist')) {
+              showError("Account not found. Please check your email or sign up for a new account.");
+            } else if (errorData.detail.includes('password') || errorData.detail.includes('credentials')) {
+              showError("Invalid email or password. Please check your credentials or sign up for a new account.");
+            } else {
+              showError(errorData.detail);
+            }
+          } else {
+            showError("Invalid email or password. Please check your credentials or sign up for a new account.");
+          }
+        } catch (parseError) {
+          console.log('🔐 SignIn: Could not parse error response:', parseError);
+          showError("Invalid email or password. Please check your credentials or sign up for a new account.");
+        }
+        return;
+      }
+
+      const tokenData = await response.json();
+      console.log('🔐 SignIn: Authentication successful, received token');
+
+      // Get user information using the token
+      const userResponse = await fetch('http://localhost:8000/api/v1/auth/me', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${tokenData.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!userResponse.ok) {
+        console.log('🔐 SignIn: Failed to get user info');
+        showError("Failed to get user information.");
+        return;
+      }
+
+      const userData = await userResponse.json();
+      console.log('🔐 SignIn: User data received:', userData);
+
+      // Store token and user data in localStorage
+      localStorage.setItem('mindbloom-token', tokenData.access_token);
+      localStorage.setItem('mindbloom-user', JSON.stringify(userData));
+      
+      // Clear any existing mood and focus data to force mood check for the new day
+      localStorage.removeItem('mindbloom-today-mood');
+      localStorage.removeItem('mindbloom-last-mood-date');
+      localStorage.removeItem('mindbloom-today-focus-areas');
+      localStorage.removeItem('mindbloom-last-focus-date');
+
+      showSuccess("Signed in successfully! Welcome back.");
+      navigate('/dashboard');
+
+    } catch (error) {
+      console.error('🔐 SignIn: Network error caught in catch block:', error);
+      showError("Network error. Please check your connection and try again.");
+    }
   };
 
   const handleBackToHome = () => {

@@ -17,27 +17,43 @@ const Onboarding = () => {
     name: '',
     email: '',
     ageGroup: '',
+    workoutGoals: [] as string[],
     goals: [] as string[],
     cognitiveAreas: [] as string[],
     experience: '',
     timePreference: ''
   });
 
-  const totalSteps = 5;
+  const totalSteps = 6;
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Complete onboarding
-      const userData = {
-        ...formData,
-        onboardingCompleted: true,
-        joinDate: new Date().toISOString(),
-        streak: 0,
-        totalSessions: 0
-      };
-      localStorage.setItem('mindbloom-user', JSON.stringify(userData));
+      // Complete onboarding - update existing user data instead of overwriting
+      const existingUserData = localStorage.getItem('mindbloom-user');
+      if (existingUserData) {
+        const userData = JSON.parse(existingUserData);
+        const updatedUserData = {
+          ...userData,
+          ...formData,
+          onboardingCompleted: true,
+          joinDate: userData.joinDate || new Date().toISOString(),
+          streak: userData.streak || 0,
+          totalSessions: userData.totalSessions || 0
+        };
+        localStorage.setItem('mindbloom-user', JSON.stringify(updatedUserData));
+      } else {
+        // Fallback if no existing user data
+        const userData = {
+          ...formData,
+          onboardingCompleted: true,
+          joinDate: new Date().toISOString(),
+          streak: 0,
+          totalSessions: 0
+        };
+        localStorage.setItem('mindbloom-user', JSON.stringify(userData));
+      }
       showSuccess("Welcome to MindBloom! Your personalized journey begins now.");
       navigate('/dashboard');
     }
@@ -53,10 +69,10 @@ const Onboarding = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const toggleArrayItem = (field: 'goals' | 'cognitiveAreas', item: string) => {
+  const toggleArrayItem = (field: 'workoutGoals' | 'goals' | 'cognitiveAreas', item: string) => {
     setFormData(prev => ({
       ...prev,
-      [field]: prev[field].includes(item) 
+      [field]: prev[field].includes(item)
         ? prev[field].filter(i => i !== item)
         : [...prev[field], item]
     }));
@@ -67,12 +83,14 @@ const Onboarding = () => {
       case 1:
         return formData.name.trim() && formData.email.trim() && formData.ageGroup;
       case 2:
-        return formData.goals.length > 0;
+        return formData.workoutGoals.length > 0;
       case 3:
-        return formData.cognitiveAreas.length > 0;
+        return formData.goals.length > 0;
       case 4:
-        return formData.experience;
+        return formData.cognitiveAreas.length > 0;
       case 5:
+        return formData.experience;
+      case 6:
         return formData.timePreference;
       default:
         return false;
@@ -147,6 +165,44 @@ const Onboarding = () => {
         return (
           <Card className="w-full max-w-2xl mx-auto">
             <CardHeader className="text-center">
+              <CardTitle className="text-2xl text-indigo-600">Workout Goals</CardTitle>
+              <CardDescription className="text-lg">
+                Select all that apply to help us personalize your experience
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {[
+                { id: 'prevent', label: 'Prevent cognitive decline', desc: 'Stay mentally sharp as I age' },
+                { id: 'recovery', label: 'Cognitive recovery', desc: 'Recover from injury, surgery, or trauma' },
+                { id: 'focus', label: 'Improve focus & concentration', desc: 'Better attention and mental clarity' },
+                { id: 'memory', label: 'Enhance memory', desc: 'Remember names, dates, and details better' },
+                { id: 'stress', label: 'Manage stress & brain fog', desc: 'Reduce mental fatigue and overwhelm' },
+                { id: 'professional', label: 'Maintain professional edge', desc: 'Stay sharp for demanding work' }
+              ].map((goal) => (
+                <div key={goal.id} className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                     onClick={() => toggleArrayItem('workoutGoals', goal.id)}>
+                  <Checkbox
+                    id={goal.id}
+                    checked={formData.workoutGoals.includes(goal.id)}
+                    onChange={() => toggleArrayItem('workoutGoals', goal.id)}
+                    className="mt-1"
+                  />
+                  <div className="flex-1">
+                    <Label htmlFor={goal.id} className="text-lg font-medium cursor-pointer">
+                      {goal.label}
+                    </Label>
+                    <p className="text-gray-600 dark:text-gray-400 mt-1">{goal.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        );
+
+      case 3:
+        return (
+          <Card className="w-full max-w-2xl mx-auto">
+            <CardHeader className="text-center">
               <CardTitle className="text-2xl">What are your goals?</CardTitle>
               <CardDescription className="text-lg">
                 Select all that apply to help us personalize your experience
@@ -163,7 +219,7 @@ const Onboarding = () => {
               ].map((goal) => (
                 <div key={goal.id} className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
                      onClick={() => toggleArrayItem('goals', goal.id)}>
-                  <Checkbox 
+                  <Checkbox
                     id={goal.id}
                     checked={formData.goals.includes(goal.id)}
                     onChange={() => toggleArrayItem('goals', goal.id)}
@@ -181,7 +237,7 @@ const Onboarding = () => {
           </Card>
         );
 
-      case 3:
+      case 4:
         return (
           <Card className="w-full max-w-2xl mx-auto">
             <CardHeader className="text-center">
@@ -202,7 +258,7 @@ const Onboarding = () => {
               ].map((area) => (
                 <div key={area.id} className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
                      onClick={() => toggleArrayItem('cognitiveAreas', area.id)}>
-                  <Checkbox 
+                  <Checkbox
                     id={area.id}
                     checked={formData.cognitiveAreas.includes(area.id)}
                     onChange={() => toggleArrayItem('cognitiveAreas', area.id)}
@@ -220,7 +276,7 @@ const Onboarding = () => {
           </Card>
         );
 
-      case 4:
+      case 5:
         return (
           <Card className="w-full max-w-2xl mx-auto">
             <CardHeader className="text-center">
@@ -275,7 +331,7 @@ const Onboarding = () => {
           </Card>
         );
 
-      case 5:
+      case 6:
         return (
           <Card className="w-full max-w-2xl mx-auto">
             <CardHeader className="text-center">
@@ -285,8 +341,8 @@ const Onboarding = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <RadioGroup 
-                value={formData.timePreference} 
+              <RadioGroup
+                value={formData.timePreference}
                 onValueChange={(value) => updateFormData('timePreference', value)}
                 className="space-y-4"
               >

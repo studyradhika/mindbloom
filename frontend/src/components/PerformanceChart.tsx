@@ -5,7 +5,19 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarC
 import { TrendingUp, Brain, BarChart3, Calendar, Target } from "lucide-react";
 
 interface PerformanceChartProps {
-  userData: any;
+  userData: {
+    exerciseHistory?: Array<{
+      date: string;
+      averageScore?: number;
+      duration?: number;
+      mood?: string;
+      exercises: Array<{
+        exerciseId: string;
+        score?: number;
+        skipped: boolean;
+      }>;
+    }>;
+  };
 }
 
 const PerformanceChart = ({ userData }: PerformanceChartProps) => {
@@ -23,10 +35,35 @@ const PerformanceChart = ({ userData }: PerformanceChartProps) => {
     { id: 'spatial', name: 'Spatial Reasoning', color: '#84cc16' }
   ];
 
-  // Generate realistic historic performance data
+  // Helper function to map exercise IDs to area IDs
+  const getExerciseAreaId = (exerciseId: string): string => {
+    const exerciseAreaMap: { [key: string]: string } = {
+      'memory': 'memory',
+      'mindful-memory': 'memory',
+      'visual-recall': 'spatial',
+      'attention': 'attention',
+      'pattern-recognition': 'attention',
+      'rapid-matching': 'processing',
+      'language': 'language',
+      'conversation': 'language',
+      'word-association': 'language',
+      'sequencing': 'executive',
+      'logic-puzzle': 'executive',
+      'story-creation': 'creativity',
+      'spatial-puzzle': 'spatial'
+    };
+    return exerciseAreaMap[exerciseId] || 'general';
+  };
+
+  // Generate historic performance data using real user data
   const generateHistoricData = () => {
     const now = new Date();
-    let dataPoints: any[] = [];
+    const dataPoints: Array<{
+      date: string;
+      fullDate: string;
+      [key: string]: string | number;
+    }> = [];
+    const exerciseHistory = userData.exerciseHistory || [];
     let days = 7;
     let interval = 1; // days
     
@@ -49,85 +86,198 @@ const PerformanceChart = ({ userData }: PerformanceChartProps) => {
         break;
     }
 
-    // Generate data points
+    // Generate data points using real data
     if (timeView === 'day') {
-      // For day view, generate hourly data points
-      for (let hour = 0; hour <= 23; hour++) {
-        const date = new Date(now);
-        date.setHours(hour, 0, 0, 0);
-        
-        const dataPoint: any = {
-          date: date.toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            hour12: true
-          }),
-          fullDate: date.toISOString()
+      // For day view, show today's session data if available
+      const today = new Date().toDateString();
+      const todaySession = exerciseHistory.find((session) => {
+        const sessionDate = new Date(session.date).toDateString();
+        return sessionDate === today;
+      });
+
+      if (todaySession && todaySession.exercises) {
+        const dataPoint: {
+          date: string;
+          fullDate: string;
+          [key: string]: string | number;
+        } = {
+          date: 'Today',
+          fullDate: todaySession.date
         };
 
-        // Generate realistic performance scores for each area
+        // Calculate scores for each area from actual exercises
         cognitiveAreas.forEach(area => {
-          // Base performance with some variation throughout the day
-          const baseScore = 65;
-          const timeOfDayEffect = Math.sin((hour - 6) * Math.PI / 12) * 10; // Peak around midday
-          const hourlyVariation = (Math.random() - 0.5) * 10; // ±5 points variation
-          const score = Math.max(0, Math.min(100, baseScore + timeOfDayEffect + hourlyVariation));
-          
-          dataPoint[area.id] = Math.round(score);
+          const areaExercises = todaySession.exercises.filter((ex) => {
+            const exerciseAreaId = getExerciseAreaId(ex.exerciseId);
+            return exerciseAreaId === area.id && !ex.skipped && ex.score !== undefined;
+          });
+
+          if (areaExercises.length > 0) {
+            const avgScore = Math.round(
+              areaExercises.reduce((sum: number, ex) => sum + (ex.score || 0), 0) / areaExercises.length
+            );
+            dataPoint[area.id] = avgScore;
+          } else {
+            dataPoint[area.id] = 0;
+          }
         });
 
         dataPoints.push(dataPoint);
       }
     } else {
-      // For other views, generate daily data points
+      // For other views, generate daily data points using real data
       for (let i = days; i >= 0; i -= interval) {
         const date = new Date(now);
         date.setDate(date.getDate() - i);
+        const dateString = date.toDateString();
         
-        const dataPoint: any = {
-          date: date.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            ...(timeView === 'year' && { year: '2-digit' })
-          }),
-          fullDate: date.toISOString()
-        };
-
-        // Generate realistic performance scores for each area
-        cognitiveAreas.forEach(area => {
-          // Base performance with some improvement over time and daily variation
-          const baseScore = 65;
-          const improvement = (days - i) * 0.3; // Gradual improvement
-          const dailyVariation = (Math.random() - 0.5) * 15; // ±7.5 points variation
-          const score = Math.max(0, Math.min(100, baseScore + improvement + dailyVariation));
-          
-          dataPoint[area.id] = Math.round(score);
+        // Find actual session data for this date
+        const daySession = exerciseHistory.find((session) => {
+          const sessionDate = new Date(session.date).toDateString();
+          return sessionDate === dateString;
         });
 
-        dataPoints.push(dataPoint);
+        if (daySession && daySession.exercises) {
+          const dataPoint: {
+            date: string;
+            fullDate: string;
+            [key: string]: string | number;
+          } = {
+            date: date.toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              ...(timeView === 'year' && { year: '2-digit' })
+            }),
+            fullDate: date.toISOString()
+          };
+
+          // Calculate scores for each area from actual exercises
+          cognitiveAreas.forEach(area => {
+            const areaExercises = daySession.exercises.filter((ex) => {
+              const exerciseAreaId = getExerciseAreaId(ex.exerciseId);
+              return exerciseAreaId === area.id && !ex.skipped && ex.score !== undefined;
+            });
+
+            if (areaExercises.length > 0) {
+              const avgScore = Math.round(
+                areaExercises.reduce((sum: number, ex) => sum + (ex.score || 0), 0) / areaExercises.length
+              );
+              dataPoint[area.id] = avgScore;
+            } else {
+              dataPoint[area.id] = 0;
+            }
+          });
+
+          dataPoints.push(dataPoint);
+        }
       }
     }
-
 
     return dataPoints;
   };
 
-  // Generate activity count data
+  // Generate activity count data using real user data
   const generateActivityData = () => {
-    const historicData = generateHistoricData();
+    const now = new Date();
+    const dataPoints: Array<{
+      date: string;
+      fullDate: string;
+      [key: string]: string | number;
+    }> = [];
+    const exerciseHistory = userData.exerciseHistory || [];
+    let days = 7;
+    let interval = 1;
     
-    return historicData.map(point => {
-      const activityData: any = {
-        date: point.date,
-        fullDate: point.fullDate
-      };
+    switch (timeView) {
+      case 'day':
+        days = 1;
+        interval = 1;
+        break;
+      case 'week':
+        days = 7;
+        interval = 1;
+        break;
+      case 'month':
+        days = 30;
+        interval = 2;
+        break;
+      case 'year':
+        days = 365;
+        interval = 15;
+        break;
+    }
 
-      cognitiveAreas.forEach(area => {
-        // Random number of activities (0-3 per area per time period)
-        activityData[area.id] = Math.floor(Math.random() * 4);
+    if (timeView === 'day') {
+      // For day view, show today's activity count
+      const today = new Date().toDateString();
+      const todaySession = exerciseHistory.find((session) => {
+        const sessionDate = new Date(session.date).toDateString();
+        return sessionDate === today;
       });
 
-      return activityData;
-    });
+      if (todaySession && todaySession.exercises) {
+        const dataPoint: {
+          date: string;
+          fullDate: string;
+          [key: string]: string | number;
+        } = {
+          date: 'Today',
+          fullDate: todaySession.date
+        };
+
+        // Count activities for each area
+        cognitiveAreas.forEach(area => {
+          const areaExercises = todaySession.exercises.filter((ex) => {
+            const exerciseAreaId = getExerciseAreaId(ex.exerciseId);
+            return exerciseAreaId === area.id && !ex.skipped;
+          });
+          dataPoint[area.id] = areaExercises.length;
+        });
+
+        dataPoints.push(dataPoint);
+      }
+    } else {
+      // For other views, count activities per day using real data
+      for (let i = days; i >= 0; i -= interval) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        const dateString = date.toDateString();
+        
+        // Find actual session data for this date
+        const daySession = exerciseHistory.find((session) => {
+          const sessionDate = new Date(session.date).toDateString();
+          return sessionDate === dateString;
+        });
+
+        if (daySession && daySession.exercises) {
+          const dataPoint: {
+            date: string;
+            fullDate: string;
+            [key: string]: string | number;
+          } = {
+            date: date.toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              ...(timeView === 'year' && { year: '2-digit' })
+            }),
+            fullDate: date.toISOString()
+          };
+
+          // Count activities for each area
+          cognitiveAreas.forEach(area => {
+            const areaExercises = daySession.exercises.filter((ex) => {
+              const exerciseAreaId = getExerciseAreaId(ex.exerciseId);
+              return exerciseAreaId === area.id && !ex.skipped;
+            });
+            dataPoint[area.id] = areaExercises.length;
+          });
+
+          dataPoints.push(dataPoint);
+        }
+      }
+    }
+
+    return dataPoints;
   };
 
   const performanceData = generateHistoricData();
@@ -139,7 +289,7 @@ const PerformanceChart = ({ userData }: PerformanceChartProps) => {
     const exerciseHistory = userData.exerciseHistory || [];
     const today = new Date().toDateString();
     
-    const todaySession = exerciseHistory.find((session: any) => {
+    const todaySession = exerciseHistory.find((session) => {
       const sessionDate = new Date(session.date).toDateString();
       return sessionDate === today;
     });
@@ -147,7 +297,7 @@ const PerformanceChart = ({ userData }: PerformanceChartProps) => {
     if (todaySession && todaySession.exercises) {
       const areaPerformance: { [key: string]: { scores: number[], average: number } } = {};
       
-      todaySession.exercises.forEach((exercise: any) => {
+      todaySession.exercises.forEach((exercise) => {
         let areaId = 'general';
         
         // Map exercise IDs to cognitive areas
@@ -198,12 +348,20 @@ const PerformanceChart = ({ userData }: PerformanceChartProps) => {
   const currentSessionPerformance = getCurrentSessionPerformance();
 
   // Custom tooltip for charts
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: {
+    active?: boolean;
+    payload?: Array<{
+      name: string;
+      value: number;
+      color: string;
+    }>;
+    label?: string;
+  }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white dark:bg-gray-800 p-4 border-2 border-indigo-200 rounded-lg shadow-lg">
           <p className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
               {entry.name}: <span className="font-bold">
                 {chartType === 'performance' ? `${entry.value}%` : `${entry.value} activities`}
@@ -231,7 +389,7 @@ const PerformanceChart = ({ userData }: PerformanceChartProps) => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Object.entries(currentSessionPerformance).map(([areaId, data]: [string, any]) => {
+              {Object.entries(currentSessionPerformance).map(([areaId, data]: [string, { scores: number[]; average: number }]) => {
                 const area = cognitiveAreas.find(a => a.id === areaId);
                 const areaName = area?.name || areaId;
                 const areaColor = area?.color || '#6b7280';
@@ -400,7 +558,7 @@ const PerformanceChart = ({ userData }: PerformanceChartProps) => {
           <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
             {cognitiveAreas.slice(0, 4).map((area) => {
               const recentData = chartData.slice(-7); // Last 7 data points
-              const scores = recentData.map(d => d[area.id]).filter(s => s > 0);
+              const scores = recentData.map(d => d[area.id]).filter((s): s is number => typeof s === 'number' && s > 0);
               const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
               
               return (

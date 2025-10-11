@@ -150,6 +150,64 @@ def select_exercises(focus_areas: List[str], mood: str) -> List[dict]:
                 "estimatedTime": 200,
                 "instructions": "Find the pattern and predict the next item"
             }
+        ],
+        "perception": [
+            {
+                "id": "visual_perception",
+                "name": "Visual Perception",
+                "description": "Identify and distinguish visual elements",
+                "type": "perception",
+                "difficulty": "medium",
+                "estimatedTime": 150,
+                "instructions": "Identify the different visual elements"
+            },
+            {
+                "id": "spatial_awareness",
+                "name": "Spatial Awareness",
+                "description": "Understand spatial relationships",
+                "type": "perception",
+                "difficulty": "medium",
+                "estimatedTime": 180,
+                "instructions": "Determine spatial positions and relationships"
+            },
+            {
+                "id": "object_recognition",
+                "name": "Object Recognition",
+                "description": "Recognize and categorize objects",
+                "type": "perception",
+                "difficulty": "easy",
+                "estimatedTime": 120,
+                "instructions": "Identify and categorize the objects shown"
+            }
+        ],
+        "general": [
+            {
+                "id": "mindful_breathing",
+                "name": "Mindful Breathing",
+                "description": "Practice focused breathing for mental clarity",
+                "type": "general",
+                "difficulty": "easy",
+                "estimatedTime": 180,
+                "instructions": "Follow the breathing pattern to center your mind"
+            },
+            {
+                "id": "cognitive_warm_up",
+                "name": "Cognitive Warm-up",
+                "description": "General mental preparation exercises",
+                "type": "general",
+                "difficulty": "easy",
+                "estimatedTime": 120,
+                "instructions": "Complete these warm-up exercises to prepare your mind"
+            },
+            {
+                "id": "mental_flexibility",
+                "name": "Mental Flexibility",
+                "description": "Adapt thinking patterns and approaches",
+                "type": "general",
+                "difficulty": "medium",
+                "estimatedTime": 200,
+                "instructions": "Switch between different thinking approaches"
+            }
         ]
     }
     
@@ -169,44 +227,72 @@ def select_exercises(focus_areas: List[str], mood: str) -> List[dict]:
         "max_exercises": 4
     })
     
-    # Collect exercises from selected focus areas
-    available_exercises = []
+    # NEW LOGIC: Select one exercise from each focus area
+    selected_exercises = []
+    
+    # First, try to get one exercise from each selected focus area
     for area in focus_areas:
-        if area.lower() in exercise_pool:
-            available_exercises.extend(exercise_pool[area.lower()])
+        area_key = area.lower()
+        if area_key in exercise_pool:
+            area_exercises = exercise_pool[area_key]
+            
+            # Filter by mood preferences for this area
+            preferred_area_exercises = [
+                ex for ex in area_exercises
+                if ex["difficulty"] in mood_prefs["prefer_difficulty"]
+            ]
+            
+            # If no preferred exercises in this area, use all from this area
+            if not preferred_area_exercises:
+                preferred_area_exercises = area_exercises
+            
+            # Randomly select one exercise from this area
+            if preferred_area_exercises:
+                selected_exercise = random.choice(preferred_area_exercises)
+                selected_exercises.append(selected_exercise)
     
-    # If no focus areas match, include a mix from all areas
-    if not available_exercises:
-        for exercises in exercise_pool.values():
-            available_exercises.extend(exercises)
-    
-    # Filter by mood preferences
-    preferred_exercises = [
-        ex for ex in available_exercises 
-        if ex["difficulty"] in mood_prefs["prefer_difficulty"]
-    ]
-    
-    # If no preferred exercises, use all available
-    if not preferred_exercises:
-        preferred_exercises = available_exercises
-    
-    # Randomly select exercises (3-5 based on mood)
-    num_exercises = min(
-        mood_prefs["max_exercises"], 
-        len(preferred_exercises),
-        random.randint(3, mood_prefs["max_exercises"])
-    )
-    
-    selected_exercises = random.sample(preferred_exercises, num_exercises)
-    
-    # Ensure we have at least 3 exercises
-    if len(selected_exercises) < 3 and len(available_exercises) >= 3:
-        # Add more exercises if needed
-        remaining = [ex for ex in available_exercises if ex not in selected_exercises]
+    # If we have fewer than 3 exercises, fill up to 3 with additional exercises
+    if len(selected_exercises) < 3:
+        # Collect all available exercises not already selected
+        all_available = []
+        for area_exercises in exercise_pool.values():
+            all_available.extend(area_exercises)
+        
+        # Remove already selected exercises
+        remaining_exercises = [
+            ex for ex in all_available
+            if ex not in selected_exercises
+        ]
+        
+        # Filter by mood preferences
+        preferred_remaining = [
+            ex for ex in remaining_exercises
+            if ex["difficulty"] in mood_prefs["prefer_difficulty"]
+        ]
+        
+        if not preferred_remaining:
+            preferred_remaining = remaining_exercises
+        
+        # Add additional exercises to reach minimum of 3
         additional_needed = 3 - len(selected_exercises)
-        if remaining:
-            selected_exercises.extend(
-                random.sample(remaining, min(additional_needed, len(remaining)))
+        if preferred_remaining and additional_needed > 0:
+            additional_exercises = random.sample(
+                preferred_remaining,
+                min(additional_needed, len(preferred_remaining))
             )
+            selected_exercises.extend(additional_exercises)
+    
+    # If we still don't have enough exercises, add from any area
+    if len(selected_exercises) < 3:
+        all_exercises = []
+        for exercises in exercise_pool.values():
+            all_exercises.extend(exercises)
+        
+        remaining = [ex for ex in all_exercises if ex not in selected_exercises]
+        additional_needed = 3 - len(selected_exercises)
+        
+        if remaining and additional_needed > 0:
+            additional = random.sample(remaining, min(additional_needed, len(remaining)))
+            selected_exercises.extend(additional)
     
     return selected_exercises

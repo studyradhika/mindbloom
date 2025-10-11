@@ -8,3 +8,4 @@ fastapi-cors
 passlib[argon2]
 python-jose[cryptography]
 email-validator
+python-multipart

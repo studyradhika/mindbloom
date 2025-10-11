@@ -45,7 +45,7 @@ const Progress = () => {
     };
 
     fetchData();
-  }, [navigate]);
+  }, [navigate, selectedTimeView]); // Add selectedTimeView dependency to re-render when time view changes
 
   const handleSignOut = () => {
     localStorage.removeItem('mindbloom-user');
@@ -156,7 +156,7 @@ const Progress = () => {
     return { hasData: false };
   };
 
-  // 2. HISTORICAL PERFORMANCE DATA - Use backend progress trends
+  // 2. HISTORICAL PERFORMANCE DATA - Use backend progress trends with proper time view formatting
   const generateHistoricalData = () => {
     if (!progressData || !progressData.recent_performance_trend) {
       return [];
@@ -169,22 +169,61 @@ const Progress = () => {
       activities?: number;
     }> = [];
 
-    // Use backend performance trend data
+    // Use backend performance trend data with time-view-specific formatting
     progressData.recent_performance_trend.forEach(trend => {
       const trendDate = new Date(trend.date);
       const score = Math.round(trend.score); // Backend already provides percentage
       
+      // Format date/period based on selected time view
+      let dateLabel = '';
+      let periodLabel = '';
+      
+      switch (selectedTimeView) {
+        case 'day':
+          // Show hours for daily view
+          dateLabel = trendDate.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          });
+          periodLabel = dateLabel;
+          break;
+        case 'week':
+          // Show day of week for weekly view
+          dateLabel = trendDate.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+          });
+          periodLabel = dateLabel;
+          break;
+        case 'month':
+          // Show date for monthly view
+          dateLabel = trendDate.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+          });
+          periodLabel = dateLabel;
+          break;
+        case 'year':
+          // Show month/year for yearly view
+          dateLabel = trendDate.toLocaleDateString('en-US', {
+            month: 'short',
+            year: '2-digit'
+          });
+          periodLabel = dateLabel;
+          break;
+        default:
+          dateLabel = trendDate.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+          });
+          periodLabel = dateLabel;
+      }
+      
       dataPoints.push({
-        date: trendDate.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-          ...(selectedTimeView === 'year' && { year: '2-digit' })
-        }),
-        period: trendDate.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-          ...(selectedTimeView === 'year' && { year: '2-digit' })
-        }),
+        date: dateLabel,
+        period: periodLabel,
         score,
         activities: 3 // Default activities per session
       });
@@ -468,7 +507,7 @@ const Progress = () => {
                       key={period}
                       variant={selectedTimeView === period ? 'default' : 'outline'}
                       size="sm"
-                      onClick={() => setSelectedTimeView(period as 'week' | 'month' | 'year')}
+                      onClick={() => setSelectedTimeView(period as 'day' | 'week' | 'month' | 'year')}
                       className={`capitalize ${
                         selectedTimeView === period
                           ? 'bg-indigo-600 text-white'

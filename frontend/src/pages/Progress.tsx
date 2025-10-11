@@ -197,22 +197,21 @@ const Progress = () => {
           });
           periodLabel = dateLabel;
           break;
-        case 'month':
-          // Show date for monthly view
+        case 'month': {
+          // Show week number or date range for monthly view
+          const weekOfMonth = Math.ceil(trendDate.getDate() / 7);
+          dateLabel = `Week ${weekOfMonth}`;
+          periodLabel = dateLabel;
+          break;
+        }
+        case 'year': {
+          // Show month name for yearly view
           dateLabel = trendDate.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric'
+            month: 'short'
           });
           periodLabel = dateLabel;
           break;
-        case 'year':
-          // Show month/year for yearly view
-          dateLabel = trendDate.toLocaleDateString('en-US', {
-            month: 'short',
-            year: '2-digit'
-          });
-          periodLabel = dateLabel;
-          break;
+        }
         default:
           dateLabel = trendDate.toLocaleDateString('en-US', {
             month: 'short',

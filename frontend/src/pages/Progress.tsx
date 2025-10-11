@@ -8,47 +8,43 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tool
 import { theme, getAreaColor, getStatusColor } from "@/lib/theme";
 import { getPreviousPage } from "@/lib/navigation";
 import ProfileSettingsButton from "@/components/ProfileSettingsButton";
-import { dataAPI, User, handleAuthError } from '@/lib/api';
+import { progressAPI, userAPI, ProgressSummary, User, handleAuthError } from '@/lib/api';
 
 const Progress = () => {
   const navigate = useNavigate();
-  const [userData, setUserData] = useState<{
-    user: User;
-    exerciseHistory: Array<{
-      date: string;
-      averageScore?: number;
-      duration?: number;
-      mood?: string;
-      exercises: Array<{
-        exerciseId: string;
-        score?: number;
-        skipped: boolean;
-      }>;
-    }>;
-  } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [progressData, setProgressData] = useState<ProgressSummary | null>(null);
   const [selectedTimeView, setSelectedTimeView] = useState<'day' | 'week' | 'month' | 'year'>('week');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await dataAPI.getUserDataWithHistory();
-        console.log('📊 Progress: Received user data:', data);
-        console.log('📊 Progress: Exercise history:', data.exerciseHistory);
-        setUserData(data);
+        
+        // Fetch both user data and progress analytics from backend
+        const [userData, progressSummary] = await Promise.all([
+          userAPI.getCurrentUser(),
+          progressAPI.getProgressSummary()
+        ]);
+        
+        console.log('📊 Progress: Received user data:', userData);
+        console.log('📊 Progress: Received progress summary:', progressSummary);
+        
+        setUser(userData);
+        setProgressData(progressSummary);
       } catch (err) {
-        console.error('Error fetching user data:', err);
-        setError('Failed to load user data');
+        console.error('Error fetching progress data:', err);
+        setError('Failed to load progress data');
         handleAuthError(err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUserData();
+    fetchData();
   }, [navigate]);
 
   const handleSignOut = () => {
@@ -81,7 +77,7 @@ const Progress = () => {
     );
   }
 
-  if (error || !userData) {
+  if (error || !user || !progressData) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50 flex items-center justify-center">
         <Card className="max-w-md mx-auto">
@@ -120,316 +116,123 @@ const Progress = () => {
     }
   };
 
-  // 1. TODAY'S PERFORMANCE - Accurate calculation with timezone handling
+  // 1. TODAY'S PERFORMANCE - Use backend progress data
   const getTodaysPerformance = () => {
-    const exerciseHistory = userData?.exerciseHistory || [];
-    const now = new Date();
-    
-    console.log('📊 Progress: getTodaysPerformance - Current time:', now.toISOString());
-    console.log('📊 Progress: getTodaysPerformance - Exercise history:', exerciseHistory);
-    
-    const todaySession = exerciseHistory.find((session) => {
-      const sessionDate = new Date(session.date);
-      
-      // Check if the session was completed within the last 24 hours
-      const timeDiff = now.getTime() - sessionDate.getTime();
-      const hoursDiff = timeDiff / (1000 * 60 * 60);
-      
-      console.log(`📊 Progress: Session ${session.date} was ${hoursDiff.toFixed(2)} hours ago`);
-      
-      // Consider it "today" if it was within the last 24 hours
-      // This handles timezone differences better than date comparison
-      return hoursDiff >= 0 && hoursDiff <= 24;
-    });
-    
-    console.log('📊 Progress: Found today session:', todaySession);
+    if (!progressData || progressData.total_sessions === 0) {
+      return { hasData: false };
+    }
 
-    if (todaySession && todaySession.exercises) {
+    // Check if there are recent performance trends (today's data)
+    const recentTrends = progressData.recent_performance_trend || [];
+    const today = new Date();
+    const todayTrend = recentTrends.find(trend => {
+      const trendDate = new Date(trend.date);
+      return trendDate.toDateString() === today.toDateString();
+    });
+
+    if (todayTrend) {
+      // Create area performance from focus areas analytics
       const areaPerformance: { [key: string]: { scores: number[], average: number, count: number } } = {};
       
-      todaySession.exercises.forEach((exercise) => {
-        let areaId = 'general'; // Default to general if not mapped
-        
-        switch (exercise.exerciseId) {
-          case 'memory':
-          case 'mindful-memory':
-          case 'visual-recall':
-            areaId = 'memory';
-            break;
-          case 'attention':
-          case 'pattern-recognition':
-            areaId = 'attention';
-            break;
-          case 'language':
-          case 'conversation':
-          case 'word-association':
-            areaId = 'language';
-            break;
-          case 'sequencing':
-          case 'logic-puzzle':
-            areaId = 'executive';
-            break;
-          case 'story-creation':
-            areaId = 'creativity';
-            break;
-          case 'rapid-matching':
-            areaId = 'processing';
-            break;
-          case 'spatial-puzzle':
-            areaId = 'spatial';
-            break;
-        }
-
-        if (!areaPerformance[areaId]) {
-          areaPerformance[areaId] = { scores: [], average: 0, count: 0 };
-        }
-        
-        areaPerformance[areaId].count++;
-        if (exercise.score !== undefined && !exercise.skipped) {
-          areaPerformance[areaId].scores.push(exercise.score);
-        }
-      });
-
-      // Calculate accurate averages
-      Object.keys(areaPerformance).forEach(areaId => {
-        const scores = areaPerformance[areaId].scores;
-        if (scores.length > 0) {
-          areaPerformance[areaId].average = Math.round(
-            scores.reduce((sum, score) => sum + score, 0) / scores.length
-          );
-        }
+      progressData.focus_areas_analytics.forEach(area => {
+        areaPerformance[area.area_name] = {
+          scores: [area.current_score * 100], // Convert to percentage
+          average: Math.round(area.current_score * 100),
+          count: 1
+        };
       });
 
       return {
         hasData: true,
         areas: areaPerformance,
-        totalExercises: todaySession.exercises.length,
-        completedExercises: todaySession.exercises.filter((ex) => !ex.skipped).length,
-        averageScore: Math.round(todaySession.averageScore || 0),
-        duration: todaySession.duration || 0,
-        mood: todaySession.mood || 'okay'
+        totalExercises: progressData.focus_areas_analytics.length,
+        completedExercises: progressData.focus_areas_analytics.length,
+        averageScore: Math.round(progressData.overall_average_score * 100),
+        duration: Math.round(progressData.total_time_spent / 60), // Convert to minutes
+        mood: 'focused' // Default mood
       };
     }
 
     return { hasData: false };
   };
 
-  // 2. HISTORICAL PERFORMANCE DATA - More realistic
+  // 2. HISTORICAL PERFORMANCE DATA - Use backend progress trends
   const generateHistoricalData = () => {
-    const exerciseHistory = userData?.exerciseHistory || [];
-    const now = new Date();
+    if (!progressData || !progressData.recent_performance_trend) {
+      return [];
+    }
+
     const dataPoints: Array<{
       date: string;
       period?: string;
       score?: number;
       activities?: number;
-      memory?: number;
-      attention?: number;
-      language?: number;
-      executive?: number;
-      creativity?: number;
-      processing?: number;
-      spatial?: number;
     }> = [];
-    let days = 7;
-    let interval = 1;
-    
-    switch (selectedTimeView) {
-      case 'day':
-        days = 1;
-        interval = 1;
-        break;
-      case 'week':
-        days = 7;
-        interval = 1;
-        break;
-      case 'month':
-        days = 30;
-        interval = 2;
-        break;
-      case 'year':
-        days = 365;
-        interval = 15;
-        break;
-    }
 
-    // Use actual data where available, simulate realistic data otherwise
-    if (selectedTimeView === 'day') {
-      // For day view, generate hourly data points
-      for (let hour = 0; hour <= 23; hour++) {
-        const date = new Date(now);
-        date.setHours(hour, 0, 0, 0);
-        const targetDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        
-        // Check if we have actual data for this date
-        const actualSession = exerciseHistory.find((session) => {
-          const sessionDate = new Date(session.date);
-          const sessionDay = new Date(sessionDate.getFullYear(), sessionDate.getMonth(), sessionDate.getDate());
-          return sessionDay.getTime() === targetDay.getTime();
-        });
-        
-        let score = 0;
-        if (actualSession) {
-          // Use actual session data - prioritize real scores
-          if (actualSession.averageScore !== undefined && actualSession.averageScore > 0) {
-            score = Math.round(actualSession.averageScore);
-          } else if (actualSession.exercises && actualSession.exercises.length > 0) {
-            // Calculate from individual exercise scores if averageScore is missing
-            const validScores = actualSession.exercises
-              .filter((ex) => ex.score !== undefined && !ex.skipped)
-              .map((ex) => ex.score!);
-            if (validScores.length > 0) {
-              score = Math.round(validScores.reduce((sum: number, s: number) => sum + s, 0) / validScores.length);
-            }
-          }
-        } else {
-          // No data available for this hour - skip this data point
-          score = 0;
-        }
-        
-        // Only add data points where we have actual data
-        if (score > 0) {
-          dataPoints.push({
-            date: date.toLocaleTimeString('en-US', {
-              hour: 'numeric',
-              hour12: true
-            }),
-            period: date.toLocaleTimeString('en-US', {
-              hour: 'numeric',
-              hour12: true
-            }),
-            score,
-            activities: actualSession ? actualSession.exercises.length : 0
-          });
-        }
-      }
-    } else {
-      // For other views, generate daily data points
-      for (let i = days; i >= 0; i -= interval) {
-        const date = new Date(now);
-        date.setDate(date.getDate() - i);
-        const targetDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        
-        // Check if we have actual data for this date
-        const actualSession = exerciseHistory.find((session) => {
-          const sessionDate = new Date(session.date);
-          const sessionDay = new Date(sessionDate.getFullYear(), sessionDate.getMonth(), sessionDate.getDate());
-          return sessionDay.getTime() === targetDay.getTime();
-        });
-        
-        let score = 0;
-        if (actualSession) {
-          // Use actual session data - prioritize real scores
-          if (actualSession.averageScore !== undefined && actualSession.averageScore > 0) {
-            score = Math.round(actualSession.averageScore);
-          } else if (actualSession.exercises && actualSession.exercises.length > 0) {
-            // Calculate from individual exercise scores if averageScore is missing
-            const validScores = actualSession.exercises
-              .filter((ex) => ex.score !== undefined && !ex.skipped)
-              .map((ex) => ex.score!);
-            if (validScores.length > 0) {
-              score = Math.round(validScores.reduce((sum: number, s: number) => sum + s, 0) / validScores.length);
-            }
-          }
-        } else {
-          // No data available for this date - skip this data point
-          score = 0;
-        }
-        
-        // Only add data points where we have actual data
-        if (score > 0) {
-          dataPoints.push({
-            date: date.toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              ...(selectedTimeView === 'year' && { year: '2-digit' })
-            }),
-            period: date.toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              ...(selectedTimeView === 'year' && { year: '2-digit' })
-            }),
-            score,
-            activities: actualSession ? actualSession.exercises.length : 0
-          });
-        }
-      }
-    }
+    // Use backend performance trend data
+    progressData.recent_performance_trend.forEach(trend => {
+      const trendDate = new Date(trend.date);
+      const score = Math.round(trend.score * 100); // Convert to percentage
+      
+      dataPoints.push({
+        date: trendDate.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          ...(selectedTimeView === 'year' && { year: '2-digit' })
+        }),
+        period: trendDate.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          ...(selectedTimeView === 'year' && { year: '2-digit' })
+        }),
+        score,
+        activities: 3 // Default activities per session
+      });
+    });
 
     return dataPoints;
   };
 
-  // 3. FOCUS AREA ANALYTICS - Based on actual exercise stats
+  // 3. FOCUS AREA ANALYTICS - Use backend focus area analytics
   const getFocusAreaAnalytics = () => {
-    return focusAreas.map(area => {
-      const exerciseStats = {}; // Exercise stats not currently available from backend
-      
-      // Get relevant exercises for this area
-      const areaExercises = Object.keys(exerciseStats).filter(exerciseId => {
-        switch (area.id) {
-          case 'memory':
-            return ['memory', 'mindful-memory', 'visual-recall'].includes(exerciseId);
-          case 'attention':
-            return ['attention', 'pattern-recognition'].includes(exerciseId);
-          case 'language':
-            return ['language', 'conversation', 'word-association'].includes(exerciseId);
-          case 'executive':
-            return ['sequencing', 'logic-puzzle'].includes(exerciseId);
-          case 'creativity':
-            return ['mindful-memory', 'story-creation'].includes(exerciseId);
-          case 'processing':
-            return ['attention', 'rapid-matching'].includes(exerciseId);
-          case 'spatial':
-            return ['memory', 'spatial-puzzle'].includes(exerciseId);
-          default:
-            return false;
-        }
-      });
+    if (!progressData || !progressData.focus_areas_analytics) {
+      return [];
+    }
 
-      // Calculate current performance
-      let currentScore = 65; // Default
-      if (areaExercises.length > 0) {
-        const scores = areaExercises.map(id => exerciseStats[id].averageScore || 65);
-        currentScore = Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length);
-      }
+    return progressData.focus_areas_analytics.map(area => {
+      const currentScore = Math.round(area.current_score * 100);
+      const averageScore = Math.round(area.average_score * 100);
+      
+      // Map backend area names to frontend display
+      const areaMapping: { [key: string]: { id: string; name: string; color: string; icon: string } } = {
+        'memory': { id: 'memory', name: 'Memory', color: '#3b82f6', icon: '🧠' },
+        'attention': { id: 'attention', name: 'Attention', color: '#0891b2', icon: '🎯' },
+        'language': { id: 'language', name: 'Language', color: '#1e40af', icon: '💬' },
+        'executive': { id: 'executive', name: 'Executive Function', color: '#4f46e5', icon: '⚡' },
+        'creativity': { id: 'creativity', name: 'Creativity', color: '#0284c7', icon: '🎨' },
+        'processing': { id: 'processing', name: 'Processing Speed', color: '#0d9488', icon: '⚡' },
+        'spatial': { id: 'spatial', name: 'Spatial Reasoning', color: '#1d4ed8', icon: '📐' },
+        'general': { id: 'general', name: 'General Cognitive', color: '#6366f1', icon: '🧩' },
+        'perception': { id: 'perception', name: 'Perception', color: '#8b5cf6', icon: '👁️' }
+      };
 
-      // Calculate historical scores from actual data
-      const exerciseHistory = userData?.exerciseHistory || [];
-      const now = new Date();
-      
-      // Get actual historical scores
-      const lastWeekDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      const lastMonthDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-      const yearStartDate = new Date(now.getFullYear(), 0, 1);
-      
-      const lastWeekSession = exerciseHistory.find((session) => {
-        const sessionDate = new Date(session.date);
-        return sessionDate >= lastWeekDate && sessionDate < now;
-      });
-      
-      const lastMonthSession = exerciseHistory.find((session) => {
-        const sessionDate = new Date(session.date);
-        return sessionDate >= lastMonthDate && sessionDate < now;
-      });
-      
-      const yearStartSession = exerciseHistory.find((session) => {
-        const sessionDate = new Date(session.date);
-        return sessionDate >= yearStartDate;
-      });
-      
-      const firstSession = exerciseHistory.length > 0 ? exerciseHistory[0] : null;
-      
-      const lastWeekScore = lastWeekSession ? Math.round(lastWeekSession.averageScore || currentScore) : currentScore;
-      const lastMonthScore = lastMonthSession ? Math.round(lastMonthSession.averageScore || currentScore) : currentScore;
-      const yearStartScore = yearStartSession ? Math.round(yearStartSession.averageScore || currentScore) : currentScore;
-      const startingScore = firstSession ? Math.round(firstSession.averageScore || currentScore) : currentScore;
+      const displayArea = areaMapping[area.area_name] || {
+        id: area.area_name,
+        name: area.area_name,
+        color: '#6b7280',
+        icon: '🧠'
+      };
 
       return {
-        ...area,
-        sinceStarted: getImprovementStatus(currentScore, startingScore),
-        sinceLastWeek: getImprovementStatus(currentScore, lastWeekScore),
-        sinceLastMonth: getImprovementStatus(currentScore, lastMonthScore),
-        yearToDate: getImprovementStatus(currentScore, yearStartScore),
+        ...displayArea,
+        sinceStarted: area.improvement_status === 'improving' ? 'improved' :
+                     area.improvement_status === 'declining' ? 'regressed' : 'same',
+        sinceLastWeek: area.improvement_status === 'improving' ? 'improved' :
+                      area.improvement_status === 'declining' ? 'regressed' : 'same',
+        sinceLastMonth: area.improvement_status === 'improving' ? 'improved' :
+                       area.improvement_status === 'declining' ? 'regressed' : 'same',
+        yearToDate: area.improvement_status === 'improving' ? 'improved' :
+                   area.improvement_status === 'declining' ? 'regressed' : 'same',
         currentScore
       };
     });
@@ -466,29 +269,26 @@ const Progress = () => {
     }
   };
 
-  // 4. SIMPLIFIED RECOMMENDATIONS - Two categories only
+  // 4. SIMPLIFIED RECOMMENDATIONS - Use backend recommendations
   const getRecommendations = () => {
-    const focusAnalytics = getFocusAreaAnalytics();
-    const todaysPerf = getTodaysPerformance();
-    
+    if (!progressData) {
+      return { performanceAlerts: [], areasOfExcellence: [] };
+    }
+
     const performanceAlerts = [];
     const areasOfExcellence = [];
 
     // PERFORMANCE ALERTS - Areas needing attention
-    const regressingAreas = focusAnalytics.filter(area => 
-      area.sinceLastWeek === 'regressed' || area.sinceLastMonth === 'regressed'
-    );
-    
-    if (regressingAreas.length > 0) {
+    if (progressData.improvement_areas && progressData.improvement_areas.length > 0) {
       performanceAlerts.push({
-        title: 'Declining Performance Detected',
-        description: `${regressingAreas.map(a => a.name).join(', ')} showing recent decline`,
+        title: 'Areas Needing Attention',
+        description: `Focus on improving: ${progressData.improvement_areas.join(', ')}`,
         action: 'Consider increasing practice frequency in these areas or adjusting exercise difficulty to rebuild confidence'
       });
     }
 
     // Check consistency issues
-    if ((userData?.user.streak || 0) < 3) {
+    if (progressData.current_streak < 3) {
       performanceAlerts.push({
         title: 'Consistency Gap',
         description: 'Training sessions have been irregular recently',
@@ -496,8 +296,8 @@ const Progress = () => {
       });
     }
 
-    // Check if exercises are too challenging
-    if (todaysPerf.hasData && todaysPerf.averageScore < 60) {
+    // Check if overall performance is low
+    if (progressData.overall_average_score < 0.6) {
       performanceAlerts.push({
         title: 'Challenge Level May Be Too High',
         description: 'Recent scores suggest exercises may be too difficult',
@@ -506,34 +306,29 @@ const Progress = () => {
     }
 
     // AREAS OF EXCELLENCE - Celebrate successes
-    const improvingAreas = focusAnalytics.filter(area => 
-      area.sinceStarted === 'improved' || area.sinceLastMonth === 'improved'
-    );
-    
-    if (improvingAreas.length > 0) {
+    if (progressData.strengths && progressData.strengths.length > 0) {
       areasOfExcellence.push({
         title: 'Outstanding Progress!',
-        description: `Excellent improvement in ${improvingAreas.map(a => a.name).join(', ')}`,
+        description: `Excellent performance in: ${progressData.strengths.join(', ')}`,
         action: 'Keep up the excellent work in these areas - your dedication is paying off'
       });
     }
 
-    // Long-term progress recognition
-    const longTermImprovers = focusAnalytics.filter(area => area.sinceStarted === 'improved');
-    if (longTermImprovers.length >= 3) {
+    // Consistency achievement
+    if (progressData.current_streak >= 7) {
       areasOfExcellence.push({
-        title: 'Remarkable Long-term Growth',
-        description: 'Consistent improvement across multiple cognitive areas since starting',
-        action: 'Your dedication is truly impressive - continue with your current routine for sustained cognitive wellness'
+        title: 'Excellent Training Consistency',
+        description: `${progressData.current_streak} day training streak demonstrates strong commitment`,
+        action: 'Your consistent practice is the foundation of cognitive improvement - maintain this excellent habit'
       });
     }
 
-    // Consistency achievement
-    if ((userData?.user.streak || 0) >= 7) {
+    // Overall performance recognition
+    if (progressData.overall_average_score >= 0.8) {
       areasOfExcellence.push({
-        title: 'Excellent Training Consistency',
-        description: `${userData.user.streak} day training streak demonstrates strong commitment`,
-        action: 'Your consistent practice is the foundation of cognitive improvement - maintain this excellent habit'
+        title: 'Exceptional Performance',
+        description: `Outstanding ${Math.round(progressData.overall_average_score * 100)}% average score across all exercises`,
+        action: 'Your cognitive training performance is truly impressive - continue with your current routine'
       });
     }
 
@@ -590,7 +385,7 @@ const Progress = () => {
               Sign Out
             </Button>
             <div className="flex items-center justify-center px-3 py-1 bg-gradient-to-r from-blue-600 to-teal-600 text-white text-sm font-medium rounded-full">
-              Hi, {userData.user.name}
+              Hi, {user.name}
             </div>
           </div>
         </div>

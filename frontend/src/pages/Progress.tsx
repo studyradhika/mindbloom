@@ -136,8 +136,8 @@ const Progress = () => {
       
       progressData.focus_areas_analytics.forEach(area => {
         areaPerformance[area.area_name] = {
-          scores: [area.current_score * 100], // Convert to percentage
-          average: Math.round(area.current_score * 100),
+          scores: [area.current_score], // Backend already provides percentage
+          average: Math.round(area.current_score),
           count: 1
         };
       });
@@ -147,7 +147,7 @@ const Progress = () => {
         areas: areaPerformance,
         totalExercises: progressData.focus_areas_analytics.length,
         completedExercises: progressData.focus_areas_analytics.length,
-        averageScore: Math.round(progressData.overall_average_score * 100),
+        averageScore: Math.round(progressData.overall_average_score),
         duration: Math.round(progressData.total_time_spent / 60), // Convert to minutes
         mood: 'focused' // Default mood
       };
@@ -172,7 +172,7 @@ const Progress = () => {
     // Use backend performance trend data
     progressData.recent_performance_trend.forEach(trend => {
       const trendDate = new Date(trend.date);
-      const score = Math.round(trend.score * 100); // Convert to percentage
+      const score = Math.round(trend.score); // Backend already provides percentage
       
       dataPoints.push({
         date: trendDate.toLocaleDateString('en-US', {
@@ -200,8 +200,8 @@ const Progress = () => {
     }
 
     return progressData.focus_areas_analytics.map(area => {
-      const currentScore = Math.round(area.current_score * 100);
-      const averageScore = Math.round(area.average_score * 100);
+      const currentScore = Math.round(area.current_score);
+      const averageScore = Math.round(area.average_score);
       
       // Map backend area names to frontend display
       const areaMapping: { [key: string]: { id: string; name: string; color: string; icon: string } } = {
@@ -327,7 +327,7 @@ const Progress = () => {
     if (progressData.overall_average_score >= 0.8) {
       areasOfExcellence.push({
         title: 'Exceptional Performance',
-        description: `Outstanding ${Math.round(progressData.overall_average_score * 100)}% average score across all exercises`,
+        description: `Outstanding ${Math.round(progressData.overall_average_score)}% average score across all exercises`,
         action: 'Your cognitive training performance is truly impressive - continue with your current routine'
       });
     }

@@ -22,8 +22,10 @@ const SessionContinuePrompt = ({
 }: SessionContinuePromptProps) => {
   const getAreaDisplayName = (areaId: string): string => {
     const areaNames: { [key: string]: string } = {
-      memory: 'Memory',
+      general: 'General Cognitive Wellness',
       attention: 'Attention',
+      perception: 'Perception',
+      memory: 'Memory',
       language: 'Language',
       executive: 'Executive Function',
       spatial: 'Spatial Reasoning',

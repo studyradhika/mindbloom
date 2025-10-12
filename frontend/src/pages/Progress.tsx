@@ -219,7 +219,7 @@ const Progress = () => {
         date: dateLabel,
         period: periodLabel,
         score,
-        activities: 3 // Default activities per session
+        activities: trend.activities || 0 // Use actual activity count from backend
       });
     });
 

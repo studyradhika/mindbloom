@@ -101,6 +101,7 @@ export const trainingAPI = {
 export interface PerformanceTrend {
   date: string;
   score: number;
+  activities: number;
 }
 
 export interface FocusAreaAnalytics {

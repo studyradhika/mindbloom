@@ -6,6 +6,7 @@ class PerformanceTrend(BaseModel):
     """Model for a single data point in a time-series chart"""
     date: datetime
     score: float
+    activities: int = 0  # Number of activities/exercises completed
 
 class FocusAreaAnalytics(BaseModel):
     """Model to hold analytics for a specific cognitive area"""

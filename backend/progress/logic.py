@@ -157,28 +157,32 @@ def _calculate_performance_trend(sessions: List[Dict[str, Any]], days: int = 30)
     
     cutoff_date = datetime.utcnow() - timedelta(days=days)
     recent_sessions = [
-        session for session in sessions 
+        session for session in sessions
         if session.get("createdAt") and session["createdAt"] >= cutoff_date
     ]
     
     if not recent_sessions:
         return []
     
-    # Group sessions by date and calculate daily averages
-    daily_scores = defaultdict(list)
+    # Group sessions by date and calculate daily averages and activity counts
+    daily_data = defaultdict(lambda: {"scores": [], "activities": 0})
     
     for session in recent_sessions:
         session_date = session["createdAt"].date()
         session_score = session.get("averageScore", 0.0)
-        daily_scores[session_date].append(session_score)
+        exercise_count = len(session.get("exerciseResults", []))
+        
+        daily_data[session_date]["scores"].append(session_score)
+        daily_data[session_date]["activities"] += exercise_count
     
     # Calculate daily averages and create trend data
     trend_data = []
-    for date, scores in sorted(daily_scores.items()):
-        daily_average = statistics.mean(scores)
+    for date, data in sorted(daily_data.items()):
+        daily_average = statistics.mean(data["scores"]) if data["scores"] else 0.0
         trend_data.append(PerformanceTrend(
             date=datetime.combine(date, datetime.min.time()),
-            score=daily_average
+            score=daily_average,
+            activities=data["activities"]
         ))
     
     return trend_data

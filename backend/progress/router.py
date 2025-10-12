@@ -71,17 +71,23 @@ async def get_todays_performance(
             if not mood and session.get("mood"):
                 mood = session["mood"]
             
-            # Process exercise results
+            # Get the focus areas that were selected for this session
+            session_focus_areas = session.get("focusAreas", ["general"])
             exercise_results = session.get("exerciseResults", [])
             session_score = session.get("averageScore", 0)
             
-            for result in exercise_results:
+            # Distribute exercises across the selected focus areas
+            exercises_per_area = len(exercise_results) // len(session_focus_areas) if session_focus_areas else len(exercise_results)
+            
+            for i, result in enumerate(exercise_results):
                 total_exercises += 1
                 total_time += result.get("timeSpent", 0)
                 
-                # Determine focus area for this exercise
-                exercise_type = result.get("exerciseType", "unknown")
-                focus_area = _map_exercise_to_focus_area(exercise_type)
+                # Assign exercise to focus area based on session's selected focus areas
+                # Distribute exercises evenly across selected focus areas
+                focus_area_index = i // max(1, exercises_per_area) if exercises_per_area > 0 else 0
+                focus_area_index = min(focus_area_index, len(session_focus_areas) - 1)
+                focus_area = session_focus_areas[focus_area_index]
                 
                 if focus_area not in focus_area_exercises:
                     focus_area_exercises[focus_area] = {
@@ -91,7 +97,7 @@ async def get_todays_performance(
                     }
                 
                 focus_area_exercises[focus_area]["exercises"].append({
-                    "type": exercise_type,
+                    "type": result.get("exerciseType", "unknown"),
                     "score": result.get("score", 0),
                     "timeSpent": result.get("timeSpent", 0)
                 })

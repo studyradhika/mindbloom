@@ -439,7 +439,7 @@ const Progress = () => {
               {todaysPerformance.hasData ? (
                 <div className="space-y-6">
                   {/* Overall Stats */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="text-center p-4 bg-white/80 backdrop-blur-sm rounded-lg border border-blue-200">
                       <div className="text-3xl font-bold text-blue-600">{todaysPerformance.averageScore}%</div>
                       <div className="text-sm text-blue-700 font-medium">Average Score</div>
@@ -451,10 +451,6 @@ const Progress = () => {
                     <div className="text-center p-4 bg-white/80 backdrop-blur-sm rounded-lg border border-teal-200">
                       <div className="text-3xl font-bold text-teal-600">{todaysPerformance.duration}min</div>
                       <div className="text-sm text-teal-700 font-medium">Duration</div>
-                    </div>
-                    <div className="text-center p-4 bg-white/80 backdrop-blur-sm rounded-lg border border-cyan-200">
-                      <div className="text-3xl font-bold text-cyan-600 capitalize">{todaysPerformance.mood}</div>
-                      <div className="text-sm text-cyan-700 font-medium">Mood</div>
                     </div>
                   </div>
 

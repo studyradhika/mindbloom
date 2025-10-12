@@ -243,7 +243,7 @@ const SessionComplete = () => {
                       {Math.round(completionData?.averageScore || averageScore || 0)}%
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600 font-medium">Today's Score</p>
+                  <p className="text-sm text-gray-600 font-medium">Average Score</p>
                 </div>
 
                 <div className="text-center px-3">

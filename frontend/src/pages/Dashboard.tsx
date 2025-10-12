@@ -74,6 +74,15 @@ const Dashboard = () => {
         }
       } catch (error) {
         console.error('Error initializing dashboard:', error);
+        
+        // Handle authentication errors specifically
+        if (error instanceof Error && error.message === 'Not authenticated') {
+          console.log('📊 Dashboard: Not authenticated - redirecting to signin');
+          navigate('/signin');
+          return;
+        }
+        
+        // Handle other errors
         handleAuthError(error);
       } finally {
         setLoading(false);

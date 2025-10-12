@@ -13,6 +13,15 @@ const getAuthHeaders = (): HeadersInit => {
 // Helper function to handle API responses
 const handleResponse = async (response: Response) => {
   if (!response.ok) {
+    // Handle 401 Unauthorized specifically
+    if (response.status === 401) {
+      console.log('🔐 API: 401 Unauthorized - clearing token and redirecting to signin');
+      localStorage.removeItem('mindbloom-token');
+      localStorage.removeItem('mindbloom-user');
+      // Don't redirect immediately, let the calling component handle it
+      throw new Error('Not authenticated');
+    }
+    
     const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
     throw new Error(errorData.detail || `HTTP ${response.status}`);
   }

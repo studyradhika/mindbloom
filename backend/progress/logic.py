@@ -88,19 +88,89 @@ async def get_progress_analytics(user_id: str, db: AsyncIOMotorDatabase) -> Prog
 async def _calculate_focus_area_analytics(sessions: List[Dict[str, Any]], db: AsyncIOMotorDatabase) -> List[FocusAreaAnalytics]:
     """Calculate analytics for each focus area"""
     
-    # Group sessions by focus areas
+    # Exercise to focus area mapping
+    exercise_to_area_map = {
+        # Memory exercises
+        'memory_sequence': 'memory',
+        'word_pairs': 'memory',
+        'visual_recall': 'memory',
+        'working_memory': 'memory',
+        # Attention exercises
+        'divided_attention': 'attention',
+        'sustained_attention': 'attention',
+        'selective_attention': 'attention',
+        # Perception exercises
+        'focused_attention': 'perception',
+        'pattern_recognition': 'perception',
+        'visual_perception': 'perception',
+        # Language exercises
+        'word_finding': 'language',
+        'sentence_completion': 'language',
+        'verbal_fluency': 'language',
+        'reading_comprehension': 'language',
+        # Executive exercises
+        'planning_task': 'executive',
+        'cognitive_flexibility': 'executive',
+        'inhibition_control': 'executive',
+        'task_switching': 'executive',
+        # Processing Speed exercises
+        'speed_processing': 'processing',
+        'rapid_naming': 'processing',
+        'symbol_coding': 'processing',
+        # Spatial Reasoning exercises
+        'spatial_rotation': 'spatial',
+        'mental_rotation': 'spatial',
+        'spatial_navigation': 'spatial',
+        'block_design': 'spatial',
+        # Creativity exercises
+        'creative_thinking': 'creativity',
+        'divergent_thinking': 'creativity',
+        'idea_generation': 'creativity',
+        'creative_problem_solving': 'creativity',
+        # General Cognitive exercises
+        'general_cognitive': 'general',
+        'cognitive_assessment': 'general',
+        'brain_training': 'general'
+    }
+    
+    # Group exercise results by focus areas
     focus_area_data = defaultdict(list)
     
     for session in sessions:
-        focus_areas = session.get("focusAreas", [])
-        session_score = session.get("averageScore", 0.0)
         session_date = session.get("createdAt")
+        exercise_results = session.get("exerciseResults", [])
         
-        for area in focus_areas:
-            focus_area_data[area].append({
-                "score": session_score,
-                "date": session_date
-            })
+        if not exercise_results:
+            # Fallback to session average if no individual results
+            focus_areas = session.get("focusAreas", [])
+            session_score = session.get("averageScore", 0.0)
+            for area in focus_areas:
+                focus_area_data[area].append({
+                    "score": session_score,
+                    "date": session_date
+                })
+            continue
+        
+        # Calculate scores per focus area based on exercises
+        area_scores = defaultdict(list)
+        
+        for result in exercise_results:
+            exercise_id = result.get("exerciseId", "")
+            exercise_score = result.get("score", 0.0)
+            
+            # Map exercise to focus area
+            focus_area = exercise_to_area_map.get(exercise_id)
+            if focus_area:
+                area_scores[focus_area].append(exercise_score)
+        
+        # Calculate average score for each focus area in this session
+        for area, scores in area_scores.items():
+            if scores:
+                area_average = sum(scores) / len(scores)
+                focus_area_data[area].append({
+                    "score": area_average,
+                    "date": session_date
+                })
     
     analytics = []
     

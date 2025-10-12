@@ -20,6 +20,7 @@ import SignIn from "./pages/SignIn";
 import UserSettings from "./pages/UserSettings";
 import ClearUserData from "./pages/ClearUserData"; // Import the new ClearUserData component
 import Auth from "./pages/Auth"; // Import the new Auth component
+import Benefits from "./pages/Benefits"; // Import the new Benefits component
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,6 +47,7 @@ const App = () => (
           <Route path="/brain-tips" element={<BrainTips />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/auth" element={<Auth />} /> {/* Add the new Auth route */}
+          <Route path="/benefits" element={<Benefits />} /> {/* Add the new Benefits route */}
           <Route path="/settings" element={<UserSettings />} />
           <Route path="/clear-data" element={<ClearUserData />} /> {/* Add the new ClearUserData route */}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

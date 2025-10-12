@@ -89,7 +89,7 @@ const LandingPage = () => {
               <div className="hidden md:flex items-center space-x-8">
                 <button onClick={() => scrollToSection('about')} className="text-gray-600 hover:text-blue-600 transition-colors">About</button>
                 <button onClick={() => scrollToSection('features')} className="text-gray-600 hover:text-blue-600 transition-colors">Features</button>
-                <button onClick={() => scrollToSection('benefits')} className="text-gray-600 hover:text-blue-600 transition-colors">Benefits</button>
+                <button onClick={() => navigate('/benefits')} className="text-gray-600 hover:text-blue-600 transition-colors">Benefits</button>
                 <button onClick={() => scrollToSection('testimonials')} className="text-gray-600 hover:text-blue-600 transition-colors">Testimonials</button>
               </div>
             </div>

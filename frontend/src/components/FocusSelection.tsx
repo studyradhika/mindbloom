@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { showSuccess, showError } from "@/utils/toast";
 import ProfileSettingsButton from "@/components/ProfileSettingsButton";
 import { TrainingSessionManager } from "@/lib/trainingSessionManager";
+import { progressAPI, handleAuthError } from "@/lib/api";
 
 interface FocusSelectionProps {
   userName: string;
@@ -17,6 +18,9 @@ interface FocusSelectionProps {
 const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
   const navigate = useNavigate();
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
+  const [improvementAreas, setImprovementAreas] = useState<string[]>([]);
+  const [strengths, setStrengths] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const handleSignOut = () => {
     localStorage.removeItem('mindbloom-user');
@@ -136,8 +140,37 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
     navigate('/dashboard');
   };
 
-  // Get all pending areas from all sessions for this user
-  const getAllPendingAreas = (): string[] => {
+  // Fetch progress analytics from backend to get actual improvement areas
+  useEffect(() => {
+    const fetchProgressData = async () => {
+      try {
+        setLoading(true);
+        const progressSummary = await progressAPI.getProgressSummary();
+        
+        console.log('🎯 FocusSelection: Received progress summary:', progressSummary);
+        
+        // Use backend categorization instead of local storage
+        setImprovementAreas(progressSummary.improvement_areas || []);
+        setStrengths(progressSummary.strengths || []);
+        
+        console.log('🎯 FocusSelection: Improvement areas:', progressSummary.improvement_areas);
+        console.log('🎯 FocusSelection: Strengths:', progressSummary.strengths);
+      } catch (error) {
+        console.error('🎯 FocusSelection: Error fetching progress data:', error);
+        handleAuthError(error);
+        // Fallback to local storage system if backend fails
+        setImprovementAreas(getAllPendingAreasFromLocalStorage());
+        setStrengths([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProgressData();
+  }, []);
+
+  // Fallback function for local storage (kept for backward compatibility)
+  const getAllPendingAreasFromLocalStorage = (): string[] => {
     const pendingSessions: { [date: string]: string[] } = TrainingSessionManager.getAllPendingAreasForUser();
     const allPendingAreas: string[] = [];
     
@@ -173,18 +206,14 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
         moodRecommendations = ['general', 'memory', 'attention'];
     }
 
-    // Get all pending areas from all sessions for this user
-    const allPendingAreas = getAllPendingAreas();
-
-    // Combine pending areas (priority) with mood-based recommendations
-    // Remove duplicates and prioritize pending areas
-    const combinedRecommendations = [...new Set([...allPendingAreas, ...moodRecommendations])];
+    // Combine improvement areas (priority) with mood-based recommendations
+    // Remove duplicates and prioritize improvement areas
+    const combinedRecommendations = [...new Set([...improvementAreas, ...moodRecommendations])];
     
     return combinedRecommendations;
   };
 
   const recommendations = getMoodBasedRecommendations();
-  const pendingAreas = getAllPendingAreas();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-teal-50 dark:from-gray-900 dark:to-gray-800 py-4">
@@ -233,17 +262,17 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
 
           {/* Recommendations section */}
           <div className="mb-4 space-y-3">
-            {/* Pending areas from previous session */}
-            {pendingAreas.length > 0 && (
-              <Card className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 border-indigo-200">
+            {/* Areas needing improvement based on backend analytics */}
+            {!loading && improvementAreas.length > 0 && (
+              <Card className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border-orange-200">
                 <CardContent className="pt-4">
                   <div className="flex items-center flex-wrap gap-2">
                     <div className="flex items-center">
-                      <Target className="w-4 h-4 mr-2 text-indigo-600" />
-                      <span className="text-base font-medium text-indigo-800">Continue from your last session:</span>
+                      <Target className="w-4 h-4 mr-2 text-orange-600" />
+                      <span className="text-base font-medium text-orange-800">Areas Yet to be Completed (Need Practice):</span>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {pendingAreas.map(areaId => {
+                      {improvementAreas.map(areaId => {
                         const area = focusAreas.find(a => a.id === areaId);
                         return area ? (
                           <Button
@@ -251,7 +280,37 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
                             variant="outline"
                             size="sm"
                             onClick={() => toggleArea(areaId)}
-                            className={`border-indigo-200 text-indigo-700 hover:bg-indigo-100 text-sm py-1 px-2 h-auto ${selectedAreas.includes(areaId) ? 'bg-indigo-100 border-indigo-300' : ''}`}
+                            className={`border-orange-200 text-orange-700 hover:bg-orange-100 text-sm py-1 px-2 h-auto ${selectedAreas.includes(areaId) ? 'bg-orange-100 border-orange-300' : ''}`}
+                          >
+                            {area.label}
+                          </Button>
+                        ) : null;
+                      })}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Areas of strength based on backend analytics */}
+            {!loading && strengths.length > 0 && (
+              <Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200">
+                <CardContent className="pt-4">
+                  <div className="flex items-center flex-wrap gap-2">
+                    <div className="flex items-center">
+                      <Target className="w-4 h-4 mr-2 text-green-600" />
+                      <span className="text-base font-medium text-green-800">Completed Areas (Your Strengths):</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {strengths.map(areaId => {
+                        const area = focusAreas.find(a => a.id === areaId);
+                        return area ? (
+                          <Button
+                            key={areaId}
+                            variant="outline"
+                            size="sm"
+                            onClick={() => toggleArea(areaId)}
+                            className={`border-green-200 text-green-700 hover:bg-green-100 text-sm py-1 px-2 h-auto ${selectedAreas.includes(areaId) ? 'bg-green-100 border-green-300' : ''}`}
                           >
                             {area.label}
                           </Button>
@@ -272,7 +331,7 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
                     <span className="text-base font-medium">Based on your mood and profile:</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {recommendations.filter(areaId => !pendingAreas.includes(areaId)).map(areaId => {
+                    {recommendations.filter(areaId => !improvementAreas.includes(areaId) && !strengths.includes(areaId)).map(areaId => {
                       const area = focusAreas.find(a => a.id === areaId);
                       return area ? (
                         <Button
@@ -297,7 +356,8 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
             {focusAreas.map((area) => {
               const IconComponent = area.icon;
               const isSelected = selectedAreas.includes(area.id);
-              const isPending = pendingAreas.includes(area.id);
+              const isImprovementArea = improvementAreas.includes(area.id);
+              const isStrength = strengths.includes(area.id);
               const isRecommended = recommendations.includes(area.id);
               
               return (
@@ -306,11 +366,13 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
                   className={`cursor-pointer transition-all duration-200 border-2 hover:shadow-md ${
                     isSelected
                       ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                      : isPending
-                        ? 'border-indigo-300 bg-indigo-50 dark:bg-indigo-900/20 hover:border-indigo-400'
-                        : isRecommended
-                          ? 'border-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:border-blue-400'
-                          : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/10'
+                      : isImprovementArea
+                        ? 'border-orange-300 bg-orange-50 dark:bg-orange-900/20 hover:border-orange-400'
+                        : isStrength
+                          ? 'border-green-300 bg-green-50 dark:bg-green-900/20 hover:border-green-400'
+                          : isRecommended
+                            ? 'border-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:border-blue-400'
+                            : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/10'
                   }`}
                   onClick={() => toggleArea(area.id)}
                 >
@@ -334,12 +396,17 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
                       {area.description}
                     </CardDescription>
                     <div className="flex flex-wrap gap-1 mt-2">
-                      {isPending && (
-                        <Badge variant="outline" className="text-xs bg-indigo-100 text-indigo-800 border-indigo-300">
-                          Continue from last session
+                      {isImprovementArea && (
+                        <Badge variant="outline" className="text-xs bg-orange-100 text-orange-800 border-orange-300">
+                          Needs Practice
                         </Badge>
                       )}
-                      {isRecommended && (
+                      {isStrength && (
+                        <Badge variant="outline" className="text-xs bg-green-100 text-green-800 border-green-300">
+                          Your Strength
+                        </Badge>
+                      )}
+                      {isRecommended && !isImprovementArea && !isStrength && (
                         <Badge variant="outline" className="text-xs bg-blue-100 text-blue-800 border-blue-300">
                           Recommended
                         </Badge>

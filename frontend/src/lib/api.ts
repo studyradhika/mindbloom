@@ -138,7 +138,17 @@ export const progressAPI = {
   },
 
   // Get today's performance analytics (only focus areas exercised today)
-  async getTodayPerformance(): Promise<FocusAreaAnalytics[]> {
+  async getTodayPerformance(): Promise<{
+    hasData: boolean;
+    areas?: { [key: string]: { scores: number[]; average: number; count: number } };
+    totalExercises?: number;
+    completedExercises?: number;
+    averageScore?: number;
+    duration?: number;
+    mood?: string;
+    sessionsCount?: number;
+    message?: string;
+  }> {
     const response = await fetch(`${API_BASE_URL}/progress/today`, {
       method: 'GET',
       headers: getAuthHeaders()

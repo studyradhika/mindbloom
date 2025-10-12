@@ -14,7 +14,17 @@ const Progress = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [progressData, setProgressData] = useState<ProgressSummary | null>(null);
-  const [todayData, setTodayData] = useState<FocusAreaAnalytics[] | null>(null);
+  const [todayData, setTodayData] = useState<{
+    hasData: boolean;
+    areas?: { [key: string]: { scores: number[]; average: number; count: number } };
+    totalExercises?: number;
+    completedExercises?: number;
+    averageScore?: number;
+    duration?: number;
+    mood?: string;
+    sessionsCount?: number;
+    message?: string;
+  } | null>(null);
   const [selectedTimeView, setSelectedTimeView] = useState<'day' | 'week' | 'month' | 'year'>('week');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -124,41 +134,20 @@ const Progress = () => {
 
   // 1. TODAY'S PERFORMANCE - Use backend today's performance endpoint for actual activities
   const getTodaysPerformance = () => {
-    if (!todayData || todayData.length === 0) {
+    // Check if we have today's data and if it has actual data
+    if (!todayData || !todayData.hasData) {
       return { hasData: false };
     }
 
-    const areaPerformance: { [key: string]: { scores: number[], average: number, count: number } } = {};
-    let totalExercises = 0;
-    let totalScore = 0;
-    let totalTime = 0;
-
-    // Process today's actual focus area data from backend
-    todayData.forEach(area => {
-      const exerciseCount = area.sessions_count;
-      const averageScore = Math.round(area.current_score);
-      
-      areaPerformance[area.area_name] = {
-        scores: Array(exerciseCount).fill(averageScore),
-        average: averageScore,
-        count: exerciseCount
-      };
-      
-      totalExercises += exerciseCount;
-      totalScore += averageScore * exerciseCount;
-      totalTime += area.trend_data?.length || 0; // Approximate time based on data points
-    });
-
-    const averageScore = totalExercises > 0 ? Math.round(totalScore / totalExercises) : 0;
-
+    // Return the backend data directly since it's already in the correct format
     return {
       hasData: true,
-      areas: areaPerformance,
-      totalExercises,
-      completedExercises: totalExercises,
-      averageScore,
-      duration: Math.max(totalTime * 5, 15), // Estimate 5 minutes per exercise, minimum 15 minutes
-      mood: 'focused' // Default mood
+      areas: todayData.areas || {},
+      totalExercises: todayData.totalExercises || 0,
+      completedExercises: todayData.completedExercises || 0,
+      averageScore: todayData.averageScore || 0,
+      duration: todayData.duration || 0,
+      mood: todayData.mood || 'focused'
     };
   };
 

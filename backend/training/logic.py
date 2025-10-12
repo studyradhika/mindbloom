@@ -208,6 +208,109 @@ def select_exercises(focus_areas: List[str], mood: str) -> List[dict]:
                 "estimatedTime": 200,
                 "instructions": "Switch between different thinking approaches"
             }
+        ],
+        "spatial": [
+            {
+                "id": "3d_rotation",
+                "name": "3D Rotation Puzzle",
+                "description": "Rotate 3D objects to match target orientations",
+                "type": "spatial",
+                "difficulty": "medium",
+                "estimatedTime": 240,
+                "instructions": "Rotate the 3D object to match the target shape shown"
+            },
+            {
+                "id": "mental_folding",
+                "name": "Mental Paper Folding",
+                "description": "Visualize paper folding and predict the result",
+                "type": "spatial",
+                "difficulty": "hard",
+                "estimatedTime": 300,
+                "instructions": "Imagine folding the paper as shown and predict where holes will appear"
+            },
+            {
+                "id": "spatial_navigation",
+                "name": "Spatial Navigation",
+                "description": "Navigate through virtual mazes using spatial memory",
+                "type": "spatial",
+                "difficulty": "medium",
+                "estimatedTime": 360,
+                "instructions": "Find your way through the maze using spatial landmarks"
+            },
+            {
+                "id": "block_design",
+                "name": "Block Design Challenge",
+                "description": "Arrange colored blocks to match target patterns",
+                "type": "spatial",
+                "difficulty": "medium",
+                "estimatedTime": 240,
+                "instructions": "Arrange the blocks to recreate the target design"
+            },
+            {
+                "id": "perspective_taking",
+                "name": "Perspective Taking",
+                "description": "Determine how objects appear from different viewpoints",
+                "type": "spatial",
+                "difficulty": "hard",
+                "estimatedTime": 180,
+                "instructions": "Select how the scene would look from the indicated viewpoint"
+            }
+        ],
+        "creativity": [
+            {
+                "id": "alternative_uses",
+                "name": "Alternative Uses Challenge",
+                "description": "Think of creative uses for everyday objects",
+                "type": "creativity",
+                "difficulty": "easy",
+                "estimatedTime": 240,
+                "instructions": "List as many creative uses as possible for the given object"
+            },
+            {
+                "id": "story_building",
+                "name": "Collaborative Story Building",
+                "description": "Create imaginative stories from random prompts",
+                "type": "creativity",
+                "difficulty": "medium",
+                "estimatedTime": 300,
+                "instructions": "Build a creative story using the provided elements and prompts"
+            },
+            {
+                "id": "visual_metaphors",
+                "name": "Visual Metaphor Creation",
+                "description": "Create visual representations of abstract concepts",
+                "type": "creativity",
+                "difficulty": "medium",
+                "estimatedTime": 360,
+                "instructions": "Design a visual metaphor that represents the given abstract concept"
+            },
+            {
+                "id": "pattern_breaking",
+                "name": "Pattern Breaking Exercise",
+                "description": "Break conventional thinking patterns with creative solutions",
+                "type": "creativity",
+                "difficulty": "hard",
+                "estimatedTime": 240,
+                "instructions": "Find unconventional solutions that break typical thinking patterns"
+            },
+            {
+                "id": "musical_creativity",
+                "name": "Musical Pattern Creation",
+                "description": "Create rhythmic and melodic patterns",
+                "type": "creativity",
+                "difficulty": "medium",
+                "estimatedTime": 300,
+                "instructions": "Compose simple musical patterns using the provided tools"
+            },
+            {
+                "id": "perspective_shift",
+                "name": "Perspective Shift Challenge",
+                "description": "View problems from multiple creative perspectives",
+                "type": "creativity",
+                "difficulty": "medium",
+                "estimatedTime": 180,
+                "instructions": "Approach the challenge from at least three different creative perspectives"
+            }
         ]
     }
     

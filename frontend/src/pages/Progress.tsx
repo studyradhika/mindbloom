@@ -8,12 +8,13 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tool
 import { theme, getAreaColor, getStatusColor } from "@/lib/theme";
 import { getPreviousPage } from "@/lib/navigation";
 import ProfileSettingsButton from "@/components/ProfileSettingsButton";
-import { progressAPI, userAPI, ProgressSummary, User, handleAuthError } from '@/lib/api';
+import { progressAPI, userAPI, ProgressSummary, User, FocusAreaAnalytics, handleAuthError } from '@/lib/api';
 
 const Progress = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [progressData, setProgressData] = useState<ProgressSummary | null>(null);
+  const [todayData, setTodayData] = useState<FocusAreaAnalytics[] | null>(null);
   const [selectedTimeView, setSelectedTimeView] = useState<'day' | 'week' | 'month' | 'year'>('week');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,17 +25,20 @@ const Progress = () => {
         setLoading(true);
         setError(null);
         
-        // Fetch both user data and progress analytics from backend
-        const [userData, progressSummary] = await Promise.all([
+        // Fetch user data, progress analytics, and today's performance from backend
+        const [userData, progressSummary, todayPerformance] = await Promise.all([
           userAPI.getCurrentUser(),
-          progressAPI.getProgressSummary()
+          progressAPI.getProgressSummary(),
+          progressAPI.getTodayPerformance()
         ]);
         
         console.log('📊 Progress: Received user data:', userData);
         console.log('📊 Progress: Received progress summary:', progressSummary);
+        console.log('📊 Progress: Received today performance:', todayPerformance);
         
         setUser(userData);
         setProgressData(progressSummary);
+        setTodayData(todayPerformance);
       } catch (err) {
         console.error('Error fetching progress data:', err);
         setError('Failed to load progress data');
@@ -118,44 +122,44 @@ const Progress = () => {
     }
   };
 
-  // 1. TODAY'S PERFORMANCE - Use backend progress data
+  // 1. TODAY'S PERFORMANCE - Use backend today's performance endpoint for actual activities
   const getTodaysPerformance = () => {
-    if (!progressData || progressData.total_sessions === 0) {
+    if (!todayData || todayData.length === 0) {
       return { hasData: false };
     }
 
-    // Check if there are recent performance trends (today's data)
-    const recentTrends = progressData.recent_performance_trend || [];
-    const today = new Date();
-    const todayTrend = recentTrends.find(trend => {
-      const trendDate = new Date(trend.date);
-      return trendDate.toDateString() === today.toDateString();
+    const areaPerformance: { [key: string]: { scores: number[], average: number, count: number } } = {};
+    let totalExercises = 0;
+    let totalScore = 0;
+    let totalTime = 0;
+
+    // Process today's actual focus area data from backend
+    todayData.forEach(area => {
+      const exerciseCount = area.sessions_count;
+      const averageScore = Math.round(area.current_score);
+      
+      areaPerformance[area.area_name] = {
+        scores: Array(exerciseCount).fill(averageScore),
+        average: averageScore,
+        count: exerciseCount
+      };
+      
+      totalExercises += exerciseCount;
+      totalScore += averageScore * exerciseCount;
+      totalTime += area.trend_data?.length || 0; // Approximate time based on data points
     });
 
-    if (todayTrend) {
-      // Create area performance from focus areas analytics
-      const areaPerformance: { [key: string]: { scores: number[], average: number, count: number } } = {};
-      
-      progressData.focus_areas_analytics.forEach(area => {
-        areaPerformance[area.area_name] = {
-          scores: [area.current_score], // Backend already provides percentage
-          average: Math.round(area.current_score),
-          count: 1
-        };
-      });
+    const averageScore = totalExercises > 0 ? Math.round(totalScore / totalExercises) : 0;
 
-      return {
-        hasData: true,
-        areas: areaPerformance,
-        totalExercises: progressData.focus_areas_analytics.length,
-        completedExercises: progressData.focus_areas_analytics.length,
-        averageScore: Math.round(progressData.overall_average_score),
-        duration: Math.round(progressData.total_time_spent / 60), // Convert to minutes
-        mood: 'focused' // Default mood
-      };
-    }
-
-    return { hasData: false };
+    return {
+      hasData: true,
+      areas: areaPerformance,
+      totalExercises,
+      completedExercises: totalExercises,
+      averageScore,
+      duration: Math.max(totalTime * 5, 15), // Estimate 5 minutes per exercise, minimum 15 minutes
+      mood: 'focused' // Default mood
+    };
   };
 
   // 2. HISTORICAL PERFORMANCE DATA - Use backend progress trends with proper time view formatting

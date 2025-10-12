@@ -126,6 +126,15 @@ export const progressAPI = {
       headers: getAuthHeaders()
     });
     return handleResponse(response);
+  },
+
+  // Get today's performance analytics (only focus areas exercised today)
+  async getTodayPerformance(): Promise<FocusAreaAnalytics[]> {
+    const response = await fetch(`${API_BASE_URL}/progress/today`, {
+      method: 'GET',
+      headers: getAuthHeaders()
+    });
+    return handleResponse(response);
   }
 };
 

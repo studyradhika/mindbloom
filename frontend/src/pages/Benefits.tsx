@@ -60,7 +60,7 @@ const Benefits = () => {
       description: 'Improved attention & executive function',
       conditions: ['TBI', 'Post-stroke', 'Recovery', 'Aging'],
       institution: 'Harvard Health',
-      studyLink: '#',
+      studyLink: 'https://www.sciencedirect.com/science/article/abs/pii/S0005796720301479',
       color: 'border-l-blue-500',
       bgColor: 'bg-blue-50'
     },
@@ -71,7 +71,7 @@ const Benefits = () => {
       description: 'Increased pattern accuracy, better error monitoring',
       conditions: ['Post-stroke', 'TBI', 'Early dementia', 'Healthy aging'],
       institution: 'Harvard Health',
-      studyLink: '#',
+      studyLink: 'https://bricehildreth.substack.com/p/the-neuroscience-of-pattern-recognition',
       color: 'border-l-green-500',
       bgColor: 'bg-green-50'
     },
@@ -82,7 +82,7 @@ const Benefits = () => {
       description: 'Better recall, daily activity independence',
       conditions: ['Mild memory concerns', 'Early dementia', 'Aging', 'Recovery'],
       institution: 'Mayo Clinic',
-      studyLink: '#',
+      studyLink: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7272192/',
       color: 'border-l-purple-500',
       bgColor: 'bg-purple-50'
     },
@@ -93,7 +93,7 @@ const Benefits = () => {
       description: 'Enhanced word retrieval, fluency',
       conditions: ['Post-surgery', 'TBI', 'Stroke', 'Aging'],
       institution: 'Mayo Clinic',
-      studyLink: '#',
+      studyLink: 'https://www.frontiersin.org/journals/communication/articles/10.3389/fcomm.2023.1210193/full',
       color: 'border-l-orange-500',
       bgColor: 'bg-orange-50'
     },
@@ -104,7 +104,7 @@ const Benefits = () => {
       description: 'Improved comprehension, social participation',
       conditions: ['MCI', 'Aging', 'Post-stroke', 'Dementia'],
       institution: 'AARP GCBH',
-      studyLink: '#',
+      studyLink: 'https://www.frontiersin.org/journals/aging-neuroscience/articles/10.3389/fnagi.2017.00256/full',
       color: 'border-l-teal-500',
       bgColor: 'bg-teal-50'
     },
@@ -115,7 +115,7 @@ const Benefits = () => {
       description: 'Increased goal achievement, executive function',
       conditions: ['Recovery', 'Aging', 'Dementia', 'TBI'],
       institution: 'Mayo Clinic',
-      studyLink: '#',
+      studyLink: 'https://nesplora.com/en/blog/executive-functions-what-they-are-and-how-to-assess-them/',
       color: 'border-l-indigo-500',
       bgColor: 'bg-indigo-50'
     },
@@ -126,7 +126,7 @@ const Benefits = () => {
       description: 'Improved navigation and environmental mapping',
       conditions: ['TBI', 'Stroke', 'MCI', 'Early dementia'],
       institution: 'Johns Hopkins',
-      studyLink: '#',
+      studyLink: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8615446/',
       color: 'border-l-pink-500',
       bgColor: 'bg-pink-50'
     },
@@ -137,7 +137,7 @@ const Benefits = () => {
       description: 'Faster reaction time, reduced dementia risk',
       conditions: ['Recovery', 'Aging', 'TBI'],
       institution: 'Harvard Health',
-      studyLink: '#',
+      studyLink: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10368543/',
       color: 'border-l-yellow-500',
       bgColor: 'bg-yellow-50'
     },
@@ -148,7 +148,7 @@ const Benefits = () => {
       description: 'More flexible thinking, increased gray matter',
       conditions: ['Mild impairment', 'Aging', 'Post-stroke'],
       institution: 'Mayo Clinic Health System',
-      studyLink: '#',
+      studyLink: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3004979/',
       color: 'border-l-emerald-500',
       bgColor: 'bg-emerald-50'
     }
@@ -245,7 +245,12 @@ const Benefits = () => {
 
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">{area.institution}</span>
-                    <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-800">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-blue-600 hover:text-blue-800"
+                      onClick={() => window.open(area.studyLink, '_blank')}
+                    >
                       <ExternalLink className="h-4 w-4 mr-1" />
                       Study
                     </Button>

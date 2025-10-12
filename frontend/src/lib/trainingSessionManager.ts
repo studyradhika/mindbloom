@@ -92,9 +92,12 @@ export class TrainingSessionManager {
 
   // Step 1: Initialize training session
   beginTraining(selectedFocusAreas: string[]): Activity[] {
+    // Preserve pre-completed areas from constructor
+    const existingCompletedAreas = new Set(this.session.completedAreas);
+    
     this.session = {
       selectedFocusAreas,
-      completedAreas: new Set(),
+      completedAreas: existingCompletedAreas, // Preserve pre-completed areas
       sessionStartTime: Date.now(),
       sessionDuration: 0,
       activitiesCompleted: 0,
@@ -102,6 +105,8 @@ export class TrainingSessionManager {
       currentRound: 1,
       exerciseResults: []
     };
+    
+    console.log('🎯 TrainingSessionManager: beginTraining with preserved completed areas:', Array.from(existingCompletedAreas));
     
     return this.presentActivities();
   }

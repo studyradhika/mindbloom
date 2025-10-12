@@ -9,7 +9,7 @@ import { showSuccess } from "@/utils/toast";
 import { theme, getAreaColor } from "@/lib/theme";
 import { selectExercises, calculateDifficulty, updateExerciseStats, adjustForMood } from "@/lib/adaptiveTraining";
 import { TrainingSessionManager, ExerciseResult, SessionCompletionData } from "@/lib/trainingSessionManager";
-import { trainingAPI, userAPI, handleAuthError } from "@/lib/api";
+import { trainingAPI, userAPI, handleAuthError, progressAPI } from "@/lib/api";
 import SessionContinuePrompt from "@/components/SessionContinuePrompt";
 import MemoryExercise from "@/components/exercises/MemoryExercise";
 import AttentionExercise from "@/components/exercises/AttentionExercise";
@@ -35,6 +35,7 @@ const Training = () => {
   const [sessionState, setSessionState] = useState<'training' | 'continue-prompt' | 'completed'>('training');
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [todaysCompletedAreas, setTodaysCompletedAreas] = useState<string[]>([]);
 
   // Exercise mapping with adaptive difficulty
   const getExerciseSet = () => {
@@ -282,6 +283,23 @@ const Training = () => {
         setTodaysMood(mood);
         const parsedFocusAreas = JSON.parse(focusAreas);
         setTodaysFocusAreas(parsedFocusAreas);
+        
+        // Fetch today's completed areas to initialize session manager properly
+        try {
+          const todayProgress = await progressAPI.getTodayPerformance();
+          const completedAreas: string[] = [];
+          
+          if (todayProgress.hasData && todayProgress.areas) {
+            // Extract focus area keys from today's progress data
+            completedAreas.push(...Object.keys(todayProgress.areas));
+            console.log('🎯 Training: Found today\'s completed areas:', completedAreas);
+          }
+          
+          setTodaysCompletedAreas(completedAreas);
+        } catch (progressError) {
+          console.warn('🏃‍♂️ Training: Could not fetch today\'s progress, continuing without pre-completed areas:', progressError);
+          setTodaysCompletedAreas([]);
+        }
         
         // Start training session via API
         const sessionResponse = await trainingAPI.startSession({
@@ -594,7 +612,12 @@ const Training = () => {
         areaId: ex.areaId
       }));
 
-      const manager = new TrainingSessionManager(availableActivities);
+      const manager = new TrainingSessionManager(
+        availableActivities,
+        undefined,
+        undefined,
+        todaysCompletedAreas // Pass today's completed areas to initialize properly
+      );
       const initialActivities = manager.beginTraining(todaysFocusAreas);
       
       // Update exercises to match the session manager's selection
@@ -605,7 +628,7 @@ const Training = () => {
       
       setSessionManager(manager);
     }
-  }, [userData, todaysFocusAreas, exercises.length, sessionManager]);
+  }, [userData, todaysFocusAreas, exercises.length, sessionManager, todaysCompletedAreas]);
 
   // Handle continue session
   const handleContinueSession = () => {

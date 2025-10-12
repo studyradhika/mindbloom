@@ -60,12 +60,21 @@ export class TrainingSessionManager {
   constructor(
     availableActivities: Activity[],
     onSessionContinuePrompt?: (data: SessionContinuePromptData) => void,
-    onSessionComplete?: (data: SessionCompletionData) => void
+    onSessionComplete?: (data: SessionCompletionData) => void,
+    preCompletedAreas?: string[]
   ) {
     this.availableActivities = availableActivities;
     this.onSessionContinuePrompt = onSessionContinuePrompt;
     this.onSessionComplete = onSessionComplete;
     this.session = this.createEmptySession();
+    
+    // Initialize with pre-completed areas from today's previous sessions
+    if (preCompletedAreas && preCompletedAreas.length > 0) {
+      preCompletedAreas.forEach(area => {
+        this.session.completedAreas.add(area);
+      });
+      console.log('🎯 TrainingSessionManager: Initialized with pre-completed areas:', preCompletedAreas);
+    }
   }
 
   private createEmptySession(): TrainingSession {

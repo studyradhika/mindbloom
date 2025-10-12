@@ -16,6 +16,7 @@ const SequencingExercise = ({ onComplete, mood, userPreferences }: SequencingExe
   const [userSequence, setUserSequence] = useState<string[]>([]);
   const [availableSteps, setAvailableSteps] = useState<string[]>([]);
   const [score, setScore] = useState(0);
+  const [taskScores, setTaskScores] = useState<number[]>([]);
   const [startTime] = useState(Date.now());
   const [tasks, setTasks] = useState<any[]>([]);
 
@@ -195,34 +196,44 @@ const SequencingExercise = ({ onComplete, mood, userPreferences }: SequencingExe
 
   const submitSequence = () => {
     const task = tasks[currentTask];
-    const correct = userSequence.every((step, index) => step === task.correctSequence[index]);
-    const partialScore = userSequence.reduce((score, step, index) => {
-      return score + (step === task.correctSequence[index] ? 1 : 0);
+    
+    // Calculate how many steps are in the correct position
+    const correctPositions = userSequence.reduce((count, step, index) => {
+      return count + (step === task.correctSequence[index] ? 1 : 0);
     }, 0);
     
-    const taskScore = (partialScore / task.correctSequence.length) * 100;
+    // Calculate task score as percentage
+    const taskScore = (correctPositions / task.correctSequence.length) * 100;
+    
+    // Store this task's score
+    setTaskScores(prev => [...prev, taskScore]);
     
     if (currentTask < tasks.length - 1) {
+      // Move to next task
       setCurrentTask(currentTask + 1);
       initializeTask(tasks[currentTask + 1]);
     } else {
-      calculateFinalScore();
+      // All tasks completed, calculate final score
+      calculateFinalScore([...taskScores, taskScore]);
     }
   };
 
-  const calculateFinalScore = () => {
-    // Calculate average score across all tasks
-    const totalScore = 75; // Placeholder - would calculate from actual performance
-    setScore(totalScore);
+  const calculateFinalScore = (allTaskScores: number[]) => {
+    // Calculate average score across all completed tasks
+    const totalScore = allTaskScores.reduce((sum, score) => sum + score, 0) / allTaskScores.length;
+    const roundedScore = Math.round(totalScore);
+    
+    setScore(roundedScore);
     setPhase('feedback');
     
     setTimeout(() => {
       const result = {
         exerciseId: 'sequencing',
-        score: totalScore,
+        score: roundedScore,
         timeSpent: Math.round((Date.now() - startTime) / 1000),
         tasksCompleted: tasks.length,
-        category: 'executive-function'
+        category: 'executive-function',
+        taskScores: allTaskScores
       };
       onComplete(result);
     }, 3000);

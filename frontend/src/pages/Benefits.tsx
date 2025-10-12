@@ -60,7 +60,7 @@ const Benefits = () => {
       description: 'Improved attention & executive function',
       conditions: ['TBI', 'Post-stroke', 'Recovery', 'Aging'],
       institution: 'Harvard Health',
-      studyLink: 'https://www.sciencedirect.com/science/article/abs/pii/S0005796720301479',
+      studyLink: 'https://pubmed.ncbi.nlm.nih.gov/32688045/',
       color: 'border-l-blue-500',
       bgColor: 'bg-blue-50'
     },

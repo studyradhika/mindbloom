@@ -152,8 +152,8 @@ const LandingPage = () => {
               </span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              MindBloom empowers adults to maintain and improve cognitive wellness through personalized, 
-              evidence-based brain training exercises. Just 10 minutes a day can help <strong className="text-gray-800 font-semibold">enhance memory, sharpen focus, and boost mental clarity</strong>.
+              MindBloom empowers adults to maintain and improve cognitive wellness through personalized,
+              evidence-based brain training exercises. Just 10 minutes a day or less can help <strong className="text-gray-800 font-semibold">enhance memory, sharpen focus, and boost mental clarity</strong>.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button 

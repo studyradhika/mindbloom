@@ -129,6 +129,8 @@ async def _calculate_focus_area_analytics(sessions: List[Dict[str, Any]], db: As
         'idea_generation': 'creativity',
         'creative_problem_solving': 'creativity',
         'alternative_uses': 'creativity',
+        'musical_creativity': 'creativity',
+        'story_creation': 'creativity',
         # General Cognitive exercises
         'general_cognitive': 'general',
         'cognitive_assessment': 'general',

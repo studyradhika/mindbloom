@@ -135,8 +135,14 @@ export class TrainingSessionManager {
     if (!result.skipped && result.score !== undefined) {
       const activity = this.availableActivities.find(a => a.id === result.exerciseId);
       if (activity) {
+        console.log('🎯 TrainingSessionManager: Marking area as completed:', activity.areaId, 'for exercise:', result.exerciseId);
         this.session.completedAreas.add(activity.areaId);
+        console.log('🎯 TrainingSessionManager: Current completed areas:', Array.from(this.session.completedAreas));
+      } else {
+        console.warn('🎯 TrainingSessionManager: No activity found for exercise:', result.exerciseId);
       }
+    } else {
+      console.log('🎯 TrainingSessionManager: Exercise skipped or no score:', result.exerciseId, 'skipped:', result.skipped, 'score:', result.score);
     }
     
     this.updateSessionDuration();
@@ -323,6 +329,12 @@ export class TrainingSessionManager {
 
   private createCompletionData(type: 'success' | 'partial' | 'timeout', pendingAreas: string[]): SessionCompletionData {
     const completedAreas = Array.from(this.session.completedAreas);
+    
+    console.log('🎯 TrainingSessionManager: Creating completion data');
+    console.log('🎯 Selected focus areas:', this.session.selectedFocusAreas);
+    console.log('🎯 Completed areas:', completedAreas);
+    console.log('🎯 Pending areas:', pendingAreas);
+    console.log('🎯 Exercise results:', this.session.exerciseResults);
     
     // Only include exercises that weren't skipped in the average calculation
     const completedExercises = this.session.exerciseResults.filter(r => !r.skipped && r.score !== undefined);

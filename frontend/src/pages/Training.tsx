@@ -223,14 +223,103 @@ const Training = () => {
       },
       // Processing exercises
       'speed_processing': {
-        component: AttentionExercise,
+        component: MemoryExercise, // Use MemoryExercise for speed processing (timed recall tasks)
         area: 'Processing Speed',
         areaId: 'processing'
       },
       'pattern_recognition': {
-        component: AttentionExercise,
+        component: VisualRecallExercise, // Use VisualRecallExercise for pattern recognition
         area: 'Processing Speed',
         areaId: 'processing'
+      },
+      // Spatial exercises
+      '3d_rotation': {
+        component: VisualRecallExercise,
+        area: 'Spatial Reasoning',
+        areaId: 'spatial'
+      },
+      'mental_folding': {
+        component: VisualRecallExercise,
+        area: 'Spatial Reasoning',
+        areaId: 'spatial'
+      },
+      'spatial_navigation': {
+        component: VisualRecallExercise,
+        area: 'Spatial Reasoning',
+        areaId: 'spatial'
+      },
+      'block_design': {
+        component: VisualRecallExercise,
+        area: 'Spatial Reasoning',
+        areaId: 'spatial'
+      },
+      'perspective_taking': {
+        component: VisualRecallExercise,
+        area: 'Spatial Reasoning',
+        areaId: 'spatial'
+      },
+      // Creativity exercises
+      'alternative_uses': {
+        component: LanguageExercise,
+        area: 'Creativity',
+        areaId: 'creativity'
+      },
+      'story_building': {
+        component: ConversationExercise,
+        area: 'Creativity',
+        areaId: 'creativity'
+      },
+      'visual_metaphors': {
+        component: VisualRecallExercise,
+        area: 'Creativity',
+        areaId: 'creativity'
+      },
+      'pattern_breaking': {
+        component: SequencingExercise,
+        area: 'Creativity',
+        areaId: 'creativity'
+      },
+      'musical_creativity': {
+        component: MindfulMemoryExercise,
+        area: 'Creativity',
+        areaId: 'creativity'
+      },
+      'perspective_shift': {
+        component: ConversationExercise,
+        area: 'Creativity',
+        areaId: 'creativity'
+      },
+      // Perception exercises
+      'visual_perception': {
+        component: VisualRecallExercise,
+        area: 'Perception',
+        areaId: 'perception'
+      },
+      'spatial_awareness': {
+        component: VisualRecallExercise,
+        area: 'Perception',
+        areaId: 'perception'
+      },
+      'object_recognition': {
+        component: VisualRecallExercise,
+        area: 'Perception',
+        areaId: 'perception'
+      },
+      // General exercises
+      'mindful_breathing': {
+        component: MindfulMemoryExercise,
+        area: 'General',
+        areaId: 'general'
+      },
+      'cognitive_warm_up': {
+        component: MemoryExercise,
+        area: 'General',
+        areaId: 'general'
+      },
+      'mental_flexibility': {
+        component: SequencingExercise,
+        area: 'General',
+        areaId: 'general'
       }
     };
 

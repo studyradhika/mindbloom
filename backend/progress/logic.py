@@ -96,6 +96,7 @@ async def _calculate_focus_area_analytics(sessions: List[Dict[str, Any]], db: As
         'visual_recall': 'memory',
         'working_memory': 'memory',
         # Attention exercises
+        'attention': 'attention',  # Blue circle attention exercise
         'divided_attention': 'attention',
         'sustained_attention': 'attention',
         'selective_attention': 'attention',

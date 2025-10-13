@@ -66,8 +66,8 @@ const Training = () => {
         title: 'Visual Recall',
         description: 'Memorize and recall visual patterns',
         component: VisualRecallExercise,
-        area: 'Memory & Spatial',
-        areaId: 'spatial' // Can also be memory, but spatial fits well
+        area: 'Memory & Visual',
+        areaId: 'memory' // This is primarily a memory exercise
       },
       attention: {
         id: 'attention',
@@ -145,7 +145,7 @@ const Training = () => {
         id: 'spatial-puzzle',
         title: 'Spatial Puzzle',
         description: 'Arrange shapes or objects in space',
-        component: VisualRecallExercise, // Reusing VisualRecallExercise for now
+        component: SequencingExercise, // Use SequencingExercise for spatial reasoning
         area: 'Spatial Reasoning',
         areaId: 'spatial'
       }
@@ -234,27 +234,27 @@ const Training = () => {
       },
       // Spatial exercises
       '3d_rotation': {
-        component: VisualRecallExercise,
+        component: SequencingExercise, // Use SequencingExercise for spatial reasoning
         area: 'Spatial Reasoning',
         areaId: 'spatial'
       },
       'mental_folding': {
-        component: VisualRecallExercise,
+        component: SequencingExercise, // Use SequencingExercise for spatial reasoning
         area: 'Spatial Reasoning',
         areaId: 'spatial'
       },
       'spatial_navigation': {
-        component: VisualRecallExercise,
+        component: SequencingExercise, // Use SequencingExercise for spatial reasoning
         area: 'Spatial Reasoning',
         areaId: 'spatial'
       },
       'block_design': {
-        component: VisualRecallExercise,
+        component: SequencingExercise, // Use SequencingExercise for spatial reasoning
         area: 'Spatial Reasoning',
         areaId: 'spatial'
       },
       'perspective_taking': {
-        component: VisualRecallExercise,
+        component: SequencingExercise, // Use SequencingExercise for spatial reasoning
         area: 'Spatial Reasoning',
         areaId: 'spatial'
       },

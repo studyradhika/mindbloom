@@ -145,7 +145,7 @@ const Training = () => {
         id: 'spatial-puzzle',
         title: 'Spatial Puzzle',
         description: 'Arrange shapes or objects in space',
-        component: SequencingExercise, // Use SequencingExercise for spatial reasoning
+        component: VisualRecallExercise, // VisualRecallExercise is appropriate for spatial reasoning
         area: 'Spatial Reasoning',
         areaId: 'spatial'
       }
@@ -234,27 +234,27 @@ const Training = () => {
       },
       // Spatial exercises
       '3d_rotation': {
-        component: SequencingExercise, // Use SequencingExercise for spatial reasoning
+        component: VisualRecallExercise, // VisualRecallExercise is appropriate for spatial reasoning
         area: 'Spatial Reasoning',
         areaId: 'spatial'
       },
       'mental_folding': {
-        component: SequencingExercise, // Use SequencingExercise for spatial reasoning
+        component: VisualRecallExercise, // VisualRecallExercise is appropriate for spatial reasoning
         area: 'Spatial Reasoning',
         areaId: 'spatial'
       },
       'spatial_navigation': {
-        component: SequencingExercise, // Use SequencingExercise for spatial reasoning
+        component: VisualRecallExercise, // VisualRecallExercise is appropriate for spatial reasoning
         area: 'Spatial Reasoning',
         areaId: 'spatial'
       },
       'block_design': {
-        component: SequencingExercise, // Use SequencingExercise for spatial reasoning
+        component: VisualRecallExercise, // VisualRecallExercise is appropriate for spatial reasoning
         area: 'Spatial Reasoning',
         areaId: 'spatial'
       },
       'perspective_taking': {
-        component: SequencingExercise, // Use SequencingExercise for spatial reasoning
+        component: VisualRecallExercise, // VisualRecallExercise is appropriate for spatial reasoning
         area: 'Spatial Reasoning',
         areaId: 'spatial'
       },

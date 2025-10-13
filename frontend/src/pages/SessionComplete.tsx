@@ -286,7 +286,7 @@ const SessionComplete = () => {
                     <div className="flex items-center justify-center">
                       <div className="flex items-center bg-indigo-50 text-indigo-700 px-4 py-2 rounded-lg border border-indigo-200">
                         <CheckCircle className="w-4 h-4 mr-2" />
-                        <span className="font-medium text-sm">Focus Areas Selected</span>
+                        <span className="font-medium text-sm">Focus Areas Completed</span>
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 justify-center">
@@ -306,7 +306,7 @@ const SessionComplete = () => {
                     <div className="flex items-center justify-center">
                       <div className="flex items-center bg-indigo-50 text-indigo-700 px-4 py-2 rounded-lg border border-indigo-200">
                         <CheckCircle className="w-4 h-4 mr-2" />
-                        <span className="font-medium text-sm">Focus Areas Selected</span>
+                        <span className="font-medium text-sm">Focus Areas Completed</span>
                       </div>
                     </div>
                     <div className="text-center text-gray-500">

@@ -508,6 +508,15 @@ const Training = () => {
         exerciseResults
       });
 
+      // Clear completed areas from pending sessions
+      if (sessionManager) {
+        const completedAreas = sessionManager.getSessionProgress().completedAreas;
+        if (completedAreas.length > 0) {
+          TrainingSessionManager.clearCompletedAreasFromPending(completedAreas);
+          console.log('🎯 Training: Cleared completed areas from pending:', completedAreas);
+        }
+      }
+
       showSuccess(`Great job! Session completed in ${sessionDuration} minutes.`);
       navigate('/session-complete', {
         state: {
@@ -526,6 +535,15 @@ const Training = () => {
       const averageScore = completedExercises.length > 0
         ? completedExercises.reduce((sum, r) => sum + (r.score || 0), 0) / completedExercises.length
         : 0;
+      
+      // Clear completed areas from pending sessions even on error
+      if (sessionManager) {
+        const completedAreas = sessionManager.getSessionProgress().completedAreas;
+        if (completedAreas.length > 0) {
+          TrainingSessionManager.clearCompletedAreasFromPending(completedAreas);
+          console.log('🎯 Training: Cleared completed areas from pending (fallback):', completedAreas);
+        }
+      }
       
       navigate('/session-complete', {
         state: {
@@ -559,6 +577,12 @@ const Training = () => {
         exerciseResults
       });
 
+      // Clear completed areas from pending sessions
+      if (completionData.completedAreas.length > 0) {
+        TrainingSessionManager.clearCompletedAreasFromPending(completionData.completedAreas);
+        console.log('🎯 Training: Cleared completed areas from pending:', completionData.completedAreas);
+      }
+
       const successMessage = completionData.type === 'success'
         ? 'Amazing! You completed all focus areas!'
         : completionData.type === 'timeout'
@@ -579,6 +603,13 @@ const Training = () => {
     } catch (error) {
       console.error('Error completing session with data:', error);
       // Fallback to local completion
+      
+      // Clear completed areas from pending sessions even on error
+      if (completionData.completedAreas.length > 0) {
+        TrainingSessionManager.clearCompletedAreasFromPending(completionData.completedAreas);
+        console.log('🎯 Training: Cleared completed areas from pending (fallback):', completionData.completedAreas);
+      }
+      
       const successMessage = completionData.type === 'success'
         ? 'Amazing! You completed all focus areas!'
         : completionData.type === 'timeout'

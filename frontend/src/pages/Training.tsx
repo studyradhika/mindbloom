@@ -137,7 +137,7 @@ const Training = () => {
         id: 'story-creation',
         title: 'Story Creation',
         description: 'Develop imaginative narratives',
-        component: MindfulMemoryExercise, // Reusing MindfulMemoryExercise for now
+        component: ConversationExercise, // Use ConversationExercise for story creation
         area: 'Creativity',
         areaId: 'creativity'
       },
@@ -280,7 +280,7 @@ const Training = () => {
         areaId: 'creativity'
       },
       'musical_creativity': {
-        component: MindfulMemoryExercise,
+        component: ConversationExercise, // Use ConversationExercise instead of MindfulMemoryExercise
         area: 'Creativity',
         areaId: 'creativity'
       },

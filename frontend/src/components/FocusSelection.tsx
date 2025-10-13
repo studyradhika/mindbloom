@@ -140,79 +140,38 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
     navigate('/dashboard');
   };
 
-  // Get today's completed areas from local storage
-  const getTodayCompletedAreasFromLocalStorage = (): string[] => {
-    try {
-      const userData = localStorage.getItem('mindbloom-user');
-      if (!userData) return [];
-
-      const user = JSON.parse(userData);
-      const exerciseHistory = user.exerciseHistory || [];
-      const today = new Date().toDateString();
-      
-      // Find today's sessions
-      const todaySessions = exerciseHistory.filter((session: any) => {
-        const sessionDate = new Date(session.date).toDateString();
-        return sessionDate === today;
-      });
-      
-      // Extract completed focus areas from today's sessions
-      const completedAreas: string[] = [];
-      todaySessions.forEach((session: any) => {
-        if (session.focusAreasCompleted) {
-          session.focusAreasCompleted.forEach((area: string) => {
-            if (!completedAreas.includes(area)) {
-              completedAreas.push(area);
-            }
-          });
-        }
-      });
-      
-      console.log('🎯 FocusSelection: Today\'s completed areas from localStorage:', completedAreas);
-      return completedAreas;
-    } catch (error) {
-      console.error('🎯 FocusSelection: Error getting today\'s completed areas:', error);
-      return [];
-    }
-  };
-
-  // Fetch progress analytics from backend to get actual improvement areas
+  // Fetch progress analytics from backend using the new quick endpoint
   useEffect(() => {
     const fetchProgressData = async () => {
       try {
         setLoading(true);
-        const progressSummary = await progressAPI.getProgressSummary();
         
-        console.log('🎯 FocusSelection: Received progress summary:', progressSummary);
+        // Use the new quick progress endpoint that has real-time data
+        const quickProgress = await progressAPI.getQuickProgressSummary();
         
-        // Get areas that have been completed today from local storage
-        const localPendingAreas = getAllPendingAreasFromLocalStorage();
-        const todayCompletedAreas = getTodayCompletedAreasFromLocalStorage();
+        console.log('🎯 FocusSelection: Received quick progress summary:', quickProgress);
         
-        // Filter out completed areas from backend improvement areas
-        const backendImprovementAreas = progressSummary.improvement_areas || [];
-        const filteredImprovementAreas = backendImprovementAreas.filter(area =>
-          !todayCompletedAreas.includes(area)
-        );
+        // Use the real-time backend data directly
+        setImprovementAreas(quickProgress.improvement_areas || []);
+        setStrengths(quickProgress.strengths || []);
         
-        // Add any local pending areas that aren't in the backend data
-        const combinedImprovementAreas = [...new Set([...filteredImprovementAreas, ...localPendingAreas])];
-        
-        // Add completed areas to strengths
-        const backendStrengths = progressSummary.strengths || [];
-        const combinedStrengths = [...new Set([...backendStrengths, ...todayCompletedAreas])];
-        
-        setImprovementAreas(combinedImprovementAreas);
-        setStrengths(combinedStrengths);
-        
-        console.log('🎯 FocusSelection: Filtered improvement areas:', combinedImprovementAreas);
-        console.log('🎯 FocusSelection: Combined strengths:', combinedStrengths);
+        console.log('🎯 FocusSelection: Improvement areas:', quickProgress.improvement_areas);
+        console.log('🎯 FocusSelection: Strengths:', quickProgress.strengths);
       } catch (error) {
-        console.error('🎯 FocusSelection: Error fetching progress data:', error);
+        console.error('🎯 FocusSelection: Error fetching quick progress data:', error);
         handleAuthError(error);
-        // Fallback to local storage system if backend fails
-        setImprovementAreas(getAllPendingAreasFromLocalStorage());
-        setStrengths(getTodayCompletedAreasFromLocalStorage());
+        
+        // Fallback to full progress summary if quick endpoint fails
+        try {
+          const progressSummary = await progressAPI.getProgressSummary();
+          setImprovementAreas(progressSummary.improvement_areas || []);
+          setStrengths(progressSummary.strengths || []);
+        } catch (fallbackError) {
+          console.error('🎯 FocusSelection: Fallback also failed:', fallbackError);
+          // Final fallback to local storage system
+          setImprovementAreas(getAllPendingAreasFromLocalStorage());
+          setStrengths([]);
+        }
       } finally {
         setLoading(false);
       }

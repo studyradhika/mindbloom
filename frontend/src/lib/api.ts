@@ -128,10 +128,27 @@ export interface ProgressSummary {
   generated_at: string;
 }
 
+export interface QuickProgressSummary {
+  improvement_areas: string[];
+  strengths: string[];
+  last_updated: string;
+  total_sessions: number;
+  overall_average_score: number;
+}
+
 export const progressAPI = {
   // Get comprehensive progress analytics
   async getProgressSummary(): Promise<ProgressSummary> {
     const response = await fetch(`${API_BASE_URL}/progress/`, {
+      method: 'GET',
+      headers: getAuthHeaders()
+    });
+    return handleResponse(response);
+  },
+
+  // Get quick progress summary with cached data
+  async getQuickProgressSummary(): Promise<QuickProgressSummary> {
+    const response = await fetch(`${API_BASE_URL}/progress/quick`, {
       method: 'GET',
       headers: getAuthHeaders()
     });

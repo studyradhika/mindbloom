@@ -5,14 +5,15 @@ from typing import List
 from bson import ObjectId
 
 from models.training import (
-    TrainingSessionCreate, 
-    TrainingSessionComplete, 
+    TrainingSessionCreate,
+    TrainingSessionComplete,
     TrainingSession,
     ExerciseResult
 )
 from models.user import User
 from auth.router import get_current_user, get_database
 from training.logic import select_exercises
+from progress.logic import recalculate_user_progress
 
 router = APIRouter()
 
@@ -150,6 +151,14 @@ async def complete_training_session(
                 }
             }
         )
+        
+        # Recalculate user progress immediately after session completion
+        try:
+            updated_progress = await recalculate_user_progress(current_user.id, db)
+            print(f"Progress recalculated for user {current_user.id}: {updated_progress}")
+        except Exception as progress_error:
+            # Don't fail the session completion if progress calculation fails
+            print(f"Warning: Failed to recalculate progress for user {current_user.id}: {str(progress_error)}")
         
         return {
             "message": "Training session completed successfully",

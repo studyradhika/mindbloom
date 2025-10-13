@@ -277,3 +277,88 @@ def _analyze_performance_patterns(focus_areas_analytics: List[FocusAreaAnalytics
             strengths.append(analytics.area_name)
     
     return improvement_areas, strengths
+
+async def recalculate_user_progress(user_id: str, db: AsyncIOMotorDatabase) -> Dict[str, Any]:
+    """
+    Recalculate user progress immediately after session completion and cache the results
+    
+    Args:
+        user_id: The ID of the user to recalculate progress for
+        db: MongoDB database connection
+        
+    Returns:
+        Dict containing updated improvement_areas and strengths
+    """
+    try:
+        # Get fresh progress analytics
+        progress_summary = await get_progress_analytics(user_id, db)
+        
+        # Extract the key data we need for frontend
+        progress_data = {
+            "improvement_areas": progress_summary.improvement_areas,
+            "strengths": progress_summary.strengths,
+            "last_updated": datetime.utcnow(),
+            "total_sessions": progress_summary.total_sessions,
+            "overall_average_score": progress_summary.overall_average_score
+        }
+        
+        # Cache this data in the user document for quick access
+        await db.users.update_one(
+            {"_id": user_id},
+            {
+                "$set": {
+                    "cached_progress": progress_data
+                }
+            }
+        )
+        
+        return progress_data
+        
+    except Exception as e:
+        print(f"Error recalculating user progress: {str(e)}")
+        # Return empty data on error
+        return {
+            "improvement_areas": [],
+            "strengths": [],
+            "last_updated": datetime.utcnow(),
+            "total_sessions": 0,
+            "overall_average_score": 0.0
+        }
+
+async def get_cached_progress_or_calculate(user_id: str, db: AsyncIOMotorDatabase) -> Dict[str, Any]:
+    """
+    Get cached progress data if available and recent, otherwise recalculate
+    
+    Args:
+        user_id: The ID of the user
+        db: MongoDB database connection
+        
+    Returns:
+        Dict containing improvement_areas and strengths
+    """
+    try:
+        # Get user document with cached progress
+        user_doc = await db.users.find_one({"_id": user_id})
+        
+        if user_doc and "cached_progress" in user_doc:
+            cached_data = user_doc["cached_progress"]
+            last_updated = cached_data.get("last_updated")
+            
+            # Check if cache is recent (within last hour)
+            if last_updated and (datetime.utcnow() - last_updated).total_seconds() < 3600:
+                return cached_data
+        
+        # Cache is stale or doesn't exist, recalculate
+        return await recalculate_user_progress(user_id, db)
+        
+    except Exception as e:
+        print(f"Error getting cached progress: {str(e)}")
+        # Fallback to fresh calculation
+        progress_summary = await get_progress_analytics(user_id, db)
+        return {
+            "improvement_areas": progress_summary.improvement_areas,
+            "strengths": progress_summary.strengths,
+            "last_updated": datetime.utcnow(),
+            "total_sessions": progress_summary.total_sessions,
+            "overall_average_score": progress_summary.overall_average_score
+        }

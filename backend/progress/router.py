@@ -6,7 +6,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from auth.router import get_current_user
 from models.user import User
 from models.progress import ProgressSummary
-from progress.logic import get_progress_analytics
+from progress.logic import get_progress_analytics, get_cached_progress_or_calculate
 
 router = APIRouter()
 
@@ -26,6 +26,18 @@ async def get_progress_summary(
         return progress_summary
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch progress data: {str(e)}")
+
+@router.get("/quick")
+async def get_quick_progress_summary(
+    current_user: User = Depends(get_current_user),
+    db: AsyncIOMotorDatabase = Depends(get_database)
+):
+    """Get quick progress summary using cached data when available"""
+    try:
+        cached_progress = await get_cached_progress_or_calculate(current_user.id, db)
+        return cached_progress
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch quick progress data: {str(e)}")
 
 @router.get("/today")
 async def get_todays_performance(

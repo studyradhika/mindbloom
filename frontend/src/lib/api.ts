@@ -38,6 +38,7 @@ export interface ExerciseResult {
 export interface TrainingSessionCreate {
   mood: string;
   focusAreas: string[];
+  priorityAreas?: string[];
 }
 
 export interface TrainingSessionComplete {
@@ -68,6 +69,22 @@ export const trainingAPI = {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(sessionData)
+    });
+    return handleResponse(response);
+  },
+
+  // Save individual exercise result immediately
+  async saveExerciseResult(sessionId: string, exerciseResult: ExerciseResult): Promise<{
+    message: string;
+    completedAreas: string[];
+    remainingAreas: string[];
+    currentAverage: number;
+    totalExercisesCompleted: number;
+  }> {
+    const response = await fetch(`${API_BASE_URL}/training/session/${sessionId}/exercise`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(exerciseResult)
     });
     return handleResponse(response);
   },

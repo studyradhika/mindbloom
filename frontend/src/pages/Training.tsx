@@ -426,7 +426,7 @@ const Training = () => {
     }
   }, [userData, todaysFocusAreas, todaysMood]);
 
-  const handleExerciseComplete = (result: ExerciseResult) => {
+  const handleExerciseComplete = async (result: ExerciseResult) => {
     if (!sessionManager) {
       // Fallback to old behavior if session manager not initialized
       handleExerciseCompleteOld(result);
@@ -445,6 +445,29 @@ const Training = () => {
     
     const newResults = [...exerciseResults, enhancedResult];
     setExerciseResults(newResults);
+
+    // 🆕 SAVE EXERCISE RESULT TO DATABASE IMMEDIATELY
+    if (currentSessionId && !result.skipped) {
+      try {
+        const saveResponse = await trainingAPI.saveExerciseResult(currentSessionId, {
+          exerciseId: result.exerciseId,
+          score: result.score || 0,
+          timeSpent: result.timeSpent || 0
+        });
+        
+        console.log('✅ Exercise result saved:', saveResponse);
+        console.log('📊 Completed areas:', saveResponse.completedAreas);
+        console.log('📋 Remaining areas:', saveResponse.remainingAreas);
+        
+        // Log progress data for debugging - session manager will use this info in future iterations
+        if (saveResponse.completedAreas.length > 0) {
+          console.log('🎯 Areas completed in this session:', saveResponse.completedAreas);
+        }
+      } catch (error) {
+        console.error('❌ Failed to save exercise result:', error);
+        // Continue with local flow even if API call fails
+      }
+    }
 
     // Use session manager to determine next action
     const sessionResult = sessionManager.onActivityCompleted(enhancedResult);
@@ -751,15 +774,47 @@ const Training = () => {
   }, [userData, todaysFocusAreas, exercises.length, sessionManager, todaysCompletedAreas]);
 
   // Handle continue session
-  const handleContinueSession = () => {
+  const handleContinueSession = async () => {
     if (sessionManager) {
       const continueData = sessionManager.getContinuePromptData();
-      const newActivities = continueData.onContinue();
+      const pendingAreas = continueData.pendingAreas;
       
-      if (newActivities.length > 0) {
-        setExercises(newActivities);
-        setCurrentExercise(0);
-        setSessionState('training');
+      // Start a new training session with priority areas (areas yet to practice)
+      try {
+        const sessionResponse = await trainingAPI.startSession({
+          mood: todaysMood,
+          focusAreas: todaysFocusAreas,
+          priorityAreas: pendingAreas // Pass pending areas as priority
+        });
+        
+        setCurrentSessionId(sessionResponse.sessionId);
+        
+        // Convert backend exercises to frontend format
+        if (sessionResponse.exercises && sessionResponse.exercises.length > 0) {
+          const frontendExercises = convertBackendExercisesToFrontend(sessionResponse.exercises);
+          console.log('🎯 Training: Continue session with priority areas:', pendingAreas);
+          console.log('🎯 Training: New exercises for continuation:', frontendExercises);
+          setExercises(frontendExercises);
+          setCurrentExercise(0);
+          setSessionState('training');
+        } else {
+          // Fallback to session manager logic
+          const newActivities = continueData.onContinue();
+          if (newActivities.length > 0) {
+            setExercises(newActivities);
+            setCurrentExercise(0);
+            setSessionState('training');
+          }
+        }
+      } catch (error) {
+        console.error('Error starting continuation session:', error);
+        // Fallback to local session manager logic
+        const newActivities = continueData.onContinue();
+        if (newActivities.length > 0) {
+          setExercises(newActivities);
+          setCurrentExercise(0);
+          setSessionState('training');
+        }
       }
     }
   };

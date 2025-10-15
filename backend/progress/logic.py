@@ -271,9 +271,14 @@ def _analyze_performance_patterns(focus_areas_analytics: List[FocusAreaAnalytics
     strengths = []
     
     for analytics in focus_areas_analytics:
+        # Normalize scores to handle both percentage (0-100) and decimal (0.0-1.0) formats
+        # If score is > 1.0, assume it's a percentage and convert to decimal
+        current_score = analytics.current_score / 100.0 if analytics.current_score > 1.0 else analytics.current_score
+        average_score = analytics.average_score / 100.0 if analytics.average_score > 1.0 else analytics.average_score
+        
         # Prioritize high performance - if current or average score is high, it's a strength
-        is_high_performer = (analytics.current_score >= 0.8 or analytics.average_score >= 0.75)
-        is_excellent_performer = (analytics.current_score >= 0.95 or analytics.average_score >= 0.9)
+        is_high_performer = (current_score >= 0.8 or average_score >= 0.75)
+        is_excellent_performer = (current_score >= 0.95 or average_score >= 0.9)
         
         # Excellent performers (95%+ scores) are always strengths, regardless of trend
         if is_excellent_performer:
@@ -281,14 +286,14 @@ def _analyze_performance_patterns(focus_areas_analytics: List[FocusAreaAnalytics
         # High performers are strengths unless clearly declining with low recent scores
         elif is_high_performer:
             # Only consider it an improvement area if it's declining AND recent score is below 70%
-            if analytics.improvement_status == "declining" and analytics.current_score < 0.7:
+            if analytics.improvement_status == "declining" and current_score < 0.7:
                 improvement_areas.append(analytics.area_name)
             else:
                 strengths.append(analytics.area_name)
         # Low performers need improvement
         elif (analytics.improvement_status == "declining" or
-              analytics.current_score < 0.6 or  # Below 60% threshold
-              analytics.average_score < 0.65):  # Below 65% average threshold
+              current_score < 0.6 or  # Below 60% threshold
+              average_score < 0.65):  # Below 65% average threshold
             improvement_areas.append(analytics.area_name)
         # Areas that are improving from low scores
         elif analytics.improvement_status == "improving":

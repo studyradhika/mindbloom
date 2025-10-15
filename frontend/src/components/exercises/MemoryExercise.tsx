@@ -126,10 +126,20 @@ const MemoryExercise = ({ onComplete, mood, userPreferences }: MemoryExercisePro
   };
 
   const calculateScore = (userSeq: any[]) => {
+    // 🐛 DEBUG LOGGING - Add detailed logging to identify scoring issues
+    console.log('🧠 MEMORY EXERCISE SCORING DEBUG:');
+    console.log('   Original Sequence:', sequence);
+    console.log('   User Sequence:', userSeq);
+    console.log('   Sequence Length:', sequence.length);
+    console.log('   User Sequence Length:', userSeq.length);
+    console.log('   Exercise Type:', exerciseType);
+    
     // Position-based scoring (exact sequence match)
     let positionCorrect = 0;
-    for (let i = 0; i < sequence.length; i++) {
-      if (sequence[i] === userSeq[i]) positionCorrect++;
+    for (let i = 0; i < Math.min(sequence.length, userSeq.length); i++) {
+      const isMatch = sequence[i] === userSeq[i];
+      console.log(`   Position ${i}: ${sequence[i]} vs ${userSeq[i]} = ${isMatch}`);
+      if (isMatch) positionCorrect++;
     }
     
     // Content-based scoring (right items, any position)
@@ -137,18 +147,31 @@ const MemoryExercise = ({ onComplete, mood, userPreferences }: MemoryExercisePro
     const sequenceCopy = [...sequence];
     const userSeqCopy = [...userSeq];
     
+    console.log('   Content matching:');
     for (let i = 0; i < userSeqCopy.length; i++) {
-      const itemIndex = sequenceCopy.indexOf(userSeqCopy[i]);
-      if (itemIndex !== -1) {
+      const item = userSeqCopy[i];
+      const itemIndex = sequenceCopy.indexOf(item);
+      const found = itemIndex !== -1;
+      console.log(`     User item ${i}: ${item} found in sequence: ${found}`);
+      if (found) {
         contentCorrect++;
         sequenceCopy.splice(itemIndex, 1); // Remove to avoid double counting
       }
     }
     
     // Weighted scoring: 70% for position accuracy, 30% for content accuracy
+    // Both scores are based on the original sequence length for consistency
     const positionScore = (positionCorrect / sequence.length) * 70;
     const contentScore = (contentCorrect / sequence.length) * 30;
     const percentage = Math.round(positionScore + contentScore);
+    
+    console.log('   SCORING BREAKDOWN:');
+    console.log(`     Position Correct: ${positionCorrect}/${sequence.length}`);
+    console.log(`     Content Correct: ${contentCorrect}/${sequence.length}`);
+    console.log(`     Position Score: ${positionScore.toFixed(1)}%`);
+    console.log(`     Content Score: ${contentScore.toFixed(1)}%`);
+    console.log(`     Final Percentage: ${percentage}%`);
+    console.log(`     Decimal Score (for backend): ${percentage / 100}`);
     
     setScore(percentage);
     setPhase('feedback');
@@ -165,6 +188,8 @@ const MemoryExercise = ({ onComplete, mood, userPreferences }: MemoryExercisePro
         positionCorrect,
         contentCorrect
       };
+      
+      console.log('🚀 SENDING RESULT TO BACKEND:', result);
       onComplete(result);
     }, 3000);
   };

@@ -140,38 +140,63 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
     navigate('/dashboard');
   };
 
-  // Fetch progress analytics from backend using the new quick endpoint
+  // Fetch progress analytics and determine session-based completion status
   useEffect(() => {
     const fetchProgressData = async () => {
       try {
         setLoading(true);
         
-        // Use the new quick progress endpoint that has real-time data
-        const quickProgress = await progressAPI.getQuickProgressSummary();
+        // Get today's performance to see which areas have been worked on today
+        const todayPerformance = await progressAPI.getTodayPerformance();
         
-        console.log('🎯 FocusSelection: Received quick progress summary:', quickProgress);
+        console.log('🎯 FocusSelection: Received today performance:', todayPerformance);
         
-        // Use the real-time backend data directly
-        setImprovementAreas(quickProgress.improvement_areas || []);
-        setStrengths(quickProgress.strengths || []);
+        // Get the originally selected focus areas for today's session
+        const today = new Date().toDateString();
+        const storedFocusAreas = localStorage.getItem('mindbloom-today-focus-areas');
+        const lastFocusDate = localStorage.getItem('mindbloom-last-focus-date');
         
-        console.log('🎯 FocusSelection: Improvement areas:', quickProgress.improvement_areas);
-        console.log('🎯 FocusSelection: Strengths:', quickProgress.strengths);
+        let originallySelectedAreas: string[] = [];
+        if (storedFocusAreas && lastFocusDate === today) {
+          originallySelectedAreas = JSON.parse(storedFocusAreas);
+        }
+        
+        console.log('🎯 FocusSelection: Originally selected areas:', originallySelectedAreas);
+        
+        // Areas that have been successfully completed today (have activity data with completed exercises)
+        const completedToday: string[] = [];
+        const areasYetToPractice: string[] = [];
+        
+        if (todayPerformance.hasData && todayPerformance.areas) {
+          // Check each originally selected area
+          originallySelectedAreas.forEach(area => {
+            const areaData = todayPerformance.areas[area];
+            if (areaData && areaData.scores && areaData.scores.length > 0) {
+              // Area has completed exercises
+              completedToday.push(area);
+            } else {
+              // Area was selected but no exercises completed (skipped or time ran out)
+              areasYetToPractice.push(area);
+            }
+          });
+        } else {
+          // No activity today, all originally selected areas are yet to practice
+          areasYetToPractice.push(...originallySelectedAreas);
+        }
+        
+        // Set the state based on session progress
+        setStrengths(completedToday);
+        setImprovementAreas(areasYetToPractice);
+        
+        console.log('🎯 FocusSelection: Completed today:', completedToday);
+        console.log('🎯 FocusSelection: Areas yet to practice today:', areasYetToPractice);
       } catch (error) {
-        console.error('🎯 FocusSelection: Error fetching quick progress data:', error);
+        console.error('🎯 FocusSelection: Error fetching progress data:', error);
         handleAuthError(error);
         
-        // Fallback to full progress summary if quick endpoint fails
-        try {
-          const progressSummary = await progressAPI.getProgressSummary();
-          setImprovementAreas(progressSummary.improvement_areas || []);
-          setStrengths(progressSummary.strengths || []);
-        } catch (fallbackError) {
-          console.error('🎯 FocusSelection: Fallback also failed:', fallbackError);
-          // Final fallback to local storage system
-          setImprovementAreas(getAllPendingAreasFromLocalStorage());
-          setStrengths([]);
-        }
+        // Fallback to local storage system
+        setImprovementAreas(getAllPendingAreasFromLocalStorage());
+        setStrengths([]);
       } finally {
         setLoading(false);
       }
@@ -280,7 +305,7 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
                   <div className="flex items-center flex-wrap gap-2">
                     <div className="flex items-center">
                       <Target className="w-4 h-4 mr-2 text-orange-600" />
-                      <span className="text-base font-medium text-orange-800">Areas Yet to be Completed (Need Practice):</span>
+                      <span className="text-base font-medium text-orange-800">Areas Yet to Practice Today:</span>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {improvementAreas.map(areaId => {
@@ -310,7 +335,7 @@ const FocusSelection = ({ userName, todaysMood }: FocusSelectionProps) => {
                   <div className="flex items-center flex-wrap gap-2">
                     <div className="flex items-center">
                       <Target className="w-4 h-4 mr-2 text-green-600" />
-                      <span className="text-base font-medium text-green-800">Completed Areas (Your Strengths):</span>
+                      <span className="text-base font-medium text-green-800">Completed Today:</span>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {strengths.map(areaId => {

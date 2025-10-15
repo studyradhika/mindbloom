@@ -12,6 +12,7 @@ class TrainingSessionCreate(BaseModel):
     """Model for the request body when starting a training session"""
     mood: str
     focusAreas: List[str]
+    priorityAreas: Optional[List[str]] = None  # Areas yet to practice (skipped or incomplete)
 
 class TrainingSessionInDB(BaseModel):
     """Model for training session data stored in MongoDB"""

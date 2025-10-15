@@ -131,12 +131,18 @@ const VisualRecallExercise = ({ onComplete, mood, userPreferences }: VisualRecal
     setTimeout(() => {
       const result = {
         exerciseId: 'visual-recall',
-        score: finalScore,
+        score: finalScore / 100, // 🔧 FIX: Convert percentage to decimal for backend
         timeSpent: Math.round((Date.now() - startTime) / 1000),
         correctRecalls: correctCount,
         totalHighlights: highlightedCells.length,
         difficulty: userPreferences.difficulty
       };
+      
+      console.log("🔧 VISUAL RECALL SCORE FIX:");
+      console.log("   Final Score (percentage):", finalScore);
+      console.log("   Score sent to backend (decimal):", finalScore / 100);
+      console.log("   Result object:", result);
+      
       onComplete(result);
     }, 3000);
   };

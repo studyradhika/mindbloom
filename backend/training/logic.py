@@ -1,13 +1,15 @@
 import random
-from typing import List
+from typing import List, Optional
 
-def select_exercises(focus_areas: List[str], mood: str) -> List[dict]:
+def select_exercises(focus_areas: List[str], mood: str, priority_areas: Optional[List[str]] = None, session_duration_minutes: float = 0.0) -> List[dict]:
     """
     Select 3-5 exercises based on user's focus areas and mood.
     
     Args:
         focus_areas: List of cognitive areas the user wants to focus on
         mood: User's current mood state
+        priority_areas: Optional list of areas that should be prioritized (areas yet to practice)
+        session_duration_minutes: Current session duration in minutes (for 10-minute limit logic)
         
     Returns:
         List of exercise objects to be performed in the session
@@ -330,11 +332,28 @@ def select_exercises(focus_areas: List[str], mood: str) -> List[dict]:
         "max_exercises": 4
     })
     
-    # NEW LOGIC: Select one exercise from each focus area
+    # NEW LOGIC: Prioritize areas yet to practice, fallback to completed areas only if time remains
     selected_exercises = []
+    MAX_SESSION_DURATION_MINUTES = 10.0
     
-    # First, try to get one exercise from each selected focus area
-    for area in focus_areas:
+    # Determine which areas to process based on priority and session duration
+    areas_to_process = []
+    
+    if priority_areas and len(priority_areas) > 0:
+        # First priority: Areas yet to practice (incomplete areas)
+        areas_to_process = priority_areas
+        print(f"🎯 Training Logic: Using priority areas (yet to practice): {priority_areas}")
+    elif session_duration_minutes < MAX_SESSION_DURATION_MINUTES:
+        # Second priority: If no areas yet to practice AND session < 10min, use all focus areas
+        areas_to_process = focus_areas
+        print(f"🎯 Training Logic: No priority areas, using all focus areas (session duration: {session_duration_minutes:.1f}min): {focus_areas}")
+    else:
+        # Session has reached 10 minutes, no more exercises
+        print(f"🎯 Training Logic: Session duration reached limit ({session_duration_minutes:.1f}min), no exercises selected")
+        return []
+    
+    # Try to get one exercise from each area in priority order
+    for area in areas_to_process:
         area_key = area.lower()
         if area_key in exercise_pool:
             area_exercises = exercise_pool[area_key]

@@ -8,9 +8,10 @@ interface VisualRecallExerciseProps {
   onComplete: (result: any) => void;
   mood: string;
   userPreferences: any;
+  exerciseId?: string; // Add optional exerciseId prop
 }
 
-const VisualRecallExercise = ({ onComplete, mood, userPreferences }: VisualRecallExerciseProps) => {
+const VisualRecallExercise = ({ onComplete, mood, userPreferences, exerciseId = 'visual_recall' }: VisualRecallExerciseProps) => {
   const [phase, setPhase] = useState<'instructions' | 'memorize' | 'recall' | 'feedback'>('instructions');
   const [gridSize, setGridSize] = useState(0);
   const [highlightedCells, setHighlightedCells] = useState<number[]>([]);
@@ -130,7 +131,7 @@ const VisualRecallExercise = ({ onComplete, mood, userPreferences }: VisualRecal
 
     setTimeout(() => {
       const result = {
-        exerciseId: 'visual-recall',
+        exerciseId: exerciseId, // Use dynamic exercise ID
         score: finalScore / 100, // 🔧 FIX: Convert percentage to decimal for backend
         timeSpent: Math.round((Date.now() - startTime) / 1000),
         correctRecalls: correctCount,
@@ -141,6 +142,7 @@ const VisualRecallExercise = ({ onComplete, mood, userPreferences }: VisualRecal
       console.log("🔧 VISUAL RECALL SCORE FIX:");
       console.log("   Final Score (percentage):", finalScore);
       console.log("   Score sent to backend (decimal):", finalScore / 100);
+      console.log("   Dynamic Exercise ID:", exerciseId);
       console.log("   Result object:", result);
       
       onComplete(result);

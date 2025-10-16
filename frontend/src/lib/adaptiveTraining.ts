@@ -54,17 +54,18 @@ export const calculateDifficulty = (exerciseId: string, userData: any): number =
   return Math.round(newDifficulty * 2) / 2; // Round to nearest 0.5
 };
 
-// Select exercises with variety and retry logic
+// Select exercises with variety and retry logic - UPDATED to use backend exercise IDs
 export const selectExercises = (focusAreas: string[], userData: any, mood: string): string[] => {
   const exerciseMap: { [key: string]: string[] } = {
-    memory: ['visual-recall', 'mindful-memory', 'memory'], // Prioritize visual-recall for memory
-    attention: ['attention', 'pattern-recognition', 'rapid-matching'],
-    language: ['language', 'conversation', 'word-association'],
-    executive: ['sequencing', 'logic-puzzle'],
-    creativity: ['mindful-memory', 'story-creation'], // mindful-memory can also be creative
-    processing: ['attention', 'rapid-matching'], // attention for focus, rapid-matching for speed
-    spatial: ['visual-recall', 'spatial-puzzle', 'memory'], // visual-recall also fits spatial
-    general: ['memory', 'attention', 'language', 'sequencing', 'mindful-memory', 'conversation', 'visual-recall', 'pattern-recognition', 'word-association', 'logic-puzzle', 'story-creation', 'rapid-matching', 'spatial-puzzle']
+    memory: ['visual_recall', 'memory_sequence', 'word_pairs'],
+    attention: ['focused_attention', 'divided_attention', 'sustained_attention'],
+    language: ['word_finding', 'sentence_completion', 'verbal_fluency'],
+    executive: ['planning_task', 'cognitive_flexibility', 'inhibition_control'],
+    creativity: ['alternative_uses', 'story_building', 'visual_metaphors', 'pattern_breaking', 'musical_creativity', 'perspective_shift'],
+    processing: ['speed_processing', 'pattern_recognition'],
+    spatial: ['3d_rotation', 'mental_folding', 'spatial_navigation', 'block_design', 'perspective_taking'],
+    perception: ['visual_perception', 'spatial_awareness', 'object_recognition'],
+    general: ['mindful_breathing', 'cognitive_warm_up', 'mental_flexibility']
   };
   
   const availableExercises: string[] = [];

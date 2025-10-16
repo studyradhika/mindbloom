@@ -34,13 +34,17 @@ async def start_training_session(
         # For new sessions, session duration is 0
         session_duration_minutes = 0.0
         
+        print("Session Data:",session_data)
+
         # Select exercises based on focus areas and mood, prioritizing areas yet to practice
-        selected_exercises = select_exercises(
+        selected_exercises = select_exercises(  
             session_data.focusAreas,
             session_data.mood,
             priority_areas,
             session_duration_minutes
         )
+
+        print("Selected Exercises:", selected_exercises)
         
         # Create training session document
         session_doc = {
@@ -54,6 +58,8 @@ async def start_training_session(
             "createdAt": datetime.utcnow(),
             "completedAt": None
         }
+        
+        print("Session Doc: ", session_doc)
         
         # Insert session into database
         result = await db.training_sessions.insert_one(session_doc)
@@ -158,17 +164,30 @@ async def save_exercise_result(
             "mental_folding": "spatial",
             "spatial_navigation": "spatial",
             "block_design": "spatial",
-            "perspective_taking": "spatial"
+            "perspective_taking": "spatial",
+            "cognitive_warm_up": "general",
+            "mental_flexibility": "general",
+            "mindful_breathing": "general",
+            "object_recognition": "perception",
+            "spatial_awareness": "perception",
+            "visual_perception": "perception"
         }
-        
+        print("Exercise Results:",exercise_results)
         # Determine completed areas from exercise results
         for result in exercise_results:
+            print("Result:",result)
             exercise_id = result.get("exerciseId")
             area = exercise_to_area_map.get(exercise_id)
+
+            print("Area:",area)
+
             if area and area in remaining_areas:
                 completed_areas.append(area)
                 remaining_areas.remove(area)
-        
+
+        print("Completed Areas:", completed_areas)
+        print("Remaining Areas", remaining_areas)
+
         # Calculate current average score
         scores = [result.get("score", 0) for result in exercise_results if result.get("score") is not None]
         current_average = sum(scores) / len(scores) if scores else 0.0

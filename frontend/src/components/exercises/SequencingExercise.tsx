@@ -8,9 +8,10 @@ interface SequencingExerciseProps {
   onComplete: (result: any) => void;
   mood: string;
   userPreferences: any;
+  exerciseId?: string;
 }
 
-const SequencingExercise = ({ onComplete, mood, userPreferences }: SequencingExerciseProps) => {
+const SequencingExercise = ({ onComplete, mood, userPreferences, exerciseId }: SequencingExerciseProps) => {
   const [phase, setPhase] = useState<'instructions' | 'playing' | 'feedback'>('instructions');
   const [currentTask, setCurrentTask] = useState(0);
   const [userSequence, setUserSequence] = useState<string[]>([]);
@@ -228,7 +229,7 @@ const SequencingExercise = ({ onComplete, mood, userPreferences }: SequencingExe
     
     setTimeout(() => {
       const result = {
-        exerciseId: 'sequencing',
+        exerciseId: exerciseId || 'sequencing',
         score: roundedScore,
         timeSpent: Math.round((Date.now() - startTime) / 1000),
         tasksCompleted: tasks.length,

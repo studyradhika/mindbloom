@@ -51,10 +51,9 @@ async def get_todays_performance(
         start_of_day = datetime.combine(today, datetime.min.time())
         end_of_day = datetime.combine(today, datetime.max.time())
         
-        # Find today's completed training sessions
+        # Find today's training sessions (completed or with exercise data)
         cursor = db.training_sessions.find({
             "userId": current_user.id,
-            "isComplete": True,
             "createdAt": {
                 "$gte": start_of_day,
                 "$lte": end_of_day
@@ -63,7 +62,9 @@ async def get_todays_performance(
         
         sessions = []
         async for session in cursor:
-            sessions.append(session)
+            # Include sessions that are either complete OR have exercise results
+            if session.get("isComplete", False) or session.get("exerciseResults", []):
+                sessions.append(session)
         
         if not sessions:
             return {
@@ -74,7 +75,7 @@ async def get_todays_performance(
         # Aggregate today's session data
         total_exercises = 0
         focus_area_exercises = {}
-        total_score = 0
+        all_exercise_scores = []
         total_time = 0
         mood = None
         
@@ -86,7 +87,10 @@ async def get_todays_performance(
             # Get the focus areas that were selected for this session
             session_focus_areas = session.get("focusAreas", ["general"])
             exercise_results = session.get("exerciseResults", [])
-            session_score = session.get("averageScore", 0)
+            
+            # Skip sessions with no exercise results
+            if not exercise_results:
+                continue
             
             # Distribute exercises across the selected focus areas
             exercises_per_area = len(exercise_results) // len(session_focus_areas) if session_focus_areas else len(exercise_results)
@@ -94,6 +98,31 @@ async def get_todays_performance(
             for i, result in enumerate(exercise_results):
                 total_exercises += 1
                 total_time += result.get("timeSpent", 0)
+                
+                # Get the exercise score and normalize it to percentage with robust None handling
+                raw_score = result.get("score", 0)
+                
+                # Robust score handling
+                if raw_score is None:
+                    exercise_score = 0.0
+                elif isinstance(raw_score, str):
+                    try:
+                        exercise_score = float(raw_score)
+                    except (ValueError, TypeError):
+                        exercise_score = 0.0
+                elif isinstance(raw_score, (int, float)):
+                    # Check for NaN
+                    if isinstance(raw_score, float) and (raw_score != raw_score):
+                        exercise_score = 0.0
+                    else:
+                        exercise_score = float(raw_score)
+                        # Handle both percentage (0-100) and decimal (0-1) formats
+                        if exercise_score <= 1.0:
+                            exercise_score = exercise_score * 100
+                else:
+                    exercise_score = 0.0
+                
+                all_exercise_scores.append(exercise_score)
                 
                 # Assign exercise to focus area based on session's selected focus areas
                 # Distribute exercises evenly across selected focus areas
@@ -110,23 +139,29 @@ async def get_todays_performance(
                 
                 focus_area_exercises[focus_area]["exercises"].append({
                     "type": result.get("exerciseType", "unknown"),
-                    "score": result.get("score", 0),
+                    "score": exercise_score,
                     "timeSpent": result.get("timeSpent", 0)
                 })
-                focus_area_exercises[focus_area]["total_score"] += result.get("score", 0)
+                focus_area_exercises[focus_area]["total_score"] += exercise_score
                 focus_area_exercises[focus_area]["count"] += 1
-            
-            total_score += session_score
         
-        # Calculate averages
-        average_session_score = total_score / len(sessions) if sessions else 0
+        # Calculate overall average from all exercise scores
+        average_session_score = sum(all_exercise_scores) / len(all_exercise_scores) if all_exercise_scores else 0
         
-        # Format focus area data
+        # Format focus area data with robust division handling
         areas = {}
         for focus_area, data in focus_area_exercises.items():
-            average_score = data["total_score"] / data["count"] if data["count"] > 0 else 0
+            # Robust division to prevent NoneType errors
+            try:
+                if data["count"] > 0 and data["total_score"] is not None:
+                    average_score = data["total_score"] / data["count"]
+                else:
+                    average_score = 0.0
+            except (TypeError, ZeroDivisionError):
+                average_score = 0.0
+            
             areas[focus_area] = {
-                "scores": [ex["score"] for ex in data["exercises"]],
+                "scores": [ex["score"] for ex in data["exercises"] if ex["score"] is not None],
                 "average": round(average_score),
                 "count": data["count"]
             }

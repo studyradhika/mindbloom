@@ -14,6 +14,7 @@ interface VisualPerceptionExerciseProps {
     totalTargets: number;
   }) => void;
   difficulty: string;
+  exerciseId?: string;
 }
 
 interface Target {
@@ -28,7 +29,8 @@ interface Target {
 
 const VisualPerceptionExercise: React.FC<VisualPerceptionExerciseProps> = ({
   onComplete,
-  difficulty
+  difficulty,
+  exerciseId
 }) => {
   const [phase, setPhase] = useState<'instructions' | 'exercise' | 'complete'>('instructions');
   const [targets, setTargets] = useState<Target[]>([]);
@@ -180,7 +182,7 @@ const VisualPerceptionExercise: React.FC<VisualPerceptionExerciseProps> = ({
     console.log('   Time spent:', totalTime, 'seconds');
 
     onComplete({
-      exerciseId: 'visual_perception',
+      exerciseId: exerciseId || 'visual_perception',
       score: score, // Already in decimal format (0-1)
       timeSpent: totalTime,
       difficulty,

@@ -8,11 +8,12 @@ interface MemoryExerciseProps {
   onComplete: (result: any) => void;
   mood: string;
   userPreferences: any;
+  exerciseId?: string; // Add optional exerciseId prop
 }
 
 type ExerciseType = 'numbers' | 'shapes' | 'words' | 'patterns';
 
-const MemoryExercise = ({ onComplete, mood, userPreferences }: MemoryExerciseProps) => {
+const MemoryExercise = ({ onComplete, mood, userPreferences, exerciseId = 'memory_sequence' }: MemoryExerciseProps) => {
   const [phase, setPhase] = useState<'instructions' | 'memorize' | 'recall' | 'feedback'>('instructions');
   const [exerciseType, setExerciseType] = useState<ExerciseType>('numbers');
   const [sequence, setSequence] = useState<any[]>([]);
@@ -178,7 +179,7 @@ const MemoryExercise = ({ onComplete, mood, userPreferences }: MemoryExercisePro
     
     setTimeout(() => {
       const result = {
-        exerciseId: 'memory_sequence',
+        exerciseId: exerciseId, // Use dynamic exercise ID
         score: percentage / 100, // Convert to decimal for backend
         timeSpent: Math.round((Date.now() - startTime) / 1000),
         difficulty: userPreferences.difficulty,
@@ -190,6 +191,7 @@ const MemoryExercise = ({ onComplete, mood, userPreferences }: MemoryExercisePro
       };
       
       console.log('🚀 SENDING RESULT TO BACKEND:', result);
+      console.log('🔧 DYNAMIC EXERCISE ID:', exerciseId);
       onComplete(result);
     }, 3000);
   };

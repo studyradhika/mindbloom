@@ -8,9 +8,10 @@ interface MindfulMemoryExerciseProps {
   onComplete: (result: any) => void;
   mood: string;
   userPreferences: any;
+  exerciseId?: string;
 }
 
-const MindfulMemoryExercise = ({ onComplete, mood, userPreferences }: MindfulMemoryExerciseProps) => {
+const MindfulMemoryExercise = ({ onComplete, mood, userPreferences, exerciseId }: MindfulMemoryExerciseProps) => {
   const [phase, setPhase] = useState<'instructions' | 'breathing' | 'memory' | 'integration' | 'feedback'>('instructions');
   const [breathingActive, setBreathingActive] = useState(false);
   const [breathingCycle, setBreathingCycle] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
@@ -115,7 +116,7 @@ const MindfulMemoryExercise = ({ onComplete, mood, userPreferences }: MindfulMem
     
     setTimeout(() => {
       const result = {
-        exerciseId: 'mindful-memory',
+        exerciseId: exerciseId || 'mindful-memory',
         score: finalScore,
         timeSpent: Math.round((Date.now() - startTime) / 1000),
         memoryAccuracy: accuracy,

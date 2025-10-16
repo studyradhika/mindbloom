@@ -8,9 +8,10 @@ interface ConversationExerciseProps {
   onComplete: (result: any) => void;
   mood: string;
   userPreferences: any;
+  exerciseId?: string;
 }
 
-const ConversationExercise = ({ onComplete, mood, userPreferences }: ConversationExerciseProps) => {
+const ConversationExercise = ({ onComplete, mood, userPreferences, exerciseId }: ConversationExerciseProps) => {
   const [phase, setPhase] = useState<'instructions' | 'scenario' | 'conversation' | 'feedback'>('instructions');
   const [currentScenario, setCurrentScenario] = useState(0);
   const [conversationStep, setConversationStep] = useState(0);
@@ -255,7 +256,7 @@ const ConversationExercise = ({ onComplete, mood, userPreferences }: Conversatio
     
     setTimeout(() => {
       const result = {
-        exerciseId: 'conversation',
+        exerciseId: exerciseId || 'conversation',
         score: averageScore,
         timeSpent: Math.round((Date.now() - startTime) / 1000),
         scenariosCompleted: scenarios.length,

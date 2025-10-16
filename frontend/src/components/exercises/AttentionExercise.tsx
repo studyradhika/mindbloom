@@ -8,9 +8,10 @@ interface AttentionExerciseProps {
   onComplete: (result: any) => void;
   mood: string;
   userPreferences: any;
+  exerciseId?: string; // Add optional exerciseId prop
 }
 
-const AttentionExercise = ({ onComplete, mood, userPreferences }: AttentionExerciseProps) => {
+const AttentionExercise = ({ onComplete, mood, userPreferences, exerciseId = 'attention' }: AttentionExerciseProps) => {
   const [phase, setPhase] = useState<'instructions' | 'playing' | 'feedback'>('instructions');
   const [targets, setTargets] = useState<any[]>([]);
   const [score, setScore] = useState(0);
@@ -156,8 +157,8 @@ const AttentionExercise = ({ onComplete, mood, userPreferences }: AttentionExerc
         
         setTimeout(() => {
           const result = {
-            exerciseId: 'attention',
-            score: finalScore,
+            exerciseId: exerciseId, // Use dynamic exercise ID
+            score: finalScore / 100, // Convert to decimal for backend consistency
             timeSpent: Math.round((Date.now() - startTime) / 1000),
             correctClicks: currentCorrectClicks,
             totalClicks: currentTotalClicks,
@@ -165,6 +166,13 @@ const AttentionExercise = ({ onComplete, mood, userPreferences }: AttentionExerc
             completionRate,
             originalTargetCount
           };
+          
+          console.log('🎯 ATTENTION EXERCISE RESULT:');
+          console.log('   Dynamic Exercise ID:', exerciseId);
+          console.log('   Final Score (percentage):', finalScore);
+          console.log('   Score sent to backend (decimal):', finalScore / 100);
+          console.log('   Result object:', result);
+          
           onComplete(result);
         }, 3000);
         

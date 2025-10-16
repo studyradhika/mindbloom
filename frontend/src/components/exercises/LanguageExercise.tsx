@@ -9,9 +9,10 @@ interface LanguageExerciseProps {
   onComplete: (result: any) => void;
   mood: string;
   userPreferences: any;
+  exerciseId?: string;
 }
 
-const LanguageExercise = ({ onComplete, mood, userPreferences }: LanguageExerciseProps) => {
+const LanguageExercise = ({ onComplete, mood, userPreferences, exerciseId }: LanguageExerciseProps) => {
   const [phase, setPhase] = useState<'instructions' | 'playing' | 'feedback'>('instructions');
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
@@ -164,7 +165,7 @@ const LanguageExercise = ({ onComplete, mood, userPreferences }: LanguageExercis
     
     setTimeout(() => {
       const result = {
-        exerciseId: 'language',
+        exerciseId: exerciseId || 'language',
         score: percentage,
         timeSpent: Math.round((Date.now() - startTime) / 1000),
         correct,

@@ -130,7 +130,9 @@ export class TrainingSessionManager {
     // Add result to session
     this.session.exerciseResults.push(result);
     this.session.activitiesCompleted++;
-    
+
+    console.log("Result:",result)
+
     // Mark area as completed if the activity was successful
     if (!result.skipped && result.score !== undefined) {
       const activity = this.availableActivities.find(a => a.id === result.exerciseId);

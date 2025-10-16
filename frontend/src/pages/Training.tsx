@@ -37,122 +37,7 @@ const Training = () => {
   const [loading, setLoading] = useState(true);
   const [todaysCompletedAreas, setTodaysCompletedAreas] = useState<string[]>([]);
 
-  // Exercise mapping with adaptive difficulty
-  const getExerciseSet = () => {
-    if (!userData || todaysFocusAreas.length === 0) return [];
-    
-    // Use adaptive exercise selection
-    const selectedExerciseIds = selectExercises(todaysFocusAreas, userData, todaysMood);
-    
-    const exerciseComponents: { [key: string]: any } = {
-      memory: {
-        id: 'memory',
-        title: 'Memory Challenge',
-        description: 'Remember and recall sequences',
-        component: MemoryExercise,
-        area: 'Memory',
-        areaId: 'memory'
-      },
-      'mindful-memory': {
-        id: 'mindful-memory',
-        title: 'Mindful Memory',
-        description: 'Memory training with guided breathing',
-        component: MindfulMemoryExercise,
-        area: 'Memory & Mindfulness',
-        areaId: 'memory'
-      },
-      'visual-recall': { // New exercise component
-        id: 'visual-recall',
-        title: 'Visual Recall',
-        description: 'Memorize and recall visual patterns',
-        component: VisualRecallExercise,
-        area: 'Memory & Visual',
-        areaId: 'memory' // This is primarily a memory exercise
-      },
-      attention: {
-        id: 'attention',
-        title: 'Attention Training',
-        description: 'Selective attention and concentration',
-        component: AttentionExercise,
-        area: 'Attention',
-        areaId: 'attention'
-      },
-      'pattern-recognition': {
-        id: 'pattern-recognition',
-        title: 'Pattern Recognition',
-        description: 'Identify and match visual patterns',
-        component: AttentionExercise, // Reusing AttentionExercise for now
-        area: 'Attention & Perception',
-        areaId: 'attention'
-      },
-      'rapid-matching': {
-        id: 'rapid-matching',
-        title: 'Rapid Matching',
-        description: 'Quickly match symbols or items',
-        component: AttentionExercise, // Reusing AttentionExercise for now
-        area: 'Processing Speed',
-        areaId: 'processing'
-      },
-      language: {
-        id: 'language',
-        title: 'Word Skills',
-        description: 'Language and verbal reasoning',
-        component: LanguageExercise,
-        area: 'Language',
-        areaId: 'language'
-      },
-      conversation: {
-        id: 'conversation',
-        title: 'Social Skills',
-        description: 'Real-world conversation practice',
-        component: ConversationExercise,
-        area: 'Language & Communication',
-        areaId: 'language'
-      },
-      'word-association': {
-        id: 'word-association',
-        title: 'Word Association',
-        description: 'Connect words based on meaning',
-        component: LanguageExercise, // Reusing LanguageExercise for now
-        area: 'Language',
-        areaId: 'language'
-      },
-      sequencing: {
-        id: 'sequencing',
-        title: 'Task Sequencing',
-        description: 'Organize everyday activities in order',
-        component: SequencingExercise,
-        area: 'Executive Function',
-        areaId: 'executive'
-      },
-      'logic-puzzle': {
-        id: 'logic-puzzle',
-        title: 'Logic Puzzle',
-        description: 'Solve logical problems and deductions',
-        component: SequencingExercise, // Reusing SequencingExercise for now
-        area: 'Executive Function',
-        areaId: 'executive'
-      },
-      'story-creation': {
-        id: 'story-creation',
-        title: 'Story Creation',
-        description: 'Develop imaginative narratives',
-        component: ConversationExercise, // Use ConversationExercise for story creation
-        area: 'Creativity',
-        areaId: 'creativity'
-      },
-      'spatial-puzzle': {
-        id: 'spatial-puzzle',
-        title: 'Spatial Puzzle',
-        description: 'Arrange shapes or objects in space',
-        component: VisualRecallExercise, // VisualRecallExercise is appropriate for spatial reasoning
-        area: 'Spatial Reasoning',
-        areaId: 'spatial'
-      }
-    };
-
-    return selectedExerciseIds.map(id => exerciseComponents[id]).filter(Boolean);
-  };
+  // REMOVED: getExerciseSet() function - now using backend exercises only
 
   // Function to convert backend exercise data to frontend format
   const convertBackendExercisesToFrontend = (backendExercises: any[]) => {
@@ -223,7 +108,7 @@ const Training = () => {
       },
       // Processing exercises
       'speed_processing': {
-        component: MemoryExercise, // Use MemoryExercise for speed processing (timed recall tasks)
+        component: AttentionExercise, // Use AttentionExercise for speed processing (timed attention tasks)
         area: 'Processing Speed',
         areaId: 'processing'
       },
@@ -323,6 +208,8 @@ const Training = () => {
       }
     };
 
+    console.log("backendEx", backendExercises)
+
     return backendExercises.map(backendEx => {
       const mapping = exerciseComponentMap[backendEx.id];
       if (!mapping) {
@@ -404,10 +291,9 @@ const Training = () => {
           console.log('🏃‍♂️ Training: Converted exercises:', frontendExercises);
           setExercises(frontendExercises);
         } else {
-          // Fallback to local exercise generation if backend doesn't return exercises
-          console.log('🏃‍♂️ Training: No exercises from backend, using local generation');
-          const localExercises = getExerciseSet();
-          setExercises(localExercises);
+          // No fallback - backend should always provide exercises
+          console.error('🏃‍♂️ Training: No exercises from backend - this should not happen');
+          setExercises([]);
         }
       } catch (error) {
         console.error('Error initializing training session:', error);
@@ -420,11 +306,7 @@ const Training = () => {
     initializeSession();
   }, [navigate]);
 
-  useEffect(() => {
-    if (userData && todaysFocusAreas.length > 0) {
-      setExercises(getExerciseSet());
-    }
-  }, [userData, todaysFocusAreas, todaysMood]);
+  // REMOVED: useEffect that called getExerciseSet() - now using backend exercises only
 
   const handleExerciseComplete = async (result: ExerciseResult) => {
     if (!sessionManager) {
@@ -471,7 +353,9 @@ const Training = () => {
 
     // Use session manager to determine next action
     const sessionResult = sessionManager.onActivityCompleted(enhancedResult);
-    
+
+    console.log("Session:Enhanced Result", sessionManager, enhancedResult)
+
     if (sessionResult.shouldComplete && sessionResult.completionData) {
       completeSessionWithData(sessionResult.completionData, newResults);
     } else if (sessionResult.shouldPromptContinue) {
@@ -754,7 +638,8 @@ const Training = () => {
         area: ex.area,
         areaId: ex.areaId
       }));
-
+console.log("Available Activities", availableActivities)
+    
       const manager = new TrainingSessionManager(
         availableActivities,
         undefined,
@@ -959,6 +844,7 @@ const Training = () => {
           key={`${currentExerciseData.id}-${currentExercise}-${Date.now()}`}
           onComplete={handleExerciseComplete}
           mood={todaysMood}
+          exerciseId={currentExerciseData.id} // Pass the dynamic exercise ID
           userPreferences={{
             ...userData,
             difficulty: calculateDifficulty(currentExerciseData.id, userData) // Pass calculated difficulty

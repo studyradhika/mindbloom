@@ -19,15 +19,17 @@ async def get_progress_analytics(user_id: str, db: AsyncIOMotorDatabase) -> Prog
         ProgressSummary: Compiled analytics data
     """
     
-    # Fetch all completed training sessions for the user
+    # Fetch all training sessions for the user that have exercise data
+    # Include both completed sessions AND sessions with exercise results (handles incomplete sessions)
     cursor = db.training_sessions.find({
-        "userId": user_id,
-        "isComplete": True
+        "userId": user_id
     }).sort("createdAt", 1)  # Sort by creation date ascending
     
     sessions = []
     async for session in cursor:
-        sessions.append(session)
+        # Include sessions that are either complete OR have exercise results
+        if session.get("isComplete", False) or session.get("exerciseResults", []):
+            sessions.append(session)
     
     if not sessions:
         # Return empty analytics if no sessions found
@@ -45,9 +47,14 @@ async def get_progress_analytics(user_id: str, db: AsyncIOMotorDatabase) -> Prog
             generated_at=datetime.utcnow()
         )
     
-    # Calculate basic statistics
+    # Calculate basic statistics with robust None handling
     total_sessions = len(sessions)
-    all_scores = [session.get("averageScore", 0.0) for session in sessions if session.get("averageScore") is not None]
+    all_scores = []
+    for session in sessions:
+        avg_score = session.get("averageScore")
+        if avg_score is not None and isinstance(avg_score, (int, float)) and not (isinstance(avg_score, float) and (avg_score != avg_score)):  # Check for NaN
+            all_scores.append(float(avg_score))
+    
     overall_average_score = statistics.mean(all_scores) if all_scores else 0.0
     best_session_score = max(all_scores) if all_scores else 0.0
     
@@ -109,11 +116,13 @@ async def _calculate_focus_area_analytics(sessions: List[Dict[str, Any]], db: As
         'sentence_completion': 'language',
         'verbal_fluency': 'language',
         'reading_comprehension': 'language',
+        'conversation': 'language',  # Conversation exercise
         # Executive exercises
         'planning_task': 'executive',
         'cognitive_flexibility': 'executive',
         'inhibition_control': 'executive',
         'task_switching': 'executive',
+        'sequencing': 'executive',  # Sequencing exercise
         # Processing Speed exercises
         'speed_processing': 'processing',
         'rapid_naming': 'processing',
@@ -146,38 +155,106 @@ async def _calculate_focus_area_analytics(sessions: List[Dict[str, Any]], db: As
     for session in sessions:
         session_date = session.get("createdAt")
         exercise_results = session.get("exerciseResults", [])
+        session_focus_areas = session.get("focusAreas", [])
         
-        if not exercise_results:
-            # Fallback to session average if no individual results
-            focus_areas = session.get("focusAreas", [])
+        if not exercise_results or not session_focus_areas:
+            # Fallback to session average if no individual results or focus areas
             session_score = session.get("averageScore", 0.0)
-            for area in focus_areas:
+            for area in session_focus_areas:
                 focus_area_data[area].append({
                     "score": session_score,
                     "date": session_date
                 })
             continue
         
-        # Calculate scores per focus area based on exercises
-        area_scores = defaultdict(list)
+        # Map exercises to focus areas and calculate area-specific scores
+        # This gives more accurate representation of performance per focus area
+        area_exercise_scores = defaultdict(list)
         
+        # Map each exercise to its corresponding focus area based on exercise type
+        for result in exercise_results:
+            exercise_id = result.get("exerciseId", "")
+            raw_score = result.get("score", 0.0)
+            
+            # Robust score handling - ensure we have a valid numeric value
+            if raw_score is None:
+                exercise_score = 0.0
+            elif isinstance(raw_score, str):
+                try:
+                    exercise_score = float(raw_score)
+                except (ValueError, TypeError):
+                    exercise_score = 0.0
+            elif isinstance(raw_score, (int, float)):
+                # Check for NaN
+                if isinstance(raw_score, float) and (raw_score != raw_score):
+                    exercise_score = 0.0
+                else:
+                    exercise_score = float(raw_score)
+            else:
+                exercise_score = 0.0
+            
+            # Map specific exercises to focus areas
+            focus_area = None
+            if exercise_id in ['memory_sequence', 'word_pairs', 'visual_recall', 'working_memory']:
+                focus_area = 'memory'
+            elif exercise_id in ['conversation', 'word_finding', 'sentence_completion', 'verbal_fluency', 'reading_comprehension']:
+                # Conversation can map to either language or creativity depending on session focus areas
+                if 'creativity' in session_focus_areas:
+                    focus_area = 'creativity'
+                elif 'language' in session_focus_areas:
+                    focus_area = 'language'
+            elif exercise_id in ['sequencing', 'planning_task', 'cognitive_flexibility', 'inhibition_control', 'task_switching']:
+                focus_area = 'executive'
+            elif exercise_id in ['attention', 'divided_attention', 'sustained_attention', 'selective_attention']:
+                focus_area = 'attention'
+            elif exercise_id in ['speed_processing', 'rapid_naming', 'symbol_coding']:
+                focus_area = 'processing'
+            elif exercise_id in ['creative_thinking', 'divergent_thinking', 'idea_generation', 'creative_problem_solving', 'alternative_uses', 'musical_creativity', 'story_creation']:
+                focus_area = 'creativity'
+            elif exercise_id in ['spatial_rotation', 'mental_rotation', 'spatial_navigation', 'block_design']:
+                focus_area = 'spatial'
+            elif exercise_id in ['focused_attention', 'pattern_recognition', 'visual_perception']:
+                focus_area = 'perception'
+            
+            # If we can map the exercise to a focus area, use that mapping
+            if focus_area and focus_area in session_focus_areas:
+                area_exercise_scores[focus_area].append(exercise_score)
+        
+        # For focus areas that have specific exercise scores, use those
+        # For focus areas without specific exercises, distribute remaining exercises
+        remaining_exercises = []
         for result in exercise_results:
             exercise_id = result.get("exerciseId", "")
             exercise_score = result.get("score", 0.0)
             
-            # Map exercise to focus area
-            focus_area = exercise_to_area_map.get(exercise_id)
-            if focus_area:
-                area_scores[focus_area].append(exercise_score)
+            # Check if this exercise was already mapped
+            mapped = False
+            for area in area_exercise_scores:
+                if any(ex_id in ['memory_sequence', 'word_pairs', 'visual_recall', 'working_memory'] and area == 'memory' for ex_id in [exercise_id]) or \
+                   any(ex_id in ['conversation', 'word_finding', 'sentence_completion', 'verbal_fluency', 'reading_comprehension'] and area == 'language' for ex_id in [exercise_id]) or \
+                   any(ex_id in ['sequencing', 'planning_task', 'cognitive_flexibility', 'inhibition_control', 'task_switching'] and area == 'executive' for ex_id in [exercise_id]):
+                    mapped = True
+                    break
+            
+            if not mapped:
+                remaining_exercises.append(exercise_score)
         
-        # Calculate average score for each focus area in this session
-        for area, scores in area_scores.items():
-            if scores:
-                area_average = sum(scores) / len(scores)
-                focus_area_data[area].append({
-                    "score": area_average,
-                    "date": session_date
-                })
+        # Calculate scores for each focus area
+        for focus_area in session_focus_areas:
+            if focus_area in area_exercise_scores and area_exercise_scores[focus_area]:
+                # Use the specific exercise scores for this focus area
+                area_score = sum(area_exercise_scores[focus_area]) / len(area_exercise_scores[focus_area])
+            else:
+                # Use average of remaining exercises or session average
+                if remaining_exercises:
+                    area_score = sum(remaining_exercises) / len(remaining_exercises)
+                else:
+                    area_score = session.get("averageScore", 0.0)
+            
+            focus_area_data[focus_area].append({
+                "score": area_score,
+                "date": session_date
+            })
     
     analytics = []
     
@@ -185,11 +262,19 @@ async def _calculate_focus_area_analytics(sessions: List[Dict[str, Any]], db: As
         if not area_sessions:
             continue
             
-        scores = [s["score"] for s in area_sessions]
+        # Robust score extraction with None handling
+        scores = []
+        for s in area_sessions:
+            score = s.get("score", 0.0)
+            if score is not None and isinstance(score, (int, float)) and not (isinstance(score, float) and (score != score)):
+                scores.append(float(score))
+            else:
+                scores.append(0.0)
+        
         sessions_count = len(area_sessions)
-        average_score = statistics.mean(scores)
-        best_score = max(scores)
-        current_score = area_sessions[-1]["score"]  # Most recent score
+        average_score = statistics.mean(scores) if scores else 0.0
+        best_score = max(scores) if scores else 0.0
+        current_score = scores[-1] if scores else 0.0  # Most recent score
         
         # Calculate improvement status
         if sessions_count >= 3:
@@ -206,7 +291,16 @@ async def _calculate_focus_area_analytics(sessions: List[Dict[str, Any]], db: As
             else:
                 improvement_status = "stable"
         else:
-            improvement_status = "stable"
+            # For new users (1-2 sessions), base status on performance level
+            # This provides more encouraging feedback for first-time users
+            if current_score >= 80.0:  # Excellent performance
+                improvement_status = "improving"
+            elif current_score >= 70.0:  # Good performance
+                improvement_status = "improving"
+            elif current_score >= 60.0:  # Decent performance
+                improvement_status = "stable"
+            else:  # Below 60% - needs work
+                improvement_status = "declining"
         
         # Create trend data (last 10 sessions for this area)
         trend_data = []
@@ -271,10 +365,35 @@ def _analyze_performance_patterns(focus_areas_analytics: List[FocusAreaAnalytics
     strengths = []
     
     for analytics in focus_areas_analytics:
-        # Normalize scores to handle both percentage (0-100) and decimal (0.0-1.0) formats
-        # If score is > 1.0, assume it's a percentage and convert to decimal
-        current_score = analytics.current_score / 100.0 if analytics.current_score > 1.0 else analytics.current_score
-        average_score = analytics.average_score / 100.0 if analytics.average_score > 1.0 else analytics.average_score
+        # Robust score normalization with comprehensive None handling
+        try:
+            # Handle current_score
+            if analytics.current_score is None:
+                current_score = 0.0
+            elif isinstance(analytics.current_score, (int, float)):
+                if isinstance(analytics.current_score, float) and (analytics.current_score != analytics.current_score):  # NaN check
+                    current_score = 0.0
+                else:
+                    current_score = analytics.current_score / 100.0 if analytics.current_score > 1.0 else analytics.current_score
+            else:
+                current_score = 0.0
+            
+            # Handle average_score
+            if analytics.average_score is None:
+                average_score = 0.0
+            elif isinstance(analytics.average_score, (int, float)):
+                if isinstance(analytics.average_score, float) and (analytics.average_score != analytics.average_score):  # NaN check
+                    average_score = 0.0
+                else:
+                    average_score = analytics.average_score / 100.0 if analytics.average_score > 1.0 else analytics.average_score
+            else:
+                average_score = 0.0
+                
+        except (TypeError, ZeroDivisionError, ValueError) as e:
+            # Fallback to safe defaults if any calculation fails
+            print(f"Warning: Score normalization error for {analytics.area_name}: {e}")
+            current_score = 0.0
+            average_score = 0.0
         
         # Prioritize high performance - if current or average score is high, it's a strength
         is_high_performer = (current_score >= 0.8 or average_score >= 0.75)

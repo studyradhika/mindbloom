@@ -41,3 +41,5 @@ test_date_fix.js
 # OS
 .DS_Store
 Thumbs.db
+config.bat
+node_modules

@@ -158,7 +158,7 @@ const AttentionExercise = ({ onComplete, mood, userPreferences, exerciseId = 'at
         setTimeout(() => {
           const result = {
             exerciseId: exerciseId, // Use dynamic exercise ID
-            score: finalScore / 100, // Convert to decimal for backend consistency
+            score: finalScore, // Convert to decimal for backend consistency
             timeSpent: Math.round((Date.now() - startTime) / 1000),
             correctClicks: currentCorrectClicks,
             totalClicks: currentTotalClicks,

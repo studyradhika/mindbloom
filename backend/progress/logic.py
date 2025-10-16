@@ -24,7 +24,6 @@ async def get_progress_analytics(user_id: str, db: AsyncIOMotorDatabase) -> Prog
     cursor = db.training_sessions.find({
         "userId": user_id
     }).sort("createdAt", 1)  # Sort by creation date ascending
-    
     sessions = []
     async for session in cursor:
         # Include sessions that are either complete OR have exercise results
@@ -77,7 +76,7 @@ async def get_progress_analytics(user_id: str, db: AsyncIOMotorDatabase) -> Prog
     
     # Determine improvement areas and strengths
     improvement_areas, strengths = _analyze_performance_patterns(focus_areas_analytics)
-    
+
     return ProgressSummary(
         user_id=user_id,
         total_sessions=total_sessions,

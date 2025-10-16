@@ -1,4 +1,5 @@
 import os
+import certifi
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -35,7 +36,7 @@ async def startup_db_client():
     global client, db
     mongodb_uri = os.getenv("MONGODB_URI")
     if mongodb_uri:
-        client = AsyncIOMotorClient(mongodb_uri)
+        client = AsyncIOMotorClient(mongodb_uri, tlsCAFile=certifi.where())
         db = client.mindbloom  # Database name
 
 @app.on_event("shutdown")

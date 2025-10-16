@@ -132,7 +132,7 @@ const VisualRecallExercise = ({ onComplete, mood, userPreferences, exerciseId = 
     setTimeout(() => {
       const result = {
         exerciseId: exerciseId, // Use dynamic exercise ID
-        score: finalScore / 100, // 🔧 FIX: Convert percentage to decimal for backend
+        score: finalScore, // 🔧 FIX: Convert percentage to decimal for backend
         timeSpent: Math.round((Date.now() - startTime) / 1000),
         correctRecalls: correctCount,
         totalHighlights: highlightedCells.length,
